@@ -58,6 +58,11 @@ const memberNavigation: NavigationItem[] = [
     icon: FileText,
   },
   {
+    title: "Manifestations Scientifiques",
+    href: "/manifestations-scientifiques",
+    icon: Calendar,
+  },
+  {
     title: "Distinctions & Prix",
     href: "/distinctions-prix",
     icon: Award,
@@ -111,6 +116,24 @@ const poleRechercheNavigation: NavigationItem[] = [
   },
 ]
 
+const divisionRechercheNavigation: NavigationItem[] = [
+  {
+    title: "Tableau de bord",
+    href: "/dashboard-division-recherche",
+    icon: BarChart3,
+  },
+  {
+    title: "Projets Retenus",
+    href: "/dashboard-division-recherche/projets-retenus",
+    icon: CheckSquare,
+  },
+  {
+    title: "Conventions",
+    href: "/dashboard-division-recherche/conventions",
+    icon: FileText,
+  },
+]
+
 const memberDashboardNavigation: NavigationItem[] = [
   {
     title: "Tableau de bord",
@@ -133,6 +156,11 @@ const memberDashboardNavigation: NavigationItem[] = [
     icon: FileText,
   },
   {
+    title: "Manifestations Scientifiques",
+    href: "/manifestations-scientifiques",
+    icon: Calendar,
+  },
+  {
     title: "Distinctions & Prix",
     href: "/distinctions-prix",
     icon: Award,
@@ -153,6 +181,9 @@ export function Sidebar() {
     }
     if (pathname.startsWith("/dashboard-polerecherche")) {
       return poleRechercheNavigation
+    }
+    if (pathname.startsWith("/dashboard-division-recherche")) {
+      return divisionRechercheNavigation
     }
     if (pathname.startsWith("/dashboard-member")) {
       return memberDashboardNavigation

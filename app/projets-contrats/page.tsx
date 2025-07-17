@@ -31,10 +31,10 @@ interface ProjetContrat {
   organismeContractant: string
   codeReference: string
   anneeDebut: number
+  anneeFin: number
   organismesPartenaires: string
-  budgetPremiereTranche: number
-  budgetDeuxiemeTranche: number
-  budgetTroisiemeTranche: number
+  budgetTotal: number
+  tranches: Array<{ id: string, montant: number, description: string }>
   nombreDoctorants: number
   bourse: number
   mobilite: number
@@ -43,6 +43,9 @@ interface ProjetContrat {
   lien?: string
   justificatifs?: string
   membres?: string[]
+  programme?: string
+  typologie?: string
+  sousProgramme?: string
 }
 
 export default function ProjetsContrats() {
@@ -57,10 +60,12 @@ export default function ProjetsContrats() {
       organismeContractant: "Ministère de la Santé",
       codeReference: "MS-IA-2024-001",
       anneeDebut: 2024,
+      anneeFin: 2025,
       organismesPartenaires: "CHU Hassan II, ENSA Casablanca",
-      budgetPremiereTranche: 200000,
-      budgetDeuxiemeTranche: 200000,
-      budgetTroisiemeTranche: 100000,
+      budgetTotal: 200000,
+      tranches: [
+        { id: "tranche1", montant: 200000, description: "Première tranche" }
+      ],
       nombreDoctorants: 3,
       bourse: 2,
       mobilite: 1,
@@ -75,10 +80,12 @@ export default function ProjetsContrats() {
       organismeContractant: "Union Européenne",
       codeReference: "EU-CYBER-2023-H2020",
       anneeDebut: 2023,
+      anneeFin: 2024,
       organismesPartenaires: "Université de Paris, TU Munich",
-      budgetPremiereTranche: 400000,
-      budgetDeuxiemeTranche: 500000,
-      budgetTroisiemeTranche: 300000,
+      budgetTotal: 400000,
+      tranches: [
+        { id: "tranche1", montant: 400000, description: "Première tranche" }
+      ],
       nombreDoctorants: 5,
       bourse: 3,
       mobilite: 2,
@@ -107,7 +114,8 @@ export default function ProjetsContrats() {
     thematique: false,
     organismeContractant: false,
     codeReference: false,
-    organismesPartenaires: false
+    organismesPartenaires: false,
+    budgetTotal: false
   })
 
   const [newProjet, setNewProjet] = useState<Partial<ProjetContrat>>({
@@ -119,10 +127,10 @@ export default function ProjetsContrats() {
     organismeContractant: "",
     codeReference: "",
     anneeDebut: new Date().getFullYear(),
+    anneeFin: new Date().getFullYear() + 1,
     organismesPartenaires: "",
-    budgetPremiereTranche: 0,
-    budgetDeuxiemeTranche: 0,
-    budgetTroisiemeTranche: 0,
+    budgetTotal: 0,
+    tranches: [],
     nombreDoctorants: 0,
     bourse: 0,
     mobilite: 0,
@@ -131,7 +139,12 @@ export default function ProjetsContrats() {
     lien: "",
     justificatifs: "",
     membres: [],
+    programme: "",
+    typologie: "",
+    sousProgramme: "",
   })
+
+  const [trancheCounter, setTrancheCounter] = useState(1)
 
   // Filter logic
   const applyFilters = () => {
@@ -167,6 +180,39 @@ export default function ProjetsContrats() {
     applyFilters()
   }, [searchTerm, filterType, filterAnnee])
 
+  const handleAddTranche = () => {
+    const newTranche = {
+      id: `tranche-${trancheCounter}`,
+      montant: 0,
+      description: `Tranche ${trancheCounter}`
+    }
+    setNewProjet({
+      ...newProjet,
+      tranches: [...(newProjet.tranches || []), newTranche]
+    })
+    setTrancheCounter(trancheCounter + 1)
+  }
+
+  const handleRemoveTranche = (trancheId: string) => {
+    setNewProjet({
+      ...newProjet,
+      tranches: newProjet.tranches?.filter(t => t.id !== trancheId) || []
+    })
+  }
+
+  const handleTrancheChange = (trancheId: string, field: 'montant' | 'description', value: string | number) => {
+    setNewProjet({
+      ...newProjet,
+      tranches: newProjet.tranches?.map(t => 
+        t.id === trancheId ? { ...t, [field]: value } : t
+      ) || []
+    })
+  }
+
+  const handleBudgetTotalChange = (value: number) => {
+    setNewProjet({ ...newProjet, budgetTotal: value })
+  }
+
   const handleAddProjet = () => {
     // Validation des champs obligatoires
     const errors = {
@@ -175,7 +221,8 @@ export default function ProjetsContrats() {
       thematique: !newProjet.thematique,
       organismeContractant: !newProjet.organismeContractant,
       codeReference: !newProjet.codeReference,
-      organismesPartenaires: !newProjet.organismesPartenaires
+      organismesPartenaires: !newProjet.organismesPartenaires,
+      budgetTotal: !newProjet.budgetTotal || newProjet.budgetTotal <= 0
     }
     
     if (Object.values(errors).some(Boolean)) {
@@ -188,6 +235,11 @@ export default function ProjetsContrats() {
       setAnneeError("L'année ne peut pas être supérieure à l'année actuelle")
       return
     }
+
+    if (newProjet.anneeFin && newProjet.anneeDebut && newProjet.anneeFin < newProjet.anneeDebut) {
+      setAnneeError("L'année de fin ne peut pas être antérieure à l'année de début")
+      return
+    }
     
     // Validation conditionnelle : lien OU justificatifs obligatoire
     if (!newProjet.lien && !justificatifFile) {
@@ -195,63 +247,70 @@ export default function ProjetsContrats() {
       return
     }
 
-      const selectedProjectInfo = getSelectedProjectInfo()
-      const selectedProgramInfo = availablePrograms.find(p => p.id === selectedProgram)
+    const selectedProjectInfo = getSelectedProjectInfo()
+    const selectedProgramInfo = availablePrograms.find(p => p.id === selectedProgram)
 
-      const id = `PC${String(projets.length + 1).padStart(3, "0")}`
-      const projet: ProjetContrat = {
-        id,
+    const id = `PC${String(projets.length + 1).padStart(3, "0")}`
+    const projet: ProjetContrat = {
+      id,
       typeProjetContrat: newProjet.typeProjetContrat!,
-        typeProjet: newProjet.typeProjet!,
-        coordonnateur: newProjet.coordonnateur!,
-        intitule: selectedProjectInfo ? selectedProjectInfo.name : newProjet.intitule!,
-        thematique: selectedProjectInfo ? selectedProjectInfo.name : newProjet.thematique!,
-        organismeContractant: selectedProgramInfo ? selectedProgramInfo.organisme : newProjet.organismeContractant!,
-        codeReference: selectedProgramInfo ? selectedProgramInfo.code : newProjet.codeReference!,
-        anneeDebut: newProjet.anneeDebut!,
-        organismesPartenaires: newProjet.organismesPartenaires!,
-        budgetPremiereTranche: selectedProjectInfo ? Math.floor(selectedProjectInfo.budget / 3) : newProjet.budgetPremiereTranche!,
-        budgetDeuxiemeTranche: selectedProjectInfo ? Math.floor(selectedProjectInfo.budget / 3) : newProjet.budgetDeuxiemeTranche!,
-        budgetTroisiemeTranche: selectedProjectInfo ? Math.floor(selectedProjectInfo.budget / 3) : newProjet.budgetTroisiemeTranche!,
-        nombreDoctorants: newProjet.nombreDoctorants!,
-        bourse: newProjet.bourse!,
-        mobilite: newProjet.mobilite!,
+      typeProjet: newProjet.typeProjet!,
+      coordonnateur: newProjet.coordonnateur!,
+      intitule: selectedProjectInfo ? selectedProjectInfo.name : newProjet.intitule!,
+      thematique: selectedProjectInfo ? selectedProjectInfo.name : newProjet.thematique!,
+      organismeContractant: selectedProgramInfo ? selectedProgramInfo.organisme : newProjet.organismeContractant!,
+      codeReference: selectedProgramInfo ? selectedProgramInfo.code : newProjet.codeReference!,
+      anneeDebut: newProjet.anneeDebut!,
+      anneeFin: newProjet.anneeFin!,
+      organismesPartenaires: newProjet.organismesPartenaires!,
+      budgetTotal: newProjet.budgetTotal!,
+      tranches: newProjet.tranches || [],
+      nombreDoctorants: newProjet.nombreDoctorants!,
+      bourse: newProjet.bourse!,
+      mobilite: newProjet.mobilite!,
       phaseSoumission: newProjet.phaseSoumission,
       phaseConvention: newProjet.phaseConvention,
       lien: newProjet.lien,
       justificatifs: justificatifFile ? justificatifFile.name : "",
-        membres: newProjet.membres || [],
-      }
+      membres: newProjet.membres || [],
+      programme: selectedProgramInfo ? selectedProgramInfo.name : newProjet.programme,
+      typologie: newProjet.typologie,
+      sousProgramme: newProjet.sousProgramme,
+    }
 
-      setProjets([...projets, projet])
-      setFilteredProjets([...projets, projet])
-      setNewProjet({
+    setProjets([...projets, projet])
+    setFilteredProjets([...projets, projet])
+    setNewProjet({
       typeProjetContrat: "Projet de recherche financé",
-        typeProjet: "National",
-        coordonnateur: "",
-        intitule: "",
-        thematique: "",
-        organismeContractant: "",
-        codeReference: "",
-        anneeDebut: new Date().getFullYear(),
-        organismesPartenaires: "",
-        budgetPremiereTranche: 0,
-        budgetDeuxiemeTranche: 0,
-        budgetTroisiemeTranche: 0,
-        nombreDoctorants: 0,
-        bourse: 0,
-        mobilite: 0,
+      typeProjet: "National",
+      coordonnateur: "",
+      intitule: "",
+      thematique: "",
+      organismeContractant: "",
+      codeReference: "",
+      anneeDebut: new Date().getFullYear(),
+      anneeFin: new Date().getFullYear() + 1,
+      organismesPartenaires: "",
+      budgetTotal: 0,
+      tranches: [],
+      nombreDoctorants: 0,
+      bourse: 0,
+      mobilite: 0,
       phaseSoumission: "",
       phaseConvention: "",
       lien: "",
-        justificatifs: "",
-        membres: [],
-      })
-      setIsDialogOpen(false)
-    setFieldErrors({ coordonnateur: false, intitule: false, thematique: false, organismeContractant: false, codeReference: false, organismesPartenaires: false })
+      justificatifs: "",
+      membres: [],
+      programme: "",
+      typologie: "",
+      sousProgramme: "",
+    })
+    setIsDialogOpen(false)
+    setFieldErrors({ coordonnateur: false, intitule: false, thematique: false, organismeContractant: false, codeReference: false, organismesPartenaires: false, budgetTotal: false })
     setLienJustificatifError("")
     setAnneeError("")
     setJustificatifFile(null)
+    setTrancheCounter(1)
   }
 
   const handleDeleteProjet = (id: string) => {
@@ -270,7 +329,6 @@ export default function ProjetsContrats() {
     setShowProjects(false)
     setRequestToResearchPole(false)
     setShowProgramSelectionMessage(true)
-    setShowProgramSelectionMessage(true)
     setNewProjet({
       typeProjetContrat: "Projet de recherche financé",
       typeProjet: "National",
@@ -280,10 +338,10 @@ export default function ProjetsContrats() {
       organismeContractant: "",
       codeReference: "",
       anneeDebut: new Date().getFullYear(),
+      anneeFin: new Date().getFullYear() + 1,
       organismesPartenaires: "",
-      budgetPremiereTranche: 0,
-      budgetDeuxiemeTranche: 0,
-      budgetTroisiemeTranche: 0,
+      budgetTotal: 0,
+      tranches: [],
       nombreDoctorants: 0,
       bourse: 0,
       mobilite: 0,
@@ -292,6 +350,9 @@ export default function ProjetsContrats() {
       lien: "",
       justificatifs: "",
       membres: [],
+      programme: "",
+      typologie: "",
+      sousProgramme: "",
     })
     setFieldErrors({
       coordonnateur: false,
@@ -299,11 +360,13 @@ export default function ProjetsContrats() {
       thematique: false,
       organismeContractant: false,
       codeReference: false,
-      organismesPartenaires: false
+      organismesPartenaires: false,
+      budgetTotal: false
     })
     setLienJustificatifError("")
     setAnneeError("")
     setJustificatifFile(null)
+    setTrancheCounter(1)
   }
 
   const handleMemberToggle = (memberId: string) => {
@@ -422,6 +485,33 @@ export default function ProjetsContrats() {
       ]
     }
   ];
+
+  // Liste des thématiques disponibles
+  const thematiques = [
+    "Intelligence Artificielle",
+    "Cybersécurité",
+    "Santé Numérique",
+    "Énergies Renouvelables",
+    "Agriculture Intelligente",
+    "Transport Durable",
+    "Éducation Numérique",
+    "Smart Cities",
+    "Biotechnologie",
+    "Chimie Verte",
+    "Mathématiques Appliquées",
+    "Physique Quantique",
+    "Autre"
+  ]
+
+  // Liste des typologies de projets
+  const typologies = [
+    "Projet de recherche fondamentale",
+    "Projet de recherche appliquée",
+    "Projet de développement technologique",
+    "Projet d'innovation",
+    "Projet de transfert de technologie",
+    "Projet de formation-recherche"
+  ]
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -587,7 +677,7 @@ export default function ProjetsContrats() {
                                 </div>
                                 
                                 {/* Affichage des projets du programme - MASQUÉ */}
-                                {/* {selectedProgram === program.id && showProjects && (
+                                {selectedProgram === program.id && showProjects && (
                                   <div className="mt-3 pt-2 border-t border-blue-200">
                                     <div className="flex items-center gap-1 mb-2">
                                       <div className="w-1 h-3 bg-blue-500 rounded-full"></div>
@@ -595,7 +685,7 @@ export default function ProjetsContrats() {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                                       {program.projets.map((projet) => (
-                                                                                <div 
+                                        <div 
                                           key={projet.id}
                                           className={`border rounded p-2 cursor-pointer transition-all duration-200 ${
                                             selectedProject === projet.id
@@ -638,7 +728,7 @@ export default function ProjetsContrats() {
                                       ))}
                                     </div>
                                   </div>
-                                )} */}
+                                )}
                               </div>
                             </div>
                           ))}
@@ -730,38 +820,48 @@ export default function ProjetsContrats() {
                       </div>
                     ) : (
                       <div>
-                                                {/* Informations administratives (Affichées automatiquement) */}
+                        {/* Informations administratives (Affichées automatiquement) */}
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                          <h3 className="font-medium text-blue-900 mb-3"></h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label className="text-sm font-medium text-blue-800">Coordonnateur du projet</Label>
-                              <p className="text-sm text-blue-700 mt-1">Dr. Youssef Alami</p>
+                              <Label className="text-sm font-medium text-blue-800">Programme</Label>
+                              <p className="text-sm text-blue-700 mt-1">{selectedProgram ? availablePrograms.find(p => p.id === selectedProgram)?.name || 'Non sélectionné' : 'Non sélectionné'}</p>
                             </div>
                             <div>
-                              <Label className="text-sm font-medium text-blue-800">Laboratoire de l'utilisateur</Label>
-                              <p className="text-sm text-blue-700 mt-1">Laboratoire d'Informatique et Systèmes</p>
+                              <Label className="text-sm font-medium text-blue-800">Typologie des projets</Label>
+                              <p className="text-sm text-blue-700 mt-1">Projet de recherche financé</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-blue-800">Descriptif du sous programme</Label>
+                              <p className="text-sm text-blue-700 mt-1">
+                                {selectedProject 
+                                  ? getSelectedProjectInfo()?.name || 'Projet de recherche en cours de développement'
+                                  : selectedProgram 
+                                    ? 'Projets de recherche disponibles dans ce programme'
+                                    : 'Programme de recherche et développement technologique'
+                                }
+                              </p>
                             </div>
                           </div>
                           
                           {selectedProgram && selectedProject && (
                             <div className="mt-4 pt-4 border-t border-blue-200">
-                              <h4 className="font-medium text-blue-900 mb-3">Projet sélectionné :</h4>
-                              <div className="space-y-2">
+                              <h4 className="font-medium text-blue-900 mb-3">Détails du programme sélectionné :</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                  <Label className="text-sm font-medium text-blue-800">Intitulé</Label>
+                                  <Label className="text-sm font-medium text-blue-800">Typologie des projets</Label>
+                                  <p className="text-sm text-blue-700 mt-1">Projet de recherche financé</p>
+                                </div>
+                                <div>
+                                  <Label className="text-sm font-medium text-blue-800">Descriptif du sous programme</Label>
                                   <p className="text-sm text-blue-700 mt-1">{getSelectedProjectInfo()?.name || 'Non sélectionné'}</p>
                                 </div>
                                 <div>
-                                  <Label className="text-sm font-medium text-blue-800">Budget</Label>
+                                  <Label className="text-sm font-medium text-blue-800">Budget total</Label>
                                   <p className="text-sm text-blue-700 mt-1">{getSelectedProjectInfo() ? formatBudget(getSelectedProjectInfo()!.budget) : 'Non sélectionné'}</p>
                                 </div>
                                 <div>
-                                  <Label className="text-sm font-medium text-blue-800">Programme</Label>
-                                  <p className="text-sm text-blue-700 mt-1">{availablePrograms.find(p => p.id === selectedProgram)?.name || 'Non sélectionné'}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-blue-800">Code</Label>
+                                  <Label className="text-sm font-medium text-blue-800">Code référence</Label>
                                   <p className="text-sm text-blue-700 mt-1">{availablePrograms.find(p => p.id === selectedProgram)?.code || 'Non sélectionné'}</p>
                                 </div>
                               </div>
@@ -788,15 +888,24 @@ export default function ProjetsContrats() {
                           {/* 2. Thématique du projet */}
                           <div className="space-y-2">
                             <Label className={`text-sm font-medium ${fieldErrors.thematique ? 'text-red-600' : ''}`}>Thématique du projet <span className="text-red-600">*</span></Label>
-                            <Input
+                            <Select
                               value={newProjet.thematique}
-                              onChange={(e) => {
-                                setNewProjet({ ...newProjet, thematique: e.target.value })
-                                if (e.target.value) setFieldErrors(err => ({ ...err, thematique: false }))
+                              onValueChange={(value) => {
+                                setNewProjet({ ...newProjet, thematique: value })
+                                if (value) setFieldErrors(err => ({ ...err, thematique: false }))
                               }}
-                              placeholder="Intelligence Artificielle"
-                              className={fieldErrors.thematique ? 'border-red-500' : ''}
-                            />
+                            >
+                              <SelectTrigger className={fieldErrors.thematique ? 'border-red-500' : ''}>
+                                <SelectValue placeholder="Sélectionnez une thématique" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {thematiques.map((thematique) => (
+                                  <SelectItem key={thematique} value={thematique}>
+                                    {thematique}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             {fieldErrors.thematique && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire</p>}
                           </div>
 
@@ -822,38 +931,38 @@ export default function ProjetsContrats() {
                             <p className="text-xs text-gray-500">Sélectionnez les membres impliqués dans cette soumission</p>
                             <div className="border rounded-lg p-4 bg-gray-50">
                               <div className="space-y-3">
-                        {availableMembers.map((member) => (
-                          <div key={member.id} className="flex items-center space-x-3">
-                            <input
-                              type="checkbox"
-                              id={`member-${member.id}`}
-                              checked={newProjet.membres?.includes(member.id) || false}
-                              onChange={() => handleMemberToggle(member.id)}
-                              className="h-4 w-4 text-uh2c-blue rounded"
-                            />
+                                {availableMembers.map((member) => (
+                                  <div key={member.id} className="flex items-center space-x-3">
+                                    <input
+                                      type="checkbox"
+                                      id={`member-${member.id}`}
+                                      checked={newProjet.membres?.includes(member.id) || false}
+                                      onChange={() => handleMemberToggle(member.id)}
+                                      className="h-4 w-4 text-uh2c-blue rounded"
+                                    />
                                     <Label htmlFor={`member-${member.id}`} className="text-sm flex-1">
-                              {member.name}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
+                                      {member.name}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
                               
-                      {newProjet.membres && newProjet.membres.length > 0 && (
-                        <div className="mt-4 pt-3 border-t">
-                          <Label className="text-xs font-medium text-gray-600">Membres sélectionnés :</Label>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {newProjet.membres.map((id) => {
-                              const m = availableMembers.find(mem => mem.id === id)
-                              return m ? (
-                                <span key={id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-uh2c-blue text-white">
-                                  {m.name}
-                                </span>
-                              ) : null
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                              {newProjet.membres && newProjet.membres.length > 0 && (
+                                <div className="mt-4 pt-3 border-t">
+                                  <Label className="text-xs font-medium text-gray-600">Membres sélectionnés :</Label>
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {newProjet.membres.map((id) => {
+                                      const m = availableMembers.find(mem => mem.id === id)
+                                      return m ? (
+                                        <span key={id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-uh2c-blue text-white">
+                                          {m.name}
+                                        </span>
+                                      ) : null
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
 
                           {/* 5. Nombre de doctorants impliqués */}
@@ -869,90 +978,166 @@ export default function ProjetsContrats() {
                             
                             {/* Sous-champs indentés */}
                             <div className="ml-6 space-y-3 mt-3">
-                          <div className="space-y-2">
+                              <div className="space-y-2">
                                 <Label className="text-sm font-medium">Bourse <span className="text-red-600">*</span></Label>
-                            <Input
+                                <Input
                                   type="number"
                                   min="0"
                                   value={newProjet.bourse}
                                   onChange={(e) => setNewProjet({ ...newProjet, bourse: parseInt(e.target.value) || 0 })}
                                   placeholder="0"
                                 />
-                          </div>
-                          <div className="space-y-2">
+                              </div>
+                              <div className="space-y-2">
                                 <Label className="text-sm font-medium">Mobilité</Label>
-                            <Input
+                                <Input
                                   type="number"
                                   min="0"
                                   value={newProjet.mobilite}
                                   onChange={(e) => setNewProjet({ ...newProjet, mobilite: parseInt(e.target.value) || 0 })}
                                   placeholder="0"
                                 />
-                          </div>
+                              </div>
                             </div>
                           </div>
 
-                          {/* 6. Année de début */}
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Année de début <span className="text-red-600">*</span></Label>
-                            <Input
-                              type="number"
-                              min="2000"
-                              max={new Date().getFullYear()}
-                              value={newProjet.anneeDebut}
-                              onChange={(e) => {
-                                const year = parseInt(e.target.value) || 0
-                                if (year > new Date().getFullYear()) {
-                                  setAnneeError("L'année ne peut pas dépasser l'année en cours")
-                                  return
-                                }
-                                setAnneeError("")
-                                setNewProjet({ ...newProjet, anneeDebut: year })
-                              }}
-                              placeholder={new Date().getFullYear().toString()}
-                              className={anneeError ? 'border-red-500' : ''}
-                            />
+                          {/* 6. Durée de projet */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium">Durée de projet</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium">Année de début du projet <span className="text-red-600">*</span></Label>
+                                <Select
+                                  value={newProjet.anneeDebut?.toString()}
+                                  onValueChange={(value) => {
+                                    const year = parseInt(value) || new Date().getFullYear()
+                                    setNewProjet({ ...newProjet, anneeDebut: year })
+                                    if (year <= new Date().getFullYear()) {
+                                      setAnneeError("")
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className={anneeError ? 'border-red-500' : ''}>
+                                    <SelectValue placeholder="Sélectionnez l'année" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                                      <SelectItem key={year} value={year.toString()}>
+                                        {year}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium">Année de fin du projet <span className="text-red-600">*</span></Label>
+                                <Select
+                                  value={newProjet.anneeFin?.toString()}
+                                  onValueChange={(value) => {
+                                    const year = parseInt(value) || new Date().getFullYear() + 1
+                                    setNewProjet({ ...newProjet, anneeFin: year })
+                                    if (newProjet.anneeDebut && year >= newProjet.anneeDebut) {
+                                      setAnneeError("")
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className={anneeError ? 'border-red-500' : ''}>
+                                    <SelectValue placeholder="Sélectionnez l'année" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
+                                      <SelectItem key={year} value={year.toString()}>
+                                        {year}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
                             {anneeError && <p className="text-xs text-red-600 mt-1">{anneeError}</p>}
                           </div>
 
-                          {/* 7. Budget en dirhams */}
+                          {/* 7. Budget proposé en dirhams */}
                           <div className="space-y-3">
-                            <Label className="text-sm font-medium">Budget en dirhams <span className="text-red-600">*</span></Label>
-                            <div className="ml-6 space-y-3">
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Première tranche <span className="text-red-600">*</span></Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={newProjet.budgetPremiereTranche}
-                                  onChange={(e) => setNewProjet({ ...newProjet, budgetPremiereTranche: parseInt(e.target.value) || 0 })}
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Deuxième tranche <span className="text-red-600">*</span></Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={newProjet.budgetDeuxiemeTranche}
-                                  onChange={(e) => setNewProjet({ ...newProjet, budgetDeuxiemeTranche: parseInt(e.target.value) || 0 })}
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Troisième tranche</Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={newProjet.budgetTroisiemeTranche}
-                                  onChange={(e) => setNewProjet({ ...newProjet, budgetTroisiemeTranche: parseInt(e.target.value) || 0 })}
-                                  placeholder="0"
-                                />
-                              </div>
-                            </div>
+                            <Label className={`text-sm font-medium ${fieldErrors.budgetTotal ? 'text-red-600' : ''}`}>Budget proposé en dirhams <span className="text-red-600">*</span></Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={newProjet.budgetTotal}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 0
+                                handleBudgetTotalChange(value)
+                                if (value > 0) setFieldErrors(err => ({ ...err, budgetTotal: false }))
+                              }}
+                              placeholder="0"
+                              className={fieldErrors.budgetTotal ? 'border-red-500' : ''}
+                            />
+                            {fieldErrors.budgetTotal && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire et doit être supérieur à 0</p>}
                           </div>
 
-                          {/* 8. Justificatifs */}
+                          {/* 8. Ajout de tranche de financement */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">Tranches de financement</Label>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleAddTranche}
+                                className="text-uh2c-blue hover:text-uh2c-blue/90"
+                              >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Ajouter une tranche
+                              </Button>
+                            </div>
+                            
+                            {newProjet.tranches && newProjet.tranches.length > 0 ? (
+                              <div className="space-y-3">
+                                {newProjet.tranches.map((tranche, index) => (
+                                  <div key={tranche.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                      <div>
+                                        <Label className="text-xs font-medium text-gray-600">Description</Label>
+                                        <Input
+                                          value={tranche.description}
+                                          onChange={(e) => handleTrancheChange(tranche.id, 'description', e.target.value)}
+                                          placeholder={`Tranche ${index + 1}`}
+                                          className="text-sm"
+                                        />
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs font-medium text-gray-600">Montant (MAD)</Label>
+                                        <Input
+                                          type="number"
+                                          min="0"
+                                          value={tranche.montant}
+                                          onChange={(e) => handleTrancheChange(tranche.id, 'montant', parseInt(e.target.value) || 0)}
+                                          placeholder="0"
+                                          className="text-sm"
+                                        />
+                                      </div>
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleRemoveTranche(tranche.id)}
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                                <p className="text-sm text-gray-500">Aucune tranche ajoutée</p>
+                                <p className="text-xs text-gray-400 mt-1">Cliquez sur "Ajouter une tranche" pour commencer</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* 9. Justificatifs */}
                           <div className="space-y-2">
                             <Label className="text-sm font-medium">
                               Justificatifs 
@@ -1167,9 +1352,7 @@ export default function ProjetsContrats() {
                             <td className="py-3 px-4 text-center">{projet.anneeDebut}</td>
                             <td className="py-3 px-4 text-right font-mono">
                               {formatBudget(
-                                projet.budgetPremiereTranche +
-                                  projet.budgetDeuxiemeTranche +
-                                  projet.budgetTroisiemeTranche,
+                                projet.budgetTotal,
                               )}
                             </td>
                             <td className="py-3 px-4 text-center">

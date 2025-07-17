@@ -35,6 +35,7 @@ export function Header() {
   const isExpertDashboard = pathname.startsWith("/dashboard-expert")
   const isMemberDashboard = pathname.startsWith("/dashboard-member")
   const isPoleRechercheDashboard = pathname.startsWith("/dashboard-polerecherche")
+  const isDivisionRechercheDashboard = pathname.startsWith("/dashboard-division-recherche")
 
   // Mock notifications data
   const [notifications] = useState<Notification[]>([
@@ -88,6 +89,13 @@ export function Header() {
         name: "Dr. Karim Alami",
         role: "Directeur du Pôle de Recherche",
         initials: "KA",
+        avatar: "/placeholder.svg?height=32&width=32",
+      }
+    } else if (isDivisionRechercheDashboard) {
+      return {
+        name: "Division Recherche",
+        role: "Division Recherche",
+        initials: "DR",
         avatar: "/placeholder.svg?height=32&width=32",
       }
     } else if (isMemberDashboard) {
