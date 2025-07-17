@@ -12,24 +12,15 @@ import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { 
   FileText, 
-  Download, 
-  Upload, 
-  Eye, 
   CheckCircle,
-  AlertCircle,
-  Calendar,
   Users,
   BarChart3,
   Search,
   Filter,
   Save,
-  Plus,
   X,
   Calculator,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  FileSpreadsheet
+  Eye
 } from "lucide-react"
 
 interface ProjetEmploi {
@@ -127,110 +118,6 @@ export default function ProgrammeEmploiPage() {
               description: "Frais divers et imprévus"
             }
           ]
-        },
-        {
-          numero: 2,
-          montantPrevisionnel: 126000,
-          montantUtilise: 0,
-          dateVersement: "2024-08-15",
-          dateFinTranche: "2025-02-15",
-          statut: "en_cours",
-          rubriques: [
-            {
-              nom: "Personnel",
-              budgetPrevisionnel: 50400,
-              budgetUtilise: 0,
-              pourcentagePrevisionnel: 40,
-              pourcentageUtilise: 0,
-              description: "Salaires chercheurs et assistants"
-            },
-            {
-              nom: "Équipements",
-              budgetPrevisionnel: 37800,
-              budgetUtilise: 0,
-              pourcentagePrevisionnel: 30,
-              pourcentageUtilise: 0,
-              description: "Matériel informatique et logiciels"
-            },
-            {
-              nom: "Fonctionnement",
-              budgetPrevisionnel: 25200,
-              budgetUtilise: 0,
-              pourcentagePrevisionnel: 20,
-              pourcentageUtilise: 0,
-              description: "Frais de déplacement et consommables"
-            },
-            {
-              nom: "Autres",
-              budgetPrevisionnel: 12600,
-              budgetUtilise: 0,
-              pourcentagePrevisionnel: 10,
-              pourcentageUtilise: 0,
-              description: "Frais divers et imprévus"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: "PROJ-002",
-      programme: "Programme Énergies Renouvelables",
-      projet: "Optimisation des panneaux solaires",
-      coordonnateur: "Dr. Karim Alami",
-      etablissement: "Université Ibn Zohr",
-      budgetTotal: 650000,
-      dateDebut: "2024-03-20",
-      dateFin: "2025-09-20",
-      tranches: [
-        {
-          numero: 1,
-          montantPrevisionnel: 162500,
-          montantUtilise: 158000,
-          dateVersement: "2024-03-20",
-          dateFinTranche: "2024-09-20",
-          statut: "emploi_saisi",
-          rubriques: [
-            {
-              nom: "Personnel",
-              budgetPrevisionnel: 48750,
-              budgetUtilise: 47000,
-              pourcentagePrevisionnel: 30,
-              pourcentageUtilise: 29.7,
-              description: "Salaires chercheurs et techniciens"
-            },
-            {
-              nom: "Équipements",
-              budgetPrevisionnel: 65000,
-              budgetUtilise: 62000,
-              pourcentagePrevisionnel: 40,
-              pourcentageUtilise: 39.2,
-              description: "Panneaux solaires et équipements de test"
-            },
-            {
-              nom: "Fonctionnement",
-              budgetPrevisionnel: 32500,
-              budgetUtilise: 32000,
-              pourcentagePrevisionnel: 20,
-              pourcentageUtilise: 20.3,
-              description: "Frais de laboratoire et consommables"
-            },
-            {
-              nom: "Autres",
-              budgetPrevisionnel: 16250,
-              budgetUtilise: 17000,
-              pourcentagePrevisionnel: 10,
-              pourcentageUtilise: 10.8,
-              description: "Frais divers et imprévus"
-            }
-          ],
-          programmeEmploi: {
-            id: "EMP-002-1",
-            dateSaisie: "2024-09-25",
-            totalUtilise: 158000,
-            ecart: -4500,
-            commentaires: "Économies réalisées sur les équipements grâce aux négociations avec les fournisseurs",
-            valide: false
-          }
         }
       ]
     }
@@ -239,7 +126,6 @@ export default function ProgrammeEmploiPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterProgramme, setFilterProgramme] = useState("all")
   const [filterStatut, setFilterStatut] = useState("all")
-  const [selectedProjet, setSelectedProjet] = useState<ProjetEmploi | null>(null)
   const [selectedTranche, setSelectedTranche] = useState<{projetId: string, trancheNum: number} | null>(null)
   const [showSaisieModal, setShowSaisieModal] = useState(false)
   const [commentaires, setCommentaires] = useState("")
@@ -381,7 +267,6 @@ export default function ProgrammeEmploiPage() {
         <Header />
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-4">
           <div className="mx-auto max-w-7xl">
-            {/* En-tête */}
             <div className="mb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -391,7 +276,6 @@ export default function ProgrammeEmploiPage() {
               </div>
             </div>
 
-            {/* Statistiques */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
               <Card className="h-20">
                 <CardContent className="p-3 h-full flex items-center">
@@ -454,7 +338,6 @@ export default function ProgrammeEmploiPage() {
               </Card>
             </div>
 
-            {/* Filtres */}
             <Card className="mb-4">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center text-sm">
@@ -517,7 +400,6 @@ export default function ProgrammeEmploiPage() {
               </CardContent>
             </Card>
 
-            {/* Liste des projets */}
             <Card className="overflow-hidden">
               <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-red-50 border-b">
                 <CardTitle className="text-base flex items-center">
@@ -574,7 +456,6 @@ export default function ProgrammeEmploiPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setSelectedProjet(projet)}
                           className="h-8 px-2 text-xs hover:bg-blue-100 hover:text-blue-700"
                         >
                           <Eye className="h-3 w-3 mr-1" />
@@ -582,7 +463,6 @@ export default function ProgrammeEmploiPage() {
                         </Button>
                       </div>
 
-                      {/* Tranches */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {projet.tranches.map((tranche) => (
                           <div key={tranche.numero} className="border rounded p-3 text-xs">
@@ -653,178 +533,6 @@ export default function ProgrammeEmploiPage() {
             </Card>
           </div>
 
-          {/* Modal de détails */}
-          {selectedProjet && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-lg max-w-6xl w-full max-h-[80vh] overflow-y-auto">
-                <div className="p-4 border-b">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-bold">Détails du Projet</h2>
-                      <p className="text-sm text-gray-600">{selectedProjet.projet}</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setSelectedProjet(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="p-4 space-y-4">
-                  {/* Informations générales */}
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">Informations Générales</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <Label className="text-xs font-medium">Programme</Label>
-                          <p className="font-medium">{selectedProjet.programme}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium">Coordonnateur</Label>
-                          <p className="font-medium">{selectedProjet.coordonnateur}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium">Établissement</Label>
-                          <p className="font-medium">{selectedProjet.etablissement}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium">Budget Total</Label>
-                          <p className="font-medium">{formatCurrency(selectedProjet.budgetTotal)}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Détails des tranches et rubriques */}
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">Détails des Tranches et Rubriques</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-4">
-                        {selectedProjet.tranches.map((tranche) => (
-                          <div key={tranche.numero} className="border rounded p-3">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="font-medium text-sm">Tranche {tranche.numero}</h4>
-                              {getStatutBadge(tranche.statut)}
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4 mb-3 text-xs">
-                              <div>
-                                <span className="text-gray-600">Montant prévisionnel:</span>
-                                <span className="ml-1 font-medium">{formatCurrency(tranche.montantPrevisionnel)}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-600">Montant utilisé:</span>
-                                <span className={`ml-1 font-medium ${
-                                  tranche.montantUtilise > tranche.montantPrevisionnel ? 'text-red-600' : 
-                                  tranche.montantUtilise < tranche.montantPrevisionnel ? 'text-green-600' : 'text-gray-700'
-                                }`}>
-                                  {formatCurrency(tranche.montantUtilise)}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Tableau des rubriques */}
-                            <div className="overflow-x-auto">
-                              <table className="w-full text-xs">
-                                <thead>
-                                  <tr className="border-b border-gray-200 bg-gray-50">
-                                    <th className="text-left py-2 px-2 font-medium text-gray-700">Rubrique</th>
-                                    <th className="text-right py-2 px-2 font-medium text-gray-700">Prévisionnel</th>
-                                    <th className="text-right py-2 px-2 font-medium text-gray-700">Utilisé</th>
-                                    <th className="text-right py-2 px-2 font-medium text-gray-700">Écart</th>
-                                    <th className="text-center py-2 px-2 font-medium text-gray-700">% Utilisé</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {tranche.rubriques.map((rubrique, index) => {
-                                    const ecart = rubrique.budgetUtilise - rubrique.budgetPrevisionnel
-                                    return (
-                                      <tr key={index} className="border-b border-gray-100">
-                                        <td className="py-2 px-2">
-                                          <div>
-                                            <div className="font-medium">{rubrique.nom}</div>
-                                            <div className="text-gray-500 text-xs">{rubrique.description}</div>
-                                          </div>
-                                        </td>
-                                        <td className="py-2 px-2 text-right">
-                                          {formatCurrency(rubrique.budgetPrevisionnel)}
-                                        </td>
-                                        <td className="py-2 px-2 text-right">
-                                          <span className={rubrique.budgetUtilise > rubrique.budgetPrevisionnel ? 'text-red-600' : 'text-gray-700'}>
-                                            {formatCurrency(rubrique.budgetUtilise)}
-                                          </span>
-                                        </td>
-                                        <td className="py-2 px-2 text-right">
-                                          <span className={ecart > 0 ? 'text-red-600' : ecart < 0 ? 'text-green-600' : 'text-gray-600'}>
-                                            {formatCurrency(ecart)}
-                                          </span>
-                                        </td>
-                                        <td className="py-2 px-2 text-center">
-                                          <span className={rubrique.pourcentageUtilise > rubrique.pourcentagePrevisionnel ? 'text-red-600' : 'text-gray-600'}>
-                                            {rubrique.pourcentageUtilise.toFixed(1)}%
-                                          </span>
-                                        </td>
-                                      </tr>
-                                    )
-                                  })}
-                                </tbody>
-                              </table>
-                            </div>
-
-                            {tranche.programmeEmploi && (
-                              <div className="mt-3 bg-gray-50 rounded p-2 text-xs">
-                                <div className="font-medium mb-1">Programme d'emploi</div>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <span className="text-gray-600">Date de saisie:</span>
-                                    <span className="ml-1">{tranche.programmeEmploi.dateSaisie}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-600">Total utilisé:</span>
-                                    <span className="ml-1">{formatCurrency(tranche.programmeEmploi.totalUtilise)}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-600">Écart global:</span>
-                                    <span className={`ml-1 ${
-                                      tranche.programmeEmploi.ecart > 0 ? 'text-red-600' : 
-                                      tranche.programmeEmploi.ecart < 0 ? 'text-green-600' : 'text-gray-600'
-                                    }`}>
-                                      {formatCurrency(tranche.programmeEmploi.ecart)}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-600">Statut:</span>
-                                    <span className={`ml-1 ${tranche.programmeEmploi.valide ? 'text-green-600' : 'text-yellow-600'}`}>
-                                      {tranche.programmeEmploi.valide ? 'Validé' : 'En attente'}
-                                    </span>
-                                  </div>
-                                </div>
-                                {tranche.programmeEmploi.commentaires && (
-                                  <div className="mt-2 text-gray-600">
-                                    {tranche.programmeEmploi.commentaires}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Modal de saisie d'emploi */}
           {showSaisieModal && selectedTranche && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
@@ -866,74 +574,74 @@ export default function ProgrammeEmploiPage() {
                           </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="border-b border-gray-200 bg-gray-50">
-                                <th className="text-left py-3 px-4 font-medium text-gray-700">Rubrique</th>
-                                <th className="text-right py-3 px-4 font-medium text-gray-700">Budget Prévisionnel</th>
-                                <th className="text-right py-3 px-4 font-medium text-gray-700">Budget Utilisé</th>
-                                <th className="text-right py-3 px-4 font-medium text-gray-700">Écart</th>
-                                <th className="text-center py-3 px-4 font-medium text-gray-700">% Utilisé</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {tranche.rubriques.map((rubrique, index) => {
-                                const ecart = rubrique.budgetUtilise - rubrique.budgetPrevisionnel
-                                return (
-                                  <tr key={index} className="border-b border-gray-100">
-                                    <td className="py-3 px-4">
-                                      <div>
-                                        <div className="font-medium">{rubrique.nom}</div>
-                                        <div className="text-gray-500 text-xs">{rubrique.description}</div>
-                                      </div>
-                                    </td>
-                                    <td className="py-3 px-4 text-right">
-                                      {formatCurrency(rubrique.budgetPrevisionnel)}
-                                    </td>
-                                    <td className="py-3 px-4 text-right">
-                                      <Input
-                                        type="number"
-                                        value={rubrique.budgetUtilise}
-                                        onChange={(e) => handleRubriqueChange(selectedTranche.projetId, selectedTranche.trancheNum, index, parseFloat(e.target.value) || 0)}
-                                        className="w-24 text-right"
-                                        min="0"
-                                      />
-                                    </td>
-                                    <td className="py-3 px-4 text-right">
-                                      <span className={ecart > 0 ? 'text-red-600' : ecart < 0 ? 'text-green-600' : 'text-gray-600'}>
-                                        {formatCurrency(ecart)}
-                                      </span>
-                                    </td>
-                                    <td className="py-3 px-4 text-center">
-                                      <span className={rubrique.budgetUtilise > 0 ? (rubrique.budgetUtilise / tranche.montantPrevisionnel * 100).toFixed(1) : '0'}%</span>
-                                    </td>
-                                  </tr>
-                                )
-                              })}
-                            </tbody>
-                            <tfoot>
-                              <tr className="bg-gray-50 font-medium">
-                                <td className="py-3 px-4">TOTAL</td>
-                                <td className="py-3 px-4 text-right">{formatCurrency(tranche.montantPrevisionnel)}</td>
-                                <td className="py-3 px-4 text-right">
-                                  <span className={tranche.montantUtilise > tranche.montantPrevisionnel ? 'text-red-600' : 'text-gray-700'}>
-                                    {formatCurrency(tranche.montantUtilise)}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-4 text-right">
-                                  <span className={tranche.montantUtilise > tranche.montantPrevisionnel ? 'text-red-600' : 
-                                    tranche.montantUtilise < tranche.montantPrevisionnel ? 'text-green-600' : 'text-gray-600'}>
-                                    {formatCurrency(tranche.montantUtilise - tranche.montantPrevisionnel)}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-4 text-center">
-                                  {tranche.montantUtilise > 0 ? (tranche.montantUtilise / tranche.montantPrevisionnel * 100).toFixed(1) : '0'}%
-                                </td>
-                              </tr>
-                            </tfoot>
-                          </table>
-                        </div>
+                                                 <div className="overflow-x-auto">
+                           <table className="w-full text-sm">
+                             <thead>
+                               <tr className="border-b border-gray-200 bg-gray-50">
+                                 <th className="text-left py-3 px-4 font-medium text-gray-700">Rubrique</th>
+                                 <th className="text-right py-3 px-4 font-medium text-gray-700">Budget Prévisionnel</th>
+                                 <th className="text-right py-3 px-4 font-medium text-gray-700">Budget Utilisé</th>
+                                 <th className="text-right py-3 px-4 font-medium text-gray-700">Écart</th>
+                                 <th className="text-center py-3 px-4 font-medium text-gray-700">% Utilisé</th>
+                               </tr>
+                             </thead>
+                             <tbody>
+                               {tranche.rubriques.map((rubrique, index) => {
+                                 const ecart = rubrique.budgetUtilise - rubrique.budgetPrevisionnel
+                                 return (
+                                   <tr key={index} className="border-b border-gray-100">
+                                     <td className="py-3 px-4">
+                                       <div>
+                                         <div className="font-medium">{rubrique.nom}</div>
+                                         <div className="text-gray-500 text-xs">{rubrique.description}</div>
+                                       </div>
+                                     </td>
+                                     <td className="py-3 px-4 text-right">
+                                       {formatCurrency(rubrique.budgetPrevisionnel)}
+                                     </td>
+                                     <td className="py-3 px-4 text-right">
+                                       <Input
+                                         type="number"
+                                         value={rubrique.budgetUtilise}
+                                         onChange={(e) => handleRubriqueChange(selectedTranche.projetId, selectedTranche.trancheNum, index, parseFloat(e.target.value) || 0)}
+                                         className="w-24 text-right"
+                                         min="0"
+                                       />
+                                     </td>
+                                     <td className="py-3 px-4 text-right">
+                                       <span className={ecart > 0 ? 'text-red-600' : ecart < 0 ? 'text-green-600' : 'text-gray-600'}>
+                                         {formatCurrency(ecart)}
+                                       </span>
+                                     </td>
+                                     <td className="py-3 px-4 text-center">
+                                       <span>{rubrique.budgetUtilise > 0 ? (rubrique.budgetUtilise / tranche.montantPrevisionnel * 100).toFixed(1) : '0'}%</span>
+                                     </td>
+                                   </tr>
+                                 )
+                               })}
+                             </tbody>
+                             <tfoot>
+                               <tr className="bg-gray-50 font-medium">
+                                 <td className="py-3 px-4">TOTAL</td>
+                                 <td className="py-3 px-4 text-right">{formatCurrency(tranche.montantPrevisionnel)}</td>
+                                 <td className="py-3 px-4 text-right">
+                                   <span className={tranche.montantUtilise > tranche.montantPrevisionnel ? 'text-red-600' : 'text-gray-700'}>
+                                     {formatCurrency(tranche.montantUtilise)}
+                                   </span>
+                                 </td>
+                                 <td className="py-3 px-4 text-right">
+                                   <span className={tranche.montantUtilise > tranche.montantPrevisionnel ? 'text-red-600' : 
+                                     tranche.montantUtilise < tranche.montantPrevisionnel ? 'text-green-600' : 'text-gray-600'}>
+                                     {formatCurrency(tranche.montantUtilise - tranche.montantPrevisionnel)}
+                                   </span>
+                                 </td>
+                                 <td className="py-3 px-4 text-center">
+                                   {tranche.montantUtilise > 0 ? (tranche.montantUtilise / tranche.montantPrevisionnel * 100).toFixed(1) : '0'}%
+                                 </td>
+                               </tr>
+                             </tfoot>
+                           </table>
+                         </div>
 
                         <div>
                           <Label className="text-sm font-medium">Commentaires (optionnel)</Label>
