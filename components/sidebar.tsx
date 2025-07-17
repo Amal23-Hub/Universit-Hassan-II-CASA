@@ -29,6 +29,7 @@ import {
   Target,
   DollarSign,
   FileCheck,
+  Calculator,
 } from "lucide-react"
 
 interface NavigationItem {
@@ -68,6 +69,11 @@ const memberNavigation: NavigationItem[] = [
     title: "Distinctions & Prix",
     href: "/distinctions-prix",
     icon: Award,
+  },
+  {
+    title: "Programme d'emploi",
+    href: "/dashboard-member/programme-emploi",
+    icon: Calculator,
   },
 ]
 
@@ -176,6 +182,11 @@ const memberDashboardNavigation: NavigationItem[] = [
     title: "Distinctions & Prix",
     href: "/distinctions-prix",
     icon: Award,
+  },
+  {
+    title: "Programme d'emploi",
+    href: "/dashboard-member/programme-emploi",
+    icon: Calculator,
   },
 ]
 
