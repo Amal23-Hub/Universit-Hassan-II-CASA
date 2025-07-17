@@ -27,6 +27,8 @@ import {
   CheckSquare,
   FlaskConical,
   Target,
+  DollarSign,
+  FileCheck,
 } from "lucide-react"
 
 interface NavigationItem {
@@ -131,6 +133,16 @@ const divisionRechercheNavigation: NavigationItem[] = [
     title: "Conventions",
     href: "/dashboard-division-recherche/conventions",
     icon: FileText,
+  },
+  {
+    title: "Gestion des Versements",
+    href: "/dashboard-division-recherche/versements",
+    icon: DollarSign,
+  },
+  {
+    title: "État d'avancement",
+    href: "/dashboard-division-recherche/avancement",
+    icon: FileCheck,
   },
 ]
 

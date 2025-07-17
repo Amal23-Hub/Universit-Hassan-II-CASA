@@ -325,118 +325,118 @@ export default function ConventionsPage() {
     
     // Fonction pour ajouter un titre de section
     const addSectionTitle = (title: string, y: number) => {
-      doc.setFontSize(14)
+      doc.setFontSize(13)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
       doc.text(title, 20, y)
       drawLine(y + 2)
-      return y + 8
+      return y + 6
     }
     
     // En-tête avec bordure
     doc.setDrawColor(0, 0, 0)
     doc.setLineWidth(0.5)
-    doc.rect(15, 15, 180, 25)
+    doc.rect(15, 15, 180, 20)
     
     // Titre principal
-    doc.setFontSize(18)
+    doc.setFontSize(16)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
-    doc.text('CONVENTION DE RECHERCHE', 105, 25, { align: 'center' })
+    doc.text('CONVENTION DE RECHERCHE', 105, 23, { align: 'center' })
     
     // Programme
-    doc.setFontSize(14)
+    doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2])
-    doc.text(convention.programme, 105, 35, { align: 'center' })
+    doc.text(convention.programme, 105, 30, { align: 'center' })
     
-    let yPosition = 50
+    let yPosition = 45
     
     // Section Informations Générales
     yPosition = addSectionTitle('INFORMATIONS GÉNÉRALES', yPosition)
     
-    doc.setFontSize(11)
+    doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(0, 0, 0)
     
     // Informations en colonnes
     doc.text(`Convention N°: ${convention.id}`, 25, yPosition)
     doc.text(`Date: ${new Date(convention.dateCreation).toLocaleDateString('fr-FR')}`, 120, yPosition)
-    yPosition += 8
+    yPosition += 6
     
     doc.text(`Budget Total: ${formatCurrency(convention.budgetTotal)}`, 25, yPosition)
     doc.text(`Nombre de Projets: ${convention.nombreProjets}`, 120, yPosition)
-    yPosition += 12
+    yPosition += 8
     
     // Modalité de versement
     doc.setFont('helvetica', 'bold')
     doc.text('Modalité de Versement:', 25, yPosition)
-    yPosition += 6
+    yPosition += 4
     
     doc.setFont('helvetica', 'normal')
     const modaliteLines = doc.splitTextToSize(convention.modaliteVersement, 150)
     doc.text(modaliteLines, 25, yPosition)
-    yPosition += modaliteLines.length * 5 + 10
+    yPosition += modaliteLines.length * 4 + 8
     
     // Section Projets
     yPosition = addSectionTitle('PROJETS RETENUS', yPosition)
     
     convention.projets.forEach((projet, index) => {
       // Vérifier si on doit passer à la page suivante
-      if (yPosition > 250) {
+      if (yPosition > 260) {
         doc.addPage()
         yPosition = 20
       }
       
       // Encadré pour chaque projet
       doc.setDrawColor(220, 220, 220)
-      doc.setLineWidth(0.3)
-      doc.rect(20, yPosition - 5, 170, 60)
+      doc.setLineWidth(0.2)
+      doc.rect(20, yPosition - 3, 170, 45)
       
       // Titre du projet
-      doc.setFontSize(12)
+      doc.setFontSize(11)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(0, 0, 0)
       doc.text(`${index + 1}. ${projet.titre}`, 25, yPosition)
-      yPosition += 6
+      yPosition += 5
       
       // Informations du projet
-      doc.setFontSize(10)
+      doc.setFontSize(9)
       doc.setFont('helvetica', 'normal')
       doc.text(`Porteur: ${projet.porteur}`, 30, yPosition)
-      yPosition += 5
+      yPosition += 4
       
       doc.text(`Budget Proposé: ${formatCurrency(projet.budgetPropose)}`, 30, yPosition)
       doc.text(`Budget Définitif: ${formatCurrency(projet.budgetDefinitif)}`, 120, yPosition)
-      yPosition += 8
+      yPosition += 6
       
       // Tranches de budget
       doc.setFont('helvetica', 'bold')
-      doc.text('Tranches de Budget:', 30, yPosition)
-      yPosition += 5
+      doc.text('Tranches:', 30, yPosition)
+      yPosition += 4
       doc.setFont('helvetica', 'normal')
       
       projet.tranches.forEach(tranche => {
         doc.text(`• Tranche ${tranche.numero}: ${formatCurrency(tranche.montantDefinitif)} (${new Date(tranche.dateVersement).toLocaleDateString('fr-FR')})`, 35, yPosition)
-        yPosition += 4
+        yPosition += 3
       })
-      yPosition += 5
+      yPosition += 3
       
       // Utilisation de la subvention
       doc.setFont('helvetica', 'bold')
-      doc.text('Utilisation de la Subvention:', 30, yPosition)
-      yPosition += 5
+      doc.text('Utilisation:', 30, yPosition)
+      yPosition += 4
       doc.setFont('helvetica', 'normal')
       
       projet.utilisationSubvention.forEach(rubrique => {
         doc.text(`• ${rubrique.rubrique}: ${formatCurrency(rubrique.montant)} (${rubrique.pourcentage}%)`, 35, yPosition)
-        yPosition += 4
-        const descLines = doc.splitTextToSize(`  ${rubrique.description}`, 130)
+        yPosition += 3
+        const descLines = doc.splitTextToSize(`  ${rubrique.description}`, 120)
         doc.text(descLines, 35, yPosition)
-        yPosition += descLines.length * 4
+        yPosition += descLines.length * 3
       })
       
-      yPosition += 15
+      yPosition += 8
     })
     
     // Section Récapitulatif
@@ -448,56 +448,56 @@ export default function ConventionsPage() {
     yPosition = addSectionTitle('RÉCAPITULATIF DES PROJETS', yPosition)
     
     // Tableau simple
-    doc.setFontSize(10)
+    doc.setFontSize(9)
     doc.setFont('helvetica', 'bold')
     doc.text('Projet', 25, yPosition)
-    doc.text('Porteur', 80, yPosition)
-    doc.text('Budget Proposé', 130, yPosition)
-    doc.text('Budget Définitif', 170, yPosition)
-    yPosition += 5
+    doc.text('Porteur', 70, yPosition)
+    doc.text('Budget Proposé', 120, yPosition)
+    doc.text('Budget Définitif', 160, yPosition)
+    yPosition += 4
     
     drawLine(yPosition)
-    yPosition += 5
+    yPosition += 4
     
     doc.setFont('helvetica', 'normal')
     convention.projets.forEach((projet, index) => {
-      if (yPosition > 250) {
+      if (yPosition > 260) {
         doc.addPage()
         yPosition = 20
       }
       
       // Titre du projet (tronqué si nécessaire)
-      const titreLines = doc.splitTextToSize(projet.titre, 50)
+      const titreLines = doc.splitTextToSize(projet.titre, 40)
       doc.text(titreLines, 25, yPosition)
       
       // Porteur
-      const porteurLines = doc.splitTextToSize(projet.porteur, 45)
-      doc.text(porteurLines, 80, yPosition)
+      const porteurLines = doc.splitTextToSize(projet.porteur, 40)
+      doc.text(porteurLines, 70, yPosition)
       
       // Budgets
-      doc.text(formatCurrency(projet.budgetPropose), 130, yPosition)
-      doc.text(formatCurrency(projet.budgetDefinitif), 170, yPosition)
+      doc.text(formatCurrency(projet.budgetPropose), 120, yPosition)
+      doc.text(formatCurrency(projet.budgetDefinitif), 160, yPosition)
       
-      yPosition += Math.max(titreLines.length, porteurLines.length) * 4 + 2
+      yPosition += Math.max(titreLines.length, porteurLines.length) * 3 + 2
     })
     
     // Signature
-    if (yPosition > 220) {
+    if (yPosition > 240) {
       doc.addPage()
       yPosition = 20
     }
     
     yPosition = addSectionTitle('SIGNATURE', yPosition)
     
-    doc.setFontSize(11)
+    doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
     doc.text('Directeur Division Recherche:', 25, yPosition)
     doc.text('_________________', 80, yPosition)
-    yPosition += 10
+    yPosition += 8
     
     doc.text('Date:', 25, yPosition)
     doc.text(new Date().toLocaleDateString('fr-FR'), 80, yPosition)
-    yPosition += 10
+    yPosition += 8
     
     doc.text('Cachet:', 25, yPosition)
     doc.text('_________________', 80, yPosition)
@@ -506,7 +506,7 @@ export default function ConventionsPage() {
     const pageCount = doc.getNumberOfPages()
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i)
-      doc.setFontSize(8)
+      doc.setFontSize(7)
       doc.setTextColor(150, 150, 150)
       doc.text(`Page ${i} sur ${pageCount}`, 105, 290, { align: 'center' })
     }
@@ -601,50 +601,50 @@ export default function ConventionsPage() {
 
             {/* Statistiques compactes */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+              <Card className="h-20">
+                <CardContent className="p-3 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <p className="text-sm text-gray-600">Total Conventions</p>
-                      <p className="text-xl font-bold">{conventions.length}</p>
+                      <p className="text-xs text-gray-600 mb-1">Total Conventions</p>
+                      <p className="text-lg font-bold">{conventions.length}</p>
                     </div>
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Budget Total</p>
-                      <p className="text-xl font-bold">{formatCurrency(conventions.reduce((sum, c) => sum + c.budgetTotal, 0))}</p>
+              <Card className="h-20">
+                <CardContent className="p-3 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-gray-600 mb-1">Budget Total</p>
+                      <p className="text-lg font-bold truncate">{formatCurrency(conventions.reduce((sum, c) => sum + c.budgetTotal, 0))}</p>
                     </div>
-                    <DollarSign className="h-5 w-5 text-green-600" />
+                    <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0 ml-2" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+              <Card className="h-20">
+                <CardContent className="p-3 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <p className="text-sm text-gray-600">Projets Inclus</p>
-                      <p className="text-xl font-bold">{conventions.reduce((sum, c) => sum + c.nombreProjets, 0)}</p>
+                      <p className="text-xs text-gray-600 mb-1">Projets Inclus</p>
+                      <p className="text-lg font-bold">{conventions.reduce((sum, c) => sum + c.nombreProjets, 0)}</p>
                     </div>
-                    <Users className="h-5 w-5 text-purple-600" />
+                    <Users className="h-4 w-4 text-purple-600 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+              <Card className="h-20">
+                <CardContent className="p-3 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
                     <div>
-                      <p className="text-sm text-gray-600">Conventions Signées</p>
-                      <p className="text-xl font-bold">{conventions.filter(c => c.statut === "signed").length}</p>
+                      <p className="text-xs text-gray-600 mb-1">Conventions Signées</p>
+                      <p className="text-lg font-bold">{conventions.filter(c => c.statut === "signed").length}</p>
                     </div>
-                    <CheckCircle className="h-5 w-5 text-orange-600" />
+                    <CheckCircle className="h-4 w-4 text-orange-600 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
@@ -668,50 +668,85 @@ export default function ConventionsPage() {
             </div>
 
             {/* Liste des conventions */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Conventions Disponibles</CardTitle>
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                <CardTitle className="text-base flex items-center">
+                  <FileText className="h-4 w-4 mr-2 text-blue-600" />
+                  Conventions Disponibles
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-gray-100">
-                  {conventions.map((convention) => (
-                    <div key={convention.id} className="p-4 hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="font-medium text-gray-900">{convention.programme}</h3>
+                  {conventions.map((convention, index) => (
+                    <div 
+                      key={convention.id} 
+                      className={`p-4 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 truncate text-sm">
+                                {convention.programme}
+                              </h3>
+                            </div>
                             {getStatusBadge(convention.statut)}
                           </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
-                            <div>ID: {convention.id}</div>
-                            <div>Date: {new Date(convention.dateCreation).toLocaleDateString('fr-FR')}</div>
-                            <div>Budget: {formatCurrency(convention.budgetTotal)}</div>
-                            <div>Projets: {convention.nombreProjets}</div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div className="flex items-center space-x-1">
+                              <span className="text-gray-500">ID:</span>
+                              <span className="font-medium text-gray-700">{convention.id}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <span className="text-gray-500">Date:</span>
+                              <span className="font-medium text-gray-700">
+                                {new Date(convention.dateCreation).toLocaleDateString('fr-FR')}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <span className="text-gray-500">Budget:</span>
+                              <span className="font-medium text-green-600">
+                                {formatCurrency(convention.budgetTotal)}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <span className="text-gray-500">Projets:</span>
+                              <span className="font-medium text-blue-600">
+                                {convention.nombreProjets}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        
+                        <div className="flex items-center space-x-1 ml-4">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => setSelectedConvention(convention)}
+                            className="h-8 px-2 text-xs hover:bg-blue-100 hover:text-blue-700"
                           >
-                            <Eye className="h-4 w-4 mr-1" />
+                            <Eye className="h-3 w-3 mr-1" />
                             Détails
                           </Button>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => downloadConvention(convention)}
+                            className="h-8 px-2 text-xs hover:bg-green-100 hover:text-green-700"
                           >
-                            <Download className="h-4 w-4 mr-1" />
-                            Télécharger
+                            <Download className="h-3 w-3 mr-1" />
+                            PDF
                           </Button>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => exportToExcel(convention)}
+                            className="h-8 px-2 text-xs hover:bg-orange-100 hover:text-orange-700"
                           >
-                            <FileSpreadsheet className="h-4 w-4 mr-1" />
+                            <FileSpreadsheet className="h-3 w-3 mr-1" />
                             Excel
                           </Button>
                         </div>

@@ -180,41 +180,41 @@ export default function ProjetsRetenus() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
           <div className="mx-auto">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Projets Retenus</h1>
+            <div className="mb-4">
+              <h1 className="text-xl font-bold text-gray-900">Projets Retenus</h1>
             </div>
 
             {/* Filters */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Filter className="h-5 w-5 mr-2" />
+            <Card className="mb-3">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-sm">
+                  <Filter className="h-4 w-4 mr-2" />
                   Filtres
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:flex-row md:items-end md:space-x-6 gap-4 md:gap-0">
+              <CardContent className="pt-0">
+                <div className="flex flex-col md:flex-row md:items-end md:space-x-4 gap-3 md:gap-0">
                   <div className="flex-1">
-                    <Label>Recherche</Label>
+                    <Label className="text-xs">Recherche</Label>
                     <div className="relative mt-1">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
                       <Input
                         placeholder="Rechercher par projet, coordonnateur, thématique..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pl-8 text-sm h-8"
                       />
                     </div>
                   </div>
                   <div className="flex-1">
-                    <Label>Programme</Label>
+                    <Label className="text-xs">Programme</Label>
                     <Select
                       value={filterProgramme}
                       onValueChange={(value) => setFilterProgramme(value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -233,8 +233,8 @@ export default function ProjetsRetenus() {
 
             {/* Projects Table */}
             <Card>
-              <CardHeader>
-                <CardTitle>Liste des projets de recherche classés par programme</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Liste des projets de recherche classés par programme</CardTitle>
               </CardHeader>
               <CardContent>
                 {filteredProjets.length === 0 ? (
@@ -251,50 +251,50 @@ export default function ProjetsRetenus() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Retenu</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Programme</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Projet</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Thématique</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Nom du coordonnateur</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Prénom</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Établissement</th>
-                          <th className="text-right py-3 px-4 font-medium text-gray-700">Budget proposé</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Retenu</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Programme</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Projet</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Thématique</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Nom du coordonnateur</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Prénom</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Établissement</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700">Budget proposé</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredProjets.map((projet, index) => (
                           <tr key={projet.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <Checkbox
                                 checked={projet.retenu}
                                 onCheckedChange={() => handleRetenuToggle(projet.id)}
                                 className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                               />
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <span className="font-medium text-gray-900">{projet.programme}</span>
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <span className="text-gray-900">{projet.projet}</span>
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <Badge variant="secondary" className="text-xs">
                                 {projet.thematique}
                               </Badge>
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <span className="text-gray-900">{projet.nomCoordonnateur}</span>
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <span className="text-gray-900">{projet.prenomCoordonnateur}</span>
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-3">
                               <span className="text-gray-700">{projet.etablissement}</span>
                             </td>
-                            <td className="py-3 px-4 text-right">
+                            <td className="py-2 px-3 text-right">
                               <span className="font-medium text-gray-900">{formatBudget(projet.budgetPropose)}</span>
                             </td>
                           </tr>
