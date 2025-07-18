@@ -50,7 +50,7 @@ interface ProjectRequest {
   program: string
   budget: number
   duration: string
-  status: "pending" | "approved" | "rejected" | "under_review"
+  status: "pending" | "approved" | "rejected"
   submissionDate: string
   description: string
   objectives: string
@@ -118,7 +118,7 @@ export default function DemandesPage() {
       program: "Programme de Recherche en Santé Numérique",
       budget: 750000,
       duration: "36 mois",
-      status: "under_review",
+      status: "pending",
       submissionDate: "2024-01-10",
       description: "Développement de systèmes d'intelligence artificielle pour la détection précoce et la prévention des maladies chroniques.",
       objectives: "Créer des modèles prédictifs pour identifier les risques de maladies chroniques et proposer des interventions préventives personnalisées.",
@@ -187,7 +187,7 @@ export default function DemandesPage() {
       program: ["Programme National de Recherche en IA", "Programme de Recherche en Cybersécurité", "Programme de Recherche en Santé Numérique", "Programme de Recherche en Énergies Renouvelables", "Programme National de Recherche en IA"][i % 5],
       budget: [500000, 750000, 600000, 800000, 450000][i % 5] + (i * 10000),
       duration: ["24 mois", "36 mois", "30 mois", "24 mois", "18 mois"][i % 5],
-      status: ["pending", "under_review", "approved", "rejected", "pending"][i % 4] as "pending" | "approved" | "rejected" | "under_review",
+      status: ["pending", "approved", "rejected", "pending"][i % 3] as "pending" | "approved" | "rejected",
       submissionDate: new Date(2024, 0, 15 + i).toISOString().split('T')[0],
       description: `Description du projet ${i + 6} - Ce projet vise à développer des solutions innovantes dans le domaine de la recherche.`,
       objectives: `Objectifs du projet ${i + 6} - Créer des outils et systèmes innovants.`,
@@ -201,7 +201,6 @@ export default function DemandesPage() {
   const getStatusBadge = (status: ProjectRequest["status"]) => {
     const statusConfig = {
       pending: { label: "En attente", color: "bg-yellow-100 text-yellow-800 border-yellow-200" },
-      under_review: { label: "En révision", color: "bg-blue-100 text-blue-800 border-blue-200" },
       approved: { label: "Approuvé", color: "bg-green-100 text-green-800 border-green-200" },
       rejected: { label: "Rejeté", color: "bg-red-100 text-red-800 border-red-200" }
     }
@@ -217,8 +216,6 @@ export default function DemandesPage() {
     switch (status) {
       case "pending":
         return <Clock className="h-4 w-4 text-yellow-600" />
-      case "under_review":
-        return <Eye className="h-4 w-4 text-blue-600" />
       case "approved":
         return <CheckCircle className="h-4 w-4 text-green-600" />
       case "rejected":
@@ -544,26 +541,7 @@ export default function DemandesPage() {
     alert(`❌ Demande ${requestId} rejetée`)
   }
 
-  const handlePutUnderReview = (requestId: string) => {
-    // Mise à jour du statut de la demande
-    setProjectRequests(prevRequests => 
-      prevRequests.map(request => 
-        request.id === requestId 
-          ? { ...request, status: "under_review" as const }
-          : request
-      )
-    )
-    
-    // Fermer le dialog si ouvert
-    if (selectedRequest?.id === requestId) {
-      setIsDialogOpen(false)
-      setSelectedRequest(null)
-    }
-    
-    // Feedback utilisateur
-    console.log(`👁️ Demande ${requestId} mise en révision`)
-    alert(`👁️ Demande ${requestId} mise en révision`)
-  }
+
 
   const filteredRequests = projectRequests.filter(request => {
     const matchesSearch = request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -637,19 +615,7 @@ export default function DemandesPage() {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="bg-white border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium text-gray-600">En révision</p>
-                      <p className="text-lg font-bold text-gray-900">{filteredRequests.filter(r => r.status === "under_review").length}</p>
-                    </div>
-                    <div className="p-1.5 bg-blue-100 rounded-lg">
-                      <Eye className="h-4 w-4 text-blue-600" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+
               <Card className="bg-white border-l-4 border-l-green-500 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
@@ -659,6 +625,20 @@ export default function DemandesPage() {
                     </div>
                     <div className="p-1.5 bg-green-100 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-l-4 border-l-red-500 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Rejetés</p>
+                      <p className="text-lg font-bold text-gray-900">{filteredRequests.filter(r => r.status === "rejected").length}</p>
+                    </div>
+                    <div className="p-1.5 bg-red-100 rounded-lg">
+                      <XCircle className="h-4 w-4 text-red-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -746,13 +726,7 @@ export default function DemandesPage() {
                     >
                       En attente
                     </Button>
-                    <Button
-                      variant={statusFilter === "under_review" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setStatusFilter("under_review")}
-                    >
-                      En révision
-                    </Button>
+
                     <Button
                       variant={statusFilter === "approved" ? "default" : "outline"}
                       size="sm"
@@ -816,7 +790,7 @@ export default function DemandesPage() {
                     const getStatusBorderColor = (status: ProjectRequest["status"]) => {
                       switch (status) {
                         case "pending": return "border-l-yellow-500"
-                        case "under_review": return "border-l-blue-500"
+
                         case "approved": return "border-l-green-500"
                         case "rejected": return "border-l-red-500"
                         default: return "border-l-gray-300"
@@ -829,7 +803,6 @@ export default function DemandesPage() {
                           {/* Status indicator bar */}
                           <div className={`absolute top-0 left-0 right-0 h-0.5 ${
                             request.status === "pending" ? "bg-yellow-400" :
-                            request.status === "under_review" ? "bg-blue-400" :
                             request.status === "approved" ? "bg-green-400" :
                             request.status === "rejected" ? "bg-red-400" :
                             "bg-gray-300"
@@ -927,37 +900,6 @@ export default function DemandesPage() {
                                   Consulter
                                 </Button>
                                 {request.status === "pending" && (
-                                  <>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handlePutUnderReview(request.id)}
-                                      className="bg-blue-50 hover:bg-blue-100 h-7 px-2 text-xs border-blue-200 text-blue-700 hover:text-blue-800"
-                                    >
-                                      <Eye className="h-3 w-3 mr-1" />
-                                      Réviser
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleApprove(request.id)}
-                                      className="bg-green-50 hover:bg-green-100 h-7 px-2 text-xs border-green-200 text-green-700 hover:text-green-800"
-                                    >
-                                      <CheckCircle className="h-3 w-3 mr-1" />
-                                      Approuver
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleReject(request.id)}
-                                      className="bg-red-50 hover:bg-red-100 h-7 px-2 text-xs border-red-200 text-red-700 hover:text-red-800"
-                                    >
-                                      <XCircle className="h-3 w-3 mr-1" />
-                                      Rejeter
-                                    </Button>
-                                  </>
-                                )}
-                                {request.status === "under_review" && (
                                   <>
                                     <Button
                                       variant="outline"
@@ -1201,14 +1143,6 @@ export default function DemandesPage() {
                 <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button
                     variant="outline"
-                    onClick={() => handlePutUnderReview(selectedRequest.id)}
-                    className="text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Mettre en révision
-                  </Button>
-                  <Button
-                    variant="outline"
                     onClick={() => handleReject(selectedRequest.id)}
                     className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
                   >
@@ -1224,25 +1158,7 @@ export default function DemandesPage() {
                   </Button>
                 </div>
               )}
-              {selectedRequest.status === "under_review" && (
-                <div className="flex justify-end space-x-2 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleReject(selectedRequest.id)}
-                    className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
-                  >
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Rejeter la demande
-                  </Button>
-                  <Button
-                    onClick={() => handleApprove(selectedRequest.id)}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Approuver la demande
-                  </Button>
-                </div>
-              )}
+
               {(selectedRequest.status === "approved" || selectedRequest.status === "rejected") && (
                 <div className="flex justify-end space-x-2 pt-4 border-t">
                   <div className="flex items-center gap-2 text-sm text-gray-600">

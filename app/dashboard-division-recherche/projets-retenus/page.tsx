@@ -254,7 +254,6 @@ export default function ProjetsRetenus() {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Retenu</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Programme</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Projet</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Thématique</th>
@@ -262,18 +261,12 @@ export default function ProjetsRetenus() {
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Prénom</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Établissement</th>
                           <th className="text-right py-2 px-3 font-medium text-gray-700">Budget proposé</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Retenu</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredProjets.map((projet, index) => (
                           <tr key={projet.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                            <td className="py-2 px-3">
-                              <Checkbox
-                                checked={projet.retenu}
-                                onCheckedChange={() => handleRetenuToggle(projet.id)}
-                                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                              />
-                            </td>
                             <td className="py-2 px-3">
                               <span className="font-medium text-gray-900">{projet.programme}</span>
                             </td>
@@ -296,6 +289,20 @@ export default function ProjetsRetenus() {
                             </td>
                             <td className="py-2 px-3 text-right">
                               <span className="font-medium text-gray-900">{formatBudget(projet.budgetPropose)}</span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <Button
+                                variant={projet.retenu ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleRetenuToggle(projet.id)}
+                                className={`h-6 px-2 text-xs ${
+                                  projet.retenu 
+                                    ? "bg-green-600 hover:bg-green-700 text-white" 
+                                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                                }`}
+                              >
+                                {projet.retenu ? "Retenu" : "Non retenu"}
+                              </Button>
                             </td>
                           </tr>
                         ))}

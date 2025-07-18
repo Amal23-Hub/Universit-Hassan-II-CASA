@@ -509,8 +509,11 @@ export default function VersementsPage() {
                 
                 <div className="p-4 space-y-4">
                   <div>
-                    <Label className="text-sm font-medium">Date de l'ordre de virement</Label>
+                    <Label htmlFor="ordre-date" className="text-sm font-medium text-gray-700">
+                      Date de l'ordre de virement
+                    </Label>
                     <Input
+                      id="ordre-date"
                       type="date"
                       value={ordreVirementDate}
                       onChange={(e) => setOrdreVirementDate(e.target.value)}
@@ -519,16 +522,119 @@ export default function VersementsPage() {
                   </div>
 
                   <div className="flex justify-end space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowVirementModal(false)}>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowVirementModal(false)}
+                    >
                       Annuler
                     </Button>
                     <Button 
-                      disabled={!ordreVirementDate}
-                      size="sm"
                       onClick={confirmerEnvoiVirement}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
+                      <Send className="h-4 w-4 mr-2" />
                       Confirmer l'envoi
                     </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal pour détails des tranches */}
+          {selectedTranche && selectedTranche.projetId && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold">Détails des Tranches</h2>
+                      <p className="text-sm text-gray-600">
+                        {projets.find(p => p.id === selectedTranche.projetId)?.projet}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setSelectedTranche(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 bg-gray-50">
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Tranche</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700">Montant</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Date Versement</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Reçu</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Date Réception</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Envoyé</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Date Envoi</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {projets.find(p => p.id === selectedTranche.projetId)?.tranches.map((tranche) => (
+                          <tr key={tranche.numero} className="border-b border-gray-100">
+                            <td className="py-2 px-3">
+                              <span className="font-medium text-gray-900">Tranche {tranche.numero}</span>
+                            </td>
+                            <td className="py-2 px-3 text-right">
+                              <span className="font-medium text-gray-900">{formatCurrency(tranche.montant)}</span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <span className="text-gray-700">{new Date(tranche.dateVersement).toLocaleDateString('fr-FR')}</span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <Checkbox
+                                checked={tranche.recu}
+                                onCheckedChange={() => handleTrancheRecuToggle(selectedTranche.projetId, tranche.numero)}
+                                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                              />
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {tranche.dateReception ? (
+                                <span className="text-green-600">{new Date(tranche.dateReception).toLocaleDateString('fr-FR')}</span>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {tranche.envoye ? (
+                                <Badge className="bg-blue-100 text-blue-800">Oui</Badge>
+                              ) : (
+                                <Badge className="bg-gray-100 text-gray-800">Non</Badge>
+                              )}
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {tranche.dateOrdreVirement ? (
+                                <span className="text-blue-600">{new Date(tranche.dateOrdreVirement).toLocaleDateString('fr-FR')}</span>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {!tranche.envoye && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEnvoyerVirement(selectedTranche.projetId, tranche.numero)}
+                                  className="h-6 px-2 text-xs hover:bg-blue-100 hover:text-blue-700"
+                                >
+                                  <Send className="h-3 w-3 mr-1" />
+                                  Envoyer
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>

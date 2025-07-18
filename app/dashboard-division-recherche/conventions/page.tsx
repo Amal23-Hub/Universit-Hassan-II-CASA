@@ -12,7 +12,6 @@ import { Header } from "@/components/header"
 import { 
   FileText, 
   Download, 
-  Upload, 
   Eye, 
   CheckCircle,
   AlertCircle,
@@ -22,9 +21,8 @@ import {
   BarChart3,
   Search,
   Filter,
-  FileSpreadsheet,
-  Plus,
-  X
+  X,
+  XCircle
 } from "lucide-react"
 import jsPDF from 'jspdf'
 
@@ -253,9 +251,6 @@ export default function ConventionsPage() {
   ])
 
   const [selectedConvention, setSelectedConvention] = useState<ConventionData | null>(null)
-  const [showUploadModal, setShowUploadModal] = useState(false)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [extractedData, setExtractedData] = useState<any>(null)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("fr-MA", {
@@ -267,7 +262,7 @@ export default function ConventionsPage() {
 
   const getStatusBadge = (statut: string) => {
     const config = {
-      draft: { label: "Brouillon", color: "bg-gray-100 text-gray-800" },
+      draft: { label: "Signée", color: "bg-green-100 text-green-800" },
       final: { label: "Final", color: "bg-blue-100 text-blue-800" },
       signed: { label: "Signée", color: "bg-green-100 text-green-800" }
     }
@@ -279,35 +274,7 @@ export default function ConventionsPage() {
     )
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file && file.type === "application/pdf") {
-      setUploadedFile(file)
-      // Simulation de l'extraction automatique des données
-      simulateDataExtraction(file)
-    }
-  }
 
-  const simulateDataExtraction = (file: File) => {
-    // Simulation de l'extraction des données du PDF
-    setTimeout(() => {
-      setExtractedData({
-        programme: "Programme National de Recherche en IA",
-        budgetTotal: 8500000,
-        nombreProjets: 12,
-        nombreTranches: 3,
-        modaliteVersement: "Versement en 3 tranches : 40% à la signature, 30% à mi-parcours, 30% à la fin",
-        projets: [
-          {
-            titre: "IA pour la santé préventive",
-            porteur: "Dr. Ahmed Benali",
-            budgetPropose: 450000,
-            budgetDefinitif: 420000
-          }
-        ]
-      })
-    }, 2000)
-  }
 
   const downloadConvention = (convention: ConventionData) => {
     // Création du PDF avec jsPDF
@@ -515,69 +482,7 @@ export default function ConventionsPage() {
     doc.save(`convention-${convention.id}.pdf`)
   }
 
-  const exportToExcel = (convention: ConventionData) => {
-    // Création du contenu CSV pour Excel
-    const csvContent = [
-      // En-tête de la convention
-      ['CONVENTION DE RECHERCHE'],
-      ['Programme', convention.programme],
-      ['ID Convention', convention.id],
-      ['Date de création', new Date(convention.dateCreation).toLocaleDateString('fr-FR')],
-      ['Budget total', formatCurrency(convention.budgetTotal)],
-      ['Modalité de versement', convention.modaliteVersement],
-      [],
-      // En-tête des projets
-      ['PROJETS INCLUS'],
-      ['Titre', 'Porteur', 'Budget Proposé', 'Budget Définitif'],
-      // Données des projets
-      ...convention.projets.map(projet => [
-        projet.titre,
-        projet.porteur,
-        formatCurrency(projet.budgetPropose),
-        formatCurrency(projet.budgetDefinitif)
-      ]),
-      [],
-      // Détails des tranches
-      ['DÉTAILS DES TRANCHES'],
-      ['Projet', 'Tranche', 'Montant Définitif', 'Date de Versement'],
-      ...convention.projets.flatMap(projet => 
-        projet.tranches.map(tranche => [
-          projet.titre,
-          `Tranche ${tranche.numero}`,
-          formatCurrency(tranche.montantDefinitif),
-          new Date(tranche.dateVersement).toLocaleDateString('fr-FR')
-        ])
-      ),
-      [],
-      // Utilisation de la subvention
-      ['UTILISATION DE LA SUBVENTION'],
-      ['Projet', 'Rubrique', 'Montant', 'Pourcentage', 'Description'],
-      ...convention.projets.flatMap(projet => 
-        projet.utilisationSubvention.map(rubrique => [
-          projet.titre,
-          rubrique.rubrique,
-          formatCurrency(rubrique.montant),
-          `${rubrique.pourcentage}%`,
-          rubrique.description
-        ])
-      )
-    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
 
-    // Création du blob CSV
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    
-    // Création du lien de téléchargement
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `convention-${convention.id}-export.csv`
-    document.body.appendChild(link)
-    link.click()
-    
-    // Nettoyage
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -592,15 +497,11 @@ export default function ConventionsPage() {
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">Gestion des Conventions</h1>
                 </div>
-                <Button onClick={() => setShowUploadModal(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Importer Convention
-                </Button>
               </div>
             </div>
 
             {/* Statistiques compactes */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
               <Card className="h-20">
                 <CardContent className="p-3 h-full flex items-center">
                   <div className="flex items-center justify-between w-full">
@@ -645,6 +546,18 @@ export default function ConventionsPage() {
                       <p className="text-lg font-bold">{conventions.filter(c => c.statut === "signed").length}</p>
                     </div>
                     <CheckCircle className="h-4 w-4 text-orange-600 flex-shrink-0" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="h-20">
+                <CardContent className="p-3 h-full flex items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <p className="text-xs text-gray-600 mb-1">Rejetés</p>
+                      <p className="text-lg font-bold">9</p>
+                    </div>
+                    <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
                   </div>
                 </CardContent>
               </Card>
@@ -738,16 +651,7 @@ export default function ConventionsPage() {
                             className="h-8 px-2 text-xs hover:bg-green-100 hover:text-green-700"
                           >
                             <Download className="h-3 w-3 mr-1" />
-                            PDF
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => exportToExcel(convention)}
-                            className="h-8 px-2 text-xs hover:bg-orange-100 hover:text-orange-700"
-                          >
-                            <FileSpreadsheet className="h-3 w-3 mr-1" />
-                            Excel
+                            Convention
                           </Button>
                         </div>
                       </div>
@@ -868,98 +772,7 @@ export default function ConventionsPage() {
             </div>
           )}
 
-          {/* Modal d'upload simplifié */}
-          {showUploadModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
-                <div className="p-4 border-b">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold">Importer une Convention PDF</h2>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowUploadModal(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="p-4 space-y-4">
-                  <div className="border-2 border-dashed border-gray-300 rounded p-6 text-center">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <Label htmlFor="pdf-upload" className="cursor-pointer">
-                      <div className="font-medium text-gray-900 mb-1">Sélectionner le fichier PDF</div>
-                      <div className="text-sm text-gray-500">ou glissez-déposez le fichier ici</div>
-                    </Label>
-                    <Input
-                      id="pdf-upload"
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </div>
 
-                  {uploadedFile && (
-                    <div className="bg-green-50 border border-green-200 rounded p-3">
-                      <div className="flex items-center space-x-2">
-                        <FileText className="h-4 w-4 text-green-600" />
-                        <div>
-                          <div className="font-medium text-sm">{uploadedFile.name}</div>
-                          <div className="text-xs text-green-700">
-                            Taille: {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {extractedData && (
-                    <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CheckCircle className="h-4 w-4 text-blue-600" />
-                        <span className="font-medium text-sm text-blue-900">Données extraites avec succès</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <Label className="text-xs font-medium text-blue-900">Programme</Label>
-                          <p className="font-medium text-blue-800">{extractedData.programme}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-blue-900">Budget Total</Label>
-                          <p className="font-medium text-blue-800">{formatCurrency(extractedData.budgetTotal)}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-blue-900">Nombre de Projets</Label>
-                          <p className="font-medium text-blue-800">{extractedData.nombreProjets}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-blue-900">Modalité de Versement</Label>
-                          <p className="text-xs text-blue-700">{extractedData.modaliteVersement}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowUploadModal(false)}>
-                      Annuler
-                    </Button>
-                    <Button 
-                      disabled={!uploadedFile}
-                      size="sm"
-                      onClick={() => {
-                        setShowUploadModal(false)
-                      }}
-                    >
-                      Sauvegarder
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </main>
       </div>
     </div>
