@@ -27,6 +27,7 @@ interface Publication {
   title: string
   authors: string
   year: number
+  date?: string
   source: "Scopus" | "WOS" | "ORCID" | "DOI"
   status: "pending" | "validated" | "rejected"
   category: string
@@ -153,6 +154,7 @@ export default function PublicationsPage() {
       title: "Deep Learning in Oncology",
       authors: "F. EL HASSANI, J. Smith",
       year: 2024,
+      date: "2024-03-15",
       source: "Scopus",
       status: "pending",
       memberId: "member1",
@@ -171,6 +173,7 @@ export default function PublicationsPage() {
       title: "NLP for Arabic Documents",
       authors: "F. EL HASSANI, A. BENALI, M. ALAMI",
       year: 2023,
+      date: "2023-11-22",
       source: "WOS",
       status: "validated",
       memberId: "member1",
@@ -517,18 +520,18 @@ export default function PublicationsPage() {
             <Card className="mb-3">
               <CardContent className="p-3">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                  {/* Année */}
+                  {/* Date */}
                   <div>
-                    <Label className="text-sm">Année</Label>
+                    <Label className="text-sm">Date</Label>
                     <Select
                       value={filterYear}
                       onValueChange={value => setFilterYear(value)}
                     >
                       <SelectTrigger className="h-10 mt-1">
-                        <SelectValue placeholder="Toutes les années" />
+                        <SelectValue placeholder="Toutes les dates" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Toutes les années</SelectItem>
+                        <SelectItem value="all">Toutes les dates</SelectItem>
                         {[...new Set(publications.map((p) => p.year))].sort((a, b) => b - a).map((year) => (
                           <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                         ))}
@@ -604,7 +607,7 @@ export default function PublicationsPage() {
                       <tr>
                         <th className="text-center py-1.5 px-2 font-medium text-gray-700 w-12">#</th>
                         <th className="text-left py-1.5 px-2 font-medium text-gray-700">Titre</th>
-                        <th className="text-left py-1.5 px-2 font-medium text-gray-700">Année</th>
+                        <th className="text-left py-1.5 px-2 font-medium text-gray-700">Date</th>
                         <th className="text-center py-1.5 px-2 font-medium text-gray-700">Catégorie</th>
                         <th className="text-center py-1.5 px-2 font-medium text-gray-700">Mode</th>
                         <th className="text-center py-1.5 px-2 font-medium text-gray-700">Source</th>
@@ -627,7 +630,7 @@ export default function PublicationsPage() {
                               {pub.authors}
                             </div>
                           </td>
-                          <td className="py-1.5 px-2 text-gray-700">{pub.year}</td>
+                          <td className="py-1.5 px-2 text-gray-700">{pub.date || `${pub.year}-01-15`}</td>
                           <td className="py-1.5 px-2 text-center">
                             <Badge variant="outline" className="text-xs">
                               {pub.category}

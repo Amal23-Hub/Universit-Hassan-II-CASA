@@ -30,6 +30,7 @@ import {
   DollarSign,
   FileCheck,
   Calculator,
+  List,
 } from "lucide-react"
 
 interface NavigationItem {
@@ -56,7 +57,7 @@ const memberNavigation: NavigationItem[] = [
     icon: BookOpen,
   },
   {
-    title: "Projets et Contrats",
+    title: "Mes projets retenus",
     href: "/projets-contrats",
     icon: FileText,
   },
@@ -70,10 +71,15 @@ const memberNavigation: NavigationItem[] = [
     href: "/distinctions-prix",
     icon: Award,
   },
+  // {
+  //   title: "Programme d'emploi",
+  //   href: "/dashboard-member/programme-emploi",
+  //   icon: Calculator,
+  // },
   {
-    title: "Programme d'emploi",
-    href: "/dashboard-member/programme-emploi",
-    icon: Calculator,
+    title: "Liste des programmes",
+    href: "/dashboard-member/liste-programmes",
+    icon: List,
   },
 ]
 
@@ -131,7 +137,7 @@ const divisionRechercheNavigation: NavigationItem[] = [
     icon: BarChart3,
   },
   {
-    title: "Projets Retenus",
+    title: "projet de recherche",
     href: "/dashboard-division-recherche/projets-retenus",
     icon: CheckSquare,
   },
@@ -169,7 +175,7 @@ const memberDashboardNavigation: NavigationItem[] = [
     icon: BookOpen,
   },
   {
-    title: "Projets et Contrats",
+    title: "Mes projets retenus",
     href: "/projets-contrats",
     icon: FileText,
   },
@@ -183,10 +189,15 @@ const memberDashboardNavigation: NavigationItem[] = [
     href: "/distinctions-prix",
     icon: Award,
   },
+  // {
+  //   title: "Programme d'emploi",
+  //   href: "/dashboard-member/programme-emploi",
+  //   icon: Calculator,
+  // },
   {
-    title: "Programme d'emploi",
-    href: "/dashboard-member/programme-emploi",
-    icon: Calculator,
+    title: "Liste des programmes",
+    href: "/dashboard-member/liste-programmes",
+    icon: List,
   },
 ]
 

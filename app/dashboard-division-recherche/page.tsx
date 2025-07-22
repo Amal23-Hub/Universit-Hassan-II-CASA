@@ -206,7 +206,7 @@ export default function DashboardDivisionRecherche() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Projets Retenus</p>
+                      <p className="text-sm font-medium text-gray-600">projet de recherche</p>
                       <p className="text-2xl font-bold text-gray-900">{stats.projetsRetenus}</p>
                     </div>
                     <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">

@@ -183,7 +183,7 @@ export default function ProjetsRetenus() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
           <div className="mx-auto">
             <div className="mb-4">
-              <h1 className="text-xl font-bold text-gray-900">Projets Retenus</h1>
+              <h1 className="text-xl font-bold text-gray-900">projet de recherche</h1>
             </div>
 
             {/* Filters */}
@@ -258,7 +258,7 @@ export default function ProjetsRetenus() {
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Projet</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Thématique</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Nom du coordonnateur</th>
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Prénom</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">prenom coordinateur</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Établissement</th>
                           <th className="text-right py-2 px-3 font-medium text-gray-700">Budget proposé</th>
                           <th className="text-center py-2 px-3 font-medium text-gray-700">Retenu</th>

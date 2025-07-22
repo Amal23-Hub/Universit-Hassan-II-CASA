@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import {
@@ -125,11 +126,15 @@ export default function DistinctionsPrix() {
   const [showMembersSection, setShowMembersSection] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filterTitre, setFilterTitre] = useState("all")
+  const [filterEtat, setFilterEtat] = useState("all")
   const [availableMembers] = useState([
-    { id: "1", name: "Dr. Fatima EL HASSANI", role: "Enseignant chercheur" },
-    { id: "2", name: "Dr. Ahmed BENALI", role: "Enseignant chercheur" },
-    { id: "3", name: "Dr. Sara EL HARTI", role: "Enseignant chercheur" },
-    { id: "4", name: "Dr. Mohamed LAHBY", role: "Enseignant chercheur" },
+    { id: "1", nom: "Benali", prenom: "Ahmed", etat: "Actif", titre: "Dr." },
+    { id: "2", nom: "Zahra", prenom: "Fatima", etat: "Actif", titre: "Dr." },
+    { id: "3", nom: "El Harti", prenom: "Sara", etat: "Actif", titre: "Dr." },
+    { id: "4", nom: "Lahby", prenom: "Mohamed", etat: "Actif", titre: "Dr." },
+    { id: "5", nom: "Alaoui", prenom: "Karim", etat: "Actif", titre: "Pr." },
+    { id: "6", nom: "Bennani", prenom: "Amina", etat: "Actif", titre: "Dr." }
   ])
 
   // Filter logic
@@ -299,6 +304,19 @@ export default function DistinctionsPrix() {
     setNewDistinction({ ...newDistinction, membres: updatedMembers })
   }
 
+  const handleRemoveMember = (memberName: string) => {
+    // Extraire le nom de famille du nom complet pour trouver l'ID
+    const memberNameParts = memberName.split(' ')
+    const lastName = memberNameParts[1] // Le nom de famille est à l'index 1
+    
+    const memberToRemove = availableMembers.find(member => member.nom === lastName)
+    if (memberToRemove) {
+      const currentMembers = newDistinction.membres || []
+      const updatedMembers = currentMembers.filter(id => id !== memberToRemove.id)
+      setNewDistinction({ ...newDistinction, membres: updatedMembers })
+    }
+  }
+
   const handleDateTypeChange = (dateType: "jour" | "mois" | "annee") => {
     setNewDistinction({ ...newDistinction, dateType })
     
@@ -417,14 +435,30 @@ export default function DistinctionsPrix() {
     if (!newDistinction.membres || newDistinction.membres.length === 0) return []
     return availableMembers
       .filter(member => newDistinction.membres!.includes(member.id))
-      .map(member => member.name)
+      .map(member => `${member.titre} ${member.nom} ${member.prenom}`)
   }
 
   const getMemberNamesByIds = (memberIds: string[] | undefined) => {
     if (!memberIds || memberIds.length === 0) return []
     return availableMembers
       .filter(member => memberIds.includes(member.id))
-      .map(member => member.name)
+      .map(member => `${member.titre} ${member.nom} ${member.prenom}`)
+  }
+
+  // Filtrage des membres
+  const filteredMembers = availableMembers.filter(member => {
+    const titreMatch = filterTitre === "all" || member.titre === filterTitre
+    const etatMatch = filterEtat === "all" || member.etat === filterEtat
+    return titreMatch && etatMatch
+  })
+
+  const handleMemberSelect = (memberId: string) => {
+    if (!newDistinction.membres?.includes(memberId)) {
+      setNewDistinction(prev => ({
+        ...prev,
+        membres: [...(prev.membres || []), memberId]
+      }))
+    }
   }
 
   const getUniqueYears = () => {
@@ -541,33 +575,81 @@ export default function DistinctionsPrix() {
                           {/* Liste des membres - seulement si projet collectif */}
                           {newDistinction.typeProjet === "collectif" && (
                             <div className="space-y-3">
-                              <Label className="text-sm font-medium">Membres du projet <span className="text-red-600">*</span></Label>
-                              <div className="border rounded-lg p-4 bg-gray-50">
-                                <div className="space-y-3">
-                                  {availableMembers.map((member) => (
-                                    <div key={member.id} className="flex items-center space-x-3">
-                                      <input
-                                        type="checkbox"
-                                        id={`member-${member.id}`}
-                                        checked={newDistinction.membres?.includes(member.id) || false}
-                                        onChange={() => handleMemberToggle(member.id)}
-                                        className="h-4 w-4 text-uh2c-blue rounded"
-                                      />
-                                      <Label htmlFor={`member-${member.id}`} className="text-sm flex-1">
-                                        <div className="font-medium">{member.name}</div>
-                                        <div className="text-xs text-gray-500">{member.role}</div>
-                                      </Label>
-                                    </div>
-                                  ))}
+                              <Label className="text-sm font-medium">Membres associés <span className="text-red-600">*</span></Label>
+                              
+                              <div className="space-y-3">
+                                {/* Filtres */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-xs font-medium text-gray-600">Filtrer par titre</Label>
+                                    <Select onValueChange={(value) => setFilterTitre(value)}>
+                                      <SelectTrigger className="mt-1 h-9 text-sm">
+                                        <SelectValue placeholder="Tous les titres" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="all">Tous les titres</SelectItem>
+                                        <SelectItem value="Dr.">Dr.</SelectItem>
+                                        <SelectItem value="Pr.">Pr.</SelectItem>
+                                        <SelectItem value="M.">M.</SelectItem>
+                                        <SelectItem value="Mme.">Mme.</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-gray-600">Filtrer par qualité</Label>
+                                    <Select onValueChange={(value) => setFilterEtat(value)}>
+                                      <SelectTrigger className="mt-1 h-9 text-sm">
+                                        <SelectValue placeholder="Toutes les qualités" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="all">Toutes les qualités</SelectItem>
+                                        <SelectItem value="Actif">Actif</SelectItem>
+                                        <SelectItem value="Inactif">Inactif</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
                                 </div>
-                                
+
+                                {/* Liste déroulante des membres */}
+                                <div>
+                                  <Label className="text-xs font-medium text-gray-600">Sélectionner un membre</Label>
+                                  <Select onValueChange={(value) => handleMemberSelect(value)}>
+                                    <SelectTrigger className="mt-1 h-9 text-sm">
+                                      <SelectValue placeholder="Choisir un membre..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-60">
+                                      {filteredMembers.map((member) => (
+                                        <SelectItem key={member.id} value={member.id}>
+                                          <div className="flex items-center justify-between w-full">
+                                            <span>{member.nom} {member.prenom}</span>
+                                            <div className="flex items-center gap-2 text-gray-500">
+                                              <Badge className="bg-green-100 text-green-800 text-xs px-1 py-0.5">
+                                                {member.etat}
+                                              </Badge>
+                                              <span className="text-xs">{member.titre}</span>
+                                            </div>
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                {/* Membres sélectionnés */}
                                 {getSelectedMemberNames().length > 0 && (
-                                  <div className="mt-4 pt-3 border-t">
-                                    <Label className="text-xs font-medium text-gray-600">Membres sélectionnés :</Label>
-                                    <div className="mt-2 flex flex-wrap gap-2">
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-600 mb-2">Membres sélectionnés :</p>
+                                    <div className="flex flex-wrap gap-1">
                                       {getSelectedMemberNames().map((name, index) => (
                                         <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-uh2c-blue text-white">
                                           {name}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveMember(name)}
+                                            className="ml-2 text-white hover:text-red-200"
+                                          >
+                                            ×
+                                          </button>
                                         </span>
                                       ))}
                                     </div>

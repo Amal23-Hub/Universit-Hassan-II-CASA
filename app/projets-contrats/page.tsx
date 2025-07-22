@@ -1,24 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Sidebar } from "@/components/sidebar"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Eye, FileText, DollarSign, Plus, Trash2, Filter, Download } from "lucide-react"
 import { Header } from "@/components/header"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Plus, Search, Filter, Eye, Edit, Trash2, FileText } from "lucide-react"
+import { Sidebar } from "@/components/sidebar"
 import Image from "next/image"
 
 interface ProjetContrat {
@@ -34,7 +26,15 @@ interface ProjetContrat {
   anneeFin: number
   organismesPartenaires: string
   budgetTotal: number
-  tranches: Array<{ id: string, montant: number, description: string }>
+  tranches: Array<{ 
+    id: string, 
+    montant: number, 
+    description: string,
+    recu?: boolean,
+    dateReception?: string,
+    envoye?: boolean,
+    dateEnvoi?: string
+  }>
   nombreDoctorants: number
   bourse: number
   mobilite: number
@@ -46,105 +46,143 @@ interface ProjetContrat {
   programme?: string
   typologie?: string
   sousProgramme?: string
+  statutRetenu?: "Retenu" | "Non retenu" | "En attente"
+  convention?: string
+  versements?: Array<{ id: string, montant: number, date: string, description: string }>
 }
 
 export default function ProjetsContrats() {
   const [projets, setProjets] = useState<ProjetContrat[]>([
     {
-      id: "PC001",
+      id: "1",
       typeProjetContrat: "Projet de recherche financé",
       typeProjet: "National",
-      coordonnateur: "Dr. Ahmed Benali",
-      intitule: "Développement d'un système IA pour la santé",
-      thematique: "Intelligence Artificielle",
-      organismeContractant: "Ministère de la Santé",
-      codeReference: "MS-IA-2024-001",
+      coordonnateur: "Dr. Ahmed BENALI",
+      intitule: "Développement de technologies vertes pour la transition énergétique",
+      thematique: "Énergie renouvelable",
+      organismeContractant: "Ministère de l'Énergie",
+      codeReference: "PR-2024-001",
       anneeDebut: 2024,
-      anneeFin: 2025,
-      organismesPartenaires: "CHU Hassan II, ENSA Casablanca",
-      budgetTotal: 200000,
+      anneeFin: 2026,
+      organismesPartenaires: "Université Hassan II, CNRS",
+      budgetTotal: 1500000,
       tranches: [
-        { id: "tranche1", montant: 200000, description: "Première tranche" }
+        { 
+          id: "1", 
+          montant: 500000, 
+          description: "Première tranche",
+          recu: true,
+          dateReception: "2024-01-15",
+          envoye: true,
+          dateEnvoi: "2024-01-10"
+        },
+        { 
+          id: "2", 
+          montant: 1000000, 
+          description: "Deuxième tranche",
+          recu: false,
+          envoye: false
+        }
       ],
       nombreDoctorants: 3,
-      bourse: 2,
-      mobilite: 1,
+      bourse: 120000,
+      mobilite: 50000,
+      statutRetenu: "Retenu",
+      convention: "convention-projet-1.pdf",
+      versements: [
+        { id: "1", montant: 500000, date: "2024-01-15", description: "Premier versement" },
+        { id: "2", montant: 300000, date: "2024-06-20", description: "Deuxième versement" }
+      ]
     },
     {
-      id: "PC002",
+      id: "2",
       typeProjetContrat: "Contrat de recherche",
       typeProjet: "International",
-      coordonnateur: "Dr. Fatima Zahra",
-      intitule: "Recherche en cybersécurité avancée",
-      thematique: "Cybersécurité",
-      organismeContractant: "Union Européenne",
-      codeReference: "EU-CYBER-2023-H2020",
-      anneeDebut: 2023,
-      anneeFin: 2024,
-      organismesPartenaires: "Université de Paris, TU Munich",
-      budgetTotal: 400000,
+      coordonnateur: "Dr. Fatima EL HASSANI",
+      intitule: "Intelligence artificielle pour la médecine personnalisée",
+      thematique: "Intelligence artificielle",
+      organismeContractant: "Institut Pasteur",
+      codeReference: "CR-2024-002",
+      anneeDebut: 2024,
+      anneeFin: 2027,
+      organismesPartenaires: "Université Hassan II, Sorbonne Université",
+      budgetTotal: 2500000,
       tranches: [
-        { id: "tranche1", montant: 400000, description: "Première tranche" }
+        { 
+          id: "1", 
+          montant: 800000, 
+          description: "Phase 1",
+          recu: false,
+          envoye: false
+        },
+        { 
+          id: "2", 
+          montant: 900000, 
+          description: "Phase 2",
+          recu: false,
+          envoye: false
+        },
+        { 
+          id: "3", 
+          montant: 800000, 
+          description: "Phase 3",
+          recu: false,
+          envoye: false
+        }
       ],
       nombreDoctorants: 5,
-      bourse: 3,
-      mobilite: 2,
+      bourse: 200000,
+      mobilite: 100000,
+      statutRetenu: "Non retenu"
     },
+    {
+      id: "3",
+      typeProjetContrat: "Projet de recherche financé",
+      typeProjet: "National",
+      coordonnateur: "Dr. Karim ALAOUI",
+      intitule: "Optimisation des réseaux de transport intelligents",
+      thematique: "Transport et logistique",
+      organismeContractant: "Agence Nationale des Autoroutes",
+      codeReference: "PR-2024-003",
+      anneeDebut: 2024,
+      anneeFin: 2025,
+      organismesPartenaires: "Université Hassan II, École Mohammadia",
+      budgetTotal: 800000,
+      tranches: [
+        { 
+          id: "1", 
+          montant: 400000, 
+          description: "Étude préliminaire",
+          recu: false,
+          envoye: false
+        },
+        { 
+          id: "2", 
+          montant: 400000, 
+          description: "Développement",
+          recu: false,
+          envoye: false
+        }
+      ],
+      nombreDoctorants: 2,
+      bourse: 80000,
+      mobilite: 30000,
+      statutRetenu: "En attente"
+    }
   ])
 
   const [filteredProjets, setFilteredProjets] = useState<ProjetContrat[]>(projets)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterAnnee, setFilterAnnee] = useState<string>("all")
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [showTypeSelection, setShowTypeSelection] = useState(true)
-  const [showProgramSelection, setShowProgramSelection] = useState(false)
-  const [showProjectForm, setShowProjectForm] = useState(false)
-  const [selectedProgram, setSelectedProgram] = useState("")
-  const [selectedProject, setSelectedProject] = useState("")
-  const [requestToResearchPole, setRequestToResearchPole] = useState(false)
-  const [showProjects, setShowProjects] = useState(false)
-  const [showProgramSelectionMessage, setShowProgramSelectionMessage] = useState(true)
-  const [lienJustificatifError, setLienJustificatifError] = useState("")
-  const [anneeError, setAnneeError] = useState("")
-  const [justificatifFile, setJustificatifFile] = useState<File | null>(null)
-  const [fieldErrors, setFieldErrors] = useState({
-    coordonnateur: false,
-    intitule: false,
-    thematique: false,
-    organismeContractant: false,
-    codeReference: false,
-    organismesPartenaires: false,
-    budgetTotal: false
+  const [filterStatut, setFilterStatut] = useState<string>("all")
+  const [showVersementsModal, setShowVersementsModal] = useState(false)
+  const [selectedProjetForModal, setSelectedProjetForModal] = useState<ProjetContrat | null>(null)
+  const [newVersement, setNewVersement] = useState({
+    montant: 0,
+    date: "",
+    description: ""
   })
-
-  const [newProjet, setNewProjet] = useState<Partial<ProjetContrat>>({
-    typeProjetContrat: "Projet de recherche financé",
-    typeProjet: "National",
-    coordonnateur: "",
-    intitule: "",
-    thematique: "",
-    organismeContractant: "",
-    codeReference: "",
-    anneeDebut: new Date().getFullYear(),
-    anneeFin: new Date().getFullYear() + 1,
-    organismesPartenaires: "",
-    budgetTotal: 0,
-    tranches: [],
-    nombreDoctorants: 0,
-    bourse: 0,
-    mobilite: 0,
-    phaseSoumission: "",
-    phaseConvention: "",
-    lien: "",
-    justificatifs: "",
-    membres: [],
-    programme: "",
-    typologie: "",
-    sousProgramme: "",
-  })
-
-  const [trancheCounter, setTrancheCounter] = useState(1)
 
   // Filter logic
   const applyFilters = () => {
@@ -172,346 +210,198 @@ export default function ProjetsContrats() {
       filtered = filtered.filter((projet) => projet.anneeDebut.toString() === filterAnnee)
     }
 
+    // Statut filter
+    if (filterStatut !== "all") {
+      filtered = filtered.filter((projet) => projet.statutRetenu === filterStatut)
+    }
+
     setFilteredProjets(filtered)
   }
 
   // Apply filters when dependencies change
   useEffect(() => {
     applyFilters()
-  }, [searchTerm, filterType, filterAnnee])
-
-  const handleAddTranche = () => {
-    const newTranche = {
-      id: `tranche-${trancheCounter}`,
-      montant: 0,
-      description: `Tranche ${trancheCounter}`
-    }
-    setNewProjet({
-      ...newProjet,
-      tranches: [...(newProjet.tranches || []), newTranche]
-    })
-    setTrancheCounter(trancheCounter + 1)
-  }
-
-  const handleRemoveTranche = (trancheId: string) => {
-    setNewProjet({
-      ...newProjet,
-      tranches: newProjet.tranches?.filter(t => t.id !== trancheId) || []
-    })
-  }
-
-  const handleTrancheChange = (trancheId: string, field: 'montant' | 'description', value: string | number) => {
-    setNewProjet({
-      ...newProjet,
-      tranches: newProjet.tranches?.map(t => 
-        t.id === trancheId ? { ...t, [field]: value } : t
-      ) || []
-    })
-  }
-
-  const handleBudgetTotalChange = (value: number) => {
-    setNewProjet({ ...newProjet, budgetTotal: value })
-  }
-
-  const handleAddProjet = () => {
-    // Validation des champs obligatoires
-    const errors = {
-      coordonnateur: !newProjet.coordonnateur,
-      intitule: !newProjet.intitule,
-      thematique: !newProjet.thematique,
-      organismeContractant: !newProjet.organismeContractant,
-      codeReference: !newProjet.codeReference,
-      organismesPartenaires: !newProjet.organismesPartenaires,
-      budgetTotal: !newProjet.budgetTotal || newProjet.budgetTotal <= 0
-    }
-    
-    if (Object.values(errors).some(Boolean)) {
-      setFieldErrors(errors)
-      return
-    }
-    
-    // Validation d'année
-    if (newProjet.anneeDebut && newProjet.anneeDebut > getCurrentYear()) {
-      setAnneeError("L'année ne peut pas être supérieure à l'année actuelle")
-      return
-    }
-
-    if (newProjet.anneeFin && newProjet.anneeDebut && newProjet.anneeFin < newProjet.anneeDebut) {
-      setAnneeError("L'année de fin ne peut pas être antérieure à l'année de début")
-      return
-    }
-    
-    // Validation conditionnelle : lien OU justificatifs obligatoire
-    if (!newProjet.lien && !justificatifFile) {
-      setLienJustificatifError("Veuillez fournir soit un lien, soit un justificatif.")
-      return
-    }
-
-    const selectedProjectInfo = getSelectedProjectInfo()
-    const selectedProgramInfo = availablePrograms.find(p => p.id === selectedProgram)
-
-    const id = `PC${String(projets.length + 1).padStart(3, "0")}`
-    const projet: ProjetContrat = {
-      id,
-      typeProjetContrat: newProjet.typeProjetContrat!,
-      typeProjet: newProjet.typeProjet!,
-      coordonnateur: newProjet.coordonnateur!,
-      intitule: selectedProjectInfo ? selectedProjectInfo.name : newProjet.intitule!,
-      thematique: selectedProjectInfo ? selectedProjectInfo.name : newProjet.thematique!,
-      organismeContractant: selectedProgramInfo ? selectedProgramInfo.organisme : newProjet.organismeContractant!,
-      codeReference: selectedProgramInfo ? selectedProgramInfo.code : newProjet.codeReference!,
-      anneeDebut: newProjet.anneeDebut!,
-      anneeFin: newProjet.anneeFin!,
-      organismesPartenaires: newProjet.organismesPartenaires!,
-      budgetTotal: newProjet.budgetTotal!,
-      tranches: newProjet.tranches || [],
-      nombreDoctorants: newProjet.nombreDoctorants!,
-      bourse: newProjet.bourse!,
-      mobilite: newProjet.mobilite!,
-      phaseSoumission: newProjet.phaseSoumission,
-      phaseConvention: newProjet.phaseConvention,
-      lien: newProjet.lien,
-      justificatifs: justificatifFile ? justificatifFile.name : "",
-      membres: newProjet.membres || [],
-      programme: selectedProgramInfo ? selectedProgramInfo.name : newProjet.programme,
-      typologie: newProjet.typologie,
-      sousProgramme: newProjet.sousProgramme,
-    }
-
-    setProjets([...projets, projet])
-    setFilteredProjets([...projets, projet])
-    setNewProjet({
-      typeProjetContrat: "Projet de recherche financé",
-      typeProjet: "National",
-      coordonnateur: "",
-      intitule: "",
-      thematique: "",
-      organismeContractant: "",
-      codeReference: "",
-      anneeDebut: new Date().getFullYear(),
-      anneeFin: new Date().getFullYear() + 1,
-      organismesPartenaires: "",
-      budgetTotal: 0,
-      tranches: [],
-      nombreDoctorants: 0,
-      bourse: 0,
-      mobilite: 0,
-      phaseSoumission: "",
-      phaseConvention: "",
-      lien: "",
-      justificatifs: "",
-      membres: [],
-      programme: "",
-      typologie: "",
-      sousProgramme: "",
-    })
-    setIsDialogOpen(false)
-    setFieldErrors({ coordonnateur: false, intitule: false, thematique: false, organismeContractant: false, codeReference: false, organismesPartenaires: false, budgetTotal: false })
-    setLienJustificatifError("")
-    setAnneeError("")
-    setJustificatifFile(null)
-    setTrancheCounter(1)
-  }
-
-  const handleDeleteProjet = (id: string) => {
-    const updatedProjets = projets.filter((p) => p.id !== id)
-    setProjets(updatedProjets)
-    setFilteredProjets(updatedProjets)
-  }
-
-  const handleDialogClose = () => {
-    setIsDialogOpen(false)
-    setShowTypeSelection(true)
-    setShowProgramSelection(false)
-    setShowProjectForm(false)
-    setSelectedProgram("")
-    setSelectedProject("")
-    setShowProjects(false)
-    setRequestToResearchPole(false)
-    setShowProgramSelectionMessage(true)
-    setNewProjet({
-      typeProjetContrat: "Projet de recherche financé",
-      typeProjet: "National",
-      coordonnateur: "",
-      intitule: "",
-      thematique: "",
-      organismeContractant: "",
-      codeReference: "",
-      anneeDebut: new Date().getFullYear(),
-      anneeFin: new Date().getFullYear() + 1,
-      organismesPartenaires: "",
-      budgetTotal: 0,
-      tranches: [],
-      nombreDoctorants: 0,
-      bourse: 0,
-      mobilite: 0,
-      phaseSoumission: "",
-      phaseConvention: "",
-      lien: "",
-      justificatifs: "",
-      membres: [],
-      programme: "",
-      typologie: "",
-      sousProgramme: "",
-    })
-    setFieldErrors({
-      coordonnateur: false,
-      intitule: false,
-      thematique: false,
-      organismeContractant: false,
-      codeReference: false,
-      organismesPartenaires: false,
-      budgetTotal: false
-    })
-    setLienJustificatifError("")
-    setAnneeError("")
-    setJustificatifFile(null)
-    setTrancheCounter(1)
-  }
-
-  const handleMemberToggle = (memberId: string) => {
-    const currentMembers = newProjet.membres || []
-    const updatedMembers = currentMembers.includes(memberId)
-      ? currentMembers.filter(id => id !== memberId)
-      : [...currentMembers, memberId]
-    setNewProjet({ ...newProjet, membres: updatedMembers })
-  }
+  }, [searchTerm, filterType, filterAnnee, filterStatut])
 
   const formatBudget = (amount: number) => {
-    return new Intl.NumberFormat("fr-MA", {
-      style: "currency",
-      currency: "MAD",
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'MAD',
       minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount)
   }
 
   const getCurrentYear = () => new Date().getFullYear()
 
   const getUniqueYears = () => {
-    const years = [...new Set(projets.map((p) => p.anneeDebut))].sort((a, b) => b - a)
-    return years
+    const years = projets.map(projet => projet.anneeDebut)
+    return [...new Set(years)].sort((a, b) => b - a)
   }
 
-  // Fonction pour récupérer les informations du projet sélectionné
-  const getSelectedProjectInfo = () => {
-    if (!selectedProgram || !selectedProject) return null
+  const handleDownloadConvention = (projet: ProjetContrat) => {
+    // Le système offre à l'utilisateur la possibilité de télécharger la convention
+    // associée à un programme spécifique. Cette convention englobe tous les projets
+    // retenus dans le cadre du programme concerné.
     
-    const program = availablePrograms.find(p => p.id === selectedProgram)
-    if (!program) return null
-    
-    return program.projets.find(projet => projet.id === selectedProject)
-  }
-
-  // Liste fictive de membres
-  const availableMembers = [
-    { id: "1", name: "Dr. Ahmed Benali" },
-    { id: "2", name: "Dr. Fatima Zahra" },
-    { id: "3", name: "Dr. Sara El Harti" },
-    { id: "4", name: "Dr. Mohamed Lahby" }
-  ];
-
-  // Liste des programmes disponibles avec leurs projets
-  const availablePrograms = [
-    { 
-      id: "1", 
-      name: "Programme National de Recherche en IA", 
-      code: "PNR-IA-2024", 
-      organisme: "Ministère de l'Enseignement Supérieur",
-      projets: [
-        { id: "1.1", name: "Développement d'algorithmes d'IA pour l'éducation", budget: 500000 },
-        { id: "1.2", name: "Systèmes d'IA pour la santé préventive", budget: 750000 },
-        { id: "1.3", name: "IA pour l'optimisation énergétique", budget: 600000 },
-        { id: "1.4", name: "Intelligence artificielle pour la cybersécurité", budget: 800000 }
-      ]
-    },
-    { 
-      id: "2", 
-      name: "Programme de Recherche en Cybersécurité", 
-      code: "PR-CYB-2024", 
-      organisme: "Agence Nationale de Sécurité",
-      projets: [
-        { id: "2.1", name: "Protection des infrastructures critiques", budget: 1200000 },
-        { id: "2.2", name: "Cryptographie post-quantique", budget: 900000 },
-        { id: "2.3", name: "Détection d'intrusions avancée", budget: 650000 },
-        { id: "2.4", name: "Sécurité des réseaux 5G", budget: 1100000 }
-      ]
-    },
-    { 
-      id: "3", 
-      name: "Programme de Recherche en Santé Numérique", 
-      code: "PR-SN-2024", 
-      organisme: "Ministère de la Santé",
-      projets: [
-        { id: "3.1", name: "Télémédecine pour zones rurales", budget: 400000 },
-        { id: "3.2", name: "IA pour diagnostic médical", budget: 850000 },
-        { id: "3.3", name: "Systèmes de surveillance épidémiologique", budget: 550000 },
-        { id: "3.4", name: "Plateforme de santé connectée", budget: 700000 }
-      ]
-    },
-    { 
-      id: "4", 
-      name: "Programme de Recherche en Énergies Renouvelables", 
-      code: "PR-ER-2024", 
-      organisme: "Ministère de l'Énergie",
-      projets: [
-        { id: "4.1", name: "Optimisation des panneaux solaires", budget: 600000 },
-        { id: "4.2", name: "Stockage d'énergie renouvelable", budget: 950000 },
-        { id: "4.3", name: "Éoliennes intelligentes", budget: 750000 },
-        { id: "4.4", name: "Biomasse et bioénergie", budget: 500000 }
-      ]
-    },
-    { 
-      id: "5", 
-      name: "Programme de Recherche en Agriculture Intelligente", 
-      code: "PR-AI-2024", 
-      organisme: "Ministère de l'Agriculture",
-      projets: [
-        { id: "5.1", name: "Agriculture de précision", budget: 450000 },
-        { id: "5.2", name: "Capteurs IoT pour l'agriculture", budget: 350000 },
-        { id: "5.3", name: "Gestion intelligente de l'irrigation", budget: 400000 },
-        { id: "5.4", name: "Prédiction des récoltes par IA", budget: 550000 }
-      ]
-    },
-    { 
-      id: "6", 
-      name: "Programme de Recherche en Transport Durable", 
-      code: "PR-TD-2024", 
-      organisme: "Ministère des Transports",
-      projets: [
-        { id: "6.1", name: "Véhicules électriques intelligents", budget: 1000000 },
-        { id: "6.2", name: "Systèmes de transport en commun", budget: 800000 },
-        { id: "6.3", name: "Logistique urbaine durable", budget: 600000 },
-        { id: "6.4", name: "Infrastructure de recharge", budget: 700000 }
-      ]
+    if (projet.convention) {
+      // Vérifier d'abord si le fichier existe
+      fetch('/convention-exemple.pdf', { method: 'HEAD' })
+        .then(response => {
+          if (response.ok) {
+            // Le fichier existe, procéder au téléchargement
+            return fetch('/convention-exemple.pdf')
+          } else {
+            throw new Error('Fichier convention non trouvé')
+          }
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `convention-${projet.codeReference}.pdf`
+          link.style.display = 'none'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(url)
+          
+          console.log(`Téléchargement réussi de la convention pour le projet: ${projet.intitule}`)
+          console.log(`Référence: Voir Convention-Exemple.PDF`)
+        })
+        .catch(error => {
+          console.error('Erreur lors du téléchargement:', error)
+          
+          // Si le téléchargement échoue, essayer d'ouvrir dans un nouvel onglet
+          try {
+            const newWindow = window.open('/convention-exemple.pdf', '_blank')
+            if (newWindow) {
+              alert(`Convention ouverte dans un nouvel onglet pour le projet: ${projet.intitule}`)
+            } else {
+              // Si l'ouverture dans un nouvel onglet échoue (bloqueur de popup)
+              alert(`Impossible d'ouvrir la convention. Veuillez cliquer sur le lien suivant:\n\n${window.location.origin}/convention-exemple.pdf`)
+            }
+          } catch (windowError) {
+            console.error('Erreur lors de l\'ouverture dans un nouvel onglet:', windowError)
+            alert(`Erreur lors de l'ouverture de la convention. Veuillez vérifier que le fichier existe.`)
+          }
+        })
+    } else {
+      alert('Aucune convention disponible pour ce projet retenu')
     }
-  ];
+  }
 
-  // Liste des thématiques disponibles
-  const thematiques = [
-    "Intelligence Artificielle",
-    "Cybersécurité",
-    "Santé Numérique",
-    "Énergies Renouvelables",
-    "Agriculture Intelligente",
-    "Transport Durable",
-    "Éducation Numérique",
-    "Smart Cities",
-    "Biotechnologie",
-    "Chimie Verte",
-    "Mathématiques Appliquées",
-    "Physique Quantique",
-    "Autre"
-  ]
+  const handleGestionVersements = (projet: ProjetContrat) => {
+    setSelectedProjetForModal(projet)
+    setShowVersementsModal(true)
+  }
 
-  // Liste des typologies de projets
-  const typologies = [
-    "Projet de recherche fondamentale",
-    "Projet de recherche appliquée",
-    "Projet de développement technologique",
-    "Projet d'innovation",
-    "Projet de transfert de technologie",
-    "Projet de formation-recherche"
-  ]
+  const handleAddVersement = () => {
+    if (!selectedProjetForModal || !newVersement.montant || !newVersement.date || !newVersement.description) {
+      return
+    }
+
+    const newVersementWithId = {
+      id: Date.now().toString(),
+      ...newVersement
+    }
+
+    const updatedProjets = projets.map(projet => {
+      if (projet.id === selectedProjetForModal.id) {
+        return {
+          ...projet,
+          versements: [...(projet.versements || []), newVersementWithId]
+        }
+      }
+      return projet
+    })
+
+    setProjets(updatedProjets)
+    setNewVersement({ montant: 0, date: "", description: "" })
+  }
+
+  const handleRemoveVersement = (versementId: string) => {
+    if (!selectedProjetForModal) return
+
+    const updatedProjets = projets.map(projet => {
+      if (projet.id === selectedProjetForModal.id) {
+        return {
+          ...projet,
+          versements: projet.versements?.filter(v => v.id !== versementId) || []
+        }
+      }
+      return projet
+    })
+
+    setProjets(updatedProjets)
+  }
+
+  // Fonction pour l'extraction automatique des données clés du PDF de convention
+  const handleExtractConventionData = (projet: ProjetContrat) => {
+    // Voir la possibilité d'extraction automatique des données clés contenues dans le PDF de convention
+    console.log(`Extraction automatique des données clés de la convention pour: ${projet.intitule}`)
+    
+    // Simulation de l'extraction des données clés :
+    // - Budget allouée (peut ne pas correspondre au budget proposé par le porteur de projet)
+    // - Tranches (le budget définitif des tranches peut ne pas correspondre au budget proposé)
+    // - Modalité de versement
+    // - Budget prévisionnel (tableau "Utilisation de la subvention" détaillant les postes budgétaires par projet)
+    
+    alert(`Extraction des données clés de la convention pour ${projet.intitule}\n\nDonnées extraites:\n- Budget allouée: ${formatBudget(projet.budgetTotal)}\n- Tranches: ${projet.tranches.length} tranches\n- Modalité de versement: À définir\n- Budget prévisionnel: Correspond au programme d'emploi provisoire du projet de recherche`)
+  }
+
+  // Fonction pour marquer une tranche comme reçue
+  const handleTrancheRecu = (projetId: string, trancheId: string, recu: boolean, dateReception?: string) => {
+    const updatedProjets = projets.map(projet => {
+      if (projet.id === projetId) {
+        return {
+          ...projet,
+          tranches: projet.tranches.map(tranche => {
+            if (tranche.id === trancheId) {
+              return {
+                ...tranche,
+                recu,
+                dateReception: recu ? (dateReception || new Date().toISOString().split('T')[0]) : undefined
+              }
+            }
+            return tranche
+          })
+        }
+      }
+      return projet
+    })
+    setProjets(updatedProjets)
+  }
+
+  // Fonction pour marquer une tranche comme envoyée
+  const handleTrancheEnvoye = (projetId: string, trancheId: string, envoye: boolean, dateEnvoi?: string) => {
+    const updatedProjets = projets.map(projet => {
+      if (projet.id === projetId) {
+        return {
+          ...projet,
+          tranches: projet.tranches.map(tranche => {
+            if (tranche.id === trancheId) {
+              return {
+                ...tranche,
+                envoye,
+                dateEnvoi: envoye ? (dateEnvoi || new Date().toISOString().split('T')[0]) : undefined
+              }
+            }
+            return tranche
+          })
+        }
+      }
+      return projet
+    })
+    setProjets(updatedProjets)
+  }
+
+  // Fonction pour trier les projets par tranches (ascendant/descendant)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const handleSortByTranches = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -520,717 +410,13 @@ export default function ProjetsContrats() {
         <Header />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
           <div className="mx-auto">
-            <div className="mb-8 flex justify-between items-center">
+            <div className="mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Projets et Contrats de Recherche</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Projets retenus</h1>
                 <p className="text-gray-600 mt-2">Gérez vos projets de recherche et contrats</p>
               </div>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                if (!open) {
-                  // Empêcher la fermeture automatique si on est en train de sélectionner
-                  if (showProgramSelection && selectedProject) {
-                    return
-                  }
-                }
-                setIsDialogOpen(open)
-              }}>
-                <DialogTrigger asChild>
-                  <Button className="bg-uh2c-blue hover:bg-uh2c-blue/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nouveau projet
-                  </Button>
-                </DialogTrigger>
-                <DialogContent 
-                  className="max-w-4xl max-h-[90vh] overflow-y-auto"
-                  onPointerDownOutside={(e) => {
-                    // Empêcher la fermeture si on est en train de sélectionner un projet
-                    if (showProgramSelection && selectedProject) {
-                      e.preventDefault()
-                    }
-                  }}
-                >
-                  <div>
-                                    <DialogHeader className="pb-2">
-                    <DialogTitle className="text-left text-xl font-bold text-black mb-1">
-                      Ajouter un nouveau projet/contrat
-                    </DialogTitle>
-                  </DialogHeader>
-                      
-                      {/* Indicateur d'étapes */}
-                      {/* SUPPRIMÉ : l'indicateur d'étapes visuel n'est plus affiché */}
-                    {showTypeSelection ? (
-                      <div className="py-8">
-                        <div className="text-center mb-6">
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">Sélectionnez le type</h3>
-                          <p className="text-sm text-gray-600">Choisissez entre un projet de recherche financé ou un contrat de recherche</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div 
-                            className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
-                              newProjet.typeProjetContrat === "Projet de recherche financé"
-                                ? "border-uh2c-blue bg-blue-50"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => {
-                              setNewProjet({ ...newProjet, typeProjetContrat: "Projet de recherche financé" })
-                              setShowTypeSelection(false)
-                              setShowProgramSelection(true)
-                            }}
-                          >
-                            <div className="text-center">
-                              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                                <FileText className="h-6 w-6 text-blue-600" />
-                              </div>
-                              <h4 className="font-medium text-gray-900 mb-2">Projet de recherche financé</h4>
-                              <p className="text-sm text-gray-600">Projet de recherche avec financement externe</p>
-                              <p className="text-xs text-blue-600 font-medium mt-1">Phase de soumission</p>
-                            </div>
-                          </div>
-                          
-                          <div 
-                            className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
-                              newProjet.typeProjetContrat === "Contrat de recherche"
-                                ? "border-uh2c-blue bg-blue-50"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => {
-                              setNewProjet({ ...newProjet, typeProjetContrat: "Contrat de recherche" })
-                              setShowTypeSelection(false)
-                              setShowProjectForm(true)
-                            }}
-                          >
-                            <div className="text-center">
-                              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                                <FileText className="h-6 w-6 text-green-600" />
-                              </div>
-                              <h4 className="font-medium text-gray-900 mb-2">Contrat de recherche</h4>
-                              <p className="text-sm text-gray-600">Contrat de recherche avec un partenaire</p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex justify-end mt-6">
-                          <Button variant="outline" onClick={handleDialogClose}>
-                            Annuler
-                          </Button>
-                        </div>
-                      </div>
-                    ) : showProgramSelection ? (
-                      <div className="py-8">
-                        {showProgramSelectionMessage && (
-                          <div className="text-center mb-2">
-                            <h3 className="text-lg font-medium text-black mb-1">Sélectionnez le programme</h3>
-                            <p className="text-sm text-gray-600">Choisissez le programme de recherche correspondant à votre projet</p>
-                          </div>
-                        )}
-                        
-                        <div className="space-y-4 mb-6">
-                          {availablePrograms.map((program) => (
-                            <div key={program.id}>
-                                                          <div 
-                                className={`border rounded-lg p-3 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md ${
-                                  selectedProgram === program.id
-                                    ? "border-uh2c-blue bg-gradient-to-r from-blue-50 to-blue-100"
-                                    : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
-                                }`}
-                                onClick={() => {
-                                  setSelectedProgram(program.id)
-                                  // setShowProjects(true) // Commenté pour masquer les projets
-                                  setSelectedProject("")
-                                  setShowProgramSelectionMessage(false)
-                                  setRequestToResearchPole(false)
-                                  // Rediriger directement vers le formulaire
-                                  setShowProjectForm(true)
-                                }}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                                                        <div className="flex items-center gap-2 mb-1">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${
-                                        selectedProgram === program.id ? 'bg-uh2c-blue' : 'bg-gray-300'
-                                      }`}></div>
-                                      <h4 className="text-sm font-semibold text-gray-900">{program.name}</h4>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Code:</span>
-                                        <span className="text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">{program.code}</span>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Organisme:</span>
-                                        <span className="text-sm text-gray-700">{program.organisme}</span>
-                                      </div>
-                                    </div>
-
-                                  </div>
-                                                                    <div className="flex items-center space-x-1">
-                                    {selectedProgram === program.id && (
-                                      <div className="w-5 h-5 bg-uh2c-blue rounded-full flex items-center justify-center shadow-sm">
-                                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                      </div>
-                                    )}
-
-                                  </div>
-                                </div>
-                                
-                                {/* Affichage des projets du programme - MASQUÉ */}
-                                {selectedProgram === program.id && showProjects && (
-                                  <div className="mt-3 pt-2 border-t border-blue-200">
-                                    <div className="flex items-center gap-1 mb-2">
-                                      <div className="w-1 h-3 bg-blue-500 rounded-full"></div>
-                                      <h5 className="text-xs font-semibold text-gray-800">Projets du programme</h5>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-                                      {program.projets.map((projet) => (
-                                        <div 
-                                          key={projet.id}
-                                          className={`border rounded p-2 cursor-pointer transition-all duration-200 ${
-                                            selectedProject === projet.id
-                                              ? "border-green-500 bg-gradient-to-r from-green-50 to-green-100 shadow-sm"
-                                              : "border-gray-200 hover:border-green-300 hover:bg-gray-50"
-                                          }`}
-                                          onClick={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            setSelectedProject(projet.id)
-                                            setShowProgramSelectionMessage(false)
-                                            setRequestToResearchPole(false)
-                                            // Garder la fenêtre ouverte - ne pas passer automatiquement au formulaire
-                                          }}
-                                        >
-                                          <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                              <div className="flex items-center gap-1 mb-1">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${
-                                                  selectedProject === projet.id ? 'bg-green-500' : 'bg-gray-300'
-                                                }`}></div>
-                                                <h6 className="font-medium text-gray-900 text-xs leading-tight">{projet.name}</h6>
-                                              </div>
-                                              <div className="flex items-center gap-1">
-                                                <span className="text-xs font-medium text-gray-500">Budget:</span>
-                                                <span className="text-xs font-semibold text-green-600 bg-green-50 px-1 py-0.5 rounded">
-                                                  {formatBudget(projet.budget)}
-                                                </span>
-                                              </div>
-                                            </div>
-                                            {selectedProject === projet.id && (
-                                              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="border-t border-gray-200 pt-6 mt-6">
-                          <div className="text-center">
-                            <div className="mb-4">
-                              <p className="text-sm font-medium text-gray-600 mb-2">Votre programme n'est pas dans la liste ?</p>
-                              <Button 
-                                variant="outline" 
-                                onClick={() => {
-                                  setRequestToResearchPole(true)
-                                  setShowProgramSelectionMessage(false)
-                                  setSelectedProject("")
-                                  setShowProjects(false)
-                                  setSelectedProgram("")
-                                }}
-                                className="text-orange-600 border-orange-300 hover:bg-orange-50 hover:border-orange-400 transition-colors duration-200 px-6 py-2"
-                              >
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Demander au pôle de recherche
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {requestToResearchPole && (
-                          <div className="border-2 border-orange-200 rounded-xl p-6 bg-gradient-to-r from-orange-50 to-orange-100 mt-4 shadow-sm">
-                            <div className="flex items-start space-x-4">
-                              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="text-base font-semibold text-orange-800 mb-2">Demande envoyée au pôle de recherche</h4>
-                                <p className="text-sm text-orange-700 leading-relaxed">
-                                  Votre demande a été enregistrée. Le pôle de recherche vous contactera pour ajouter le nouveau programme.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Message informatif quand un projet est sélectionné - MASQUÉ */}
-                        {/* {selectedProject && !requestToResearchPole && (
-                          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <p className="text-sm text-green-700">
-                                Projet sélectionné : <span className="font-medium">{getSelectedProjectInfo()?.name}</span>
-                              </p>
-                            </div>
-                          </div>
-                        )} */}
-
-                        <div className="flex justify-between mt-6">
-                          <Button variant="outline" onClick={() => {
-                            setShowProgramSelection(false)
-                            setShowTypeSelection(true)
-                            setSelectedProgram("")
-                            setSelectedProject("")
-                            setRequestToResearchPole(false)
-                            setShowProgramSelectionMessage(true)
-                          }}>
-                            Retour
-                          </Button>
-                          <div className="space-x-2">
-                            <Button variant="outline" onClick={handleDialogClose}>
-                              Annuler
-                            </Button>
-                            <Button 
-                              onClick={() => {
-                                if (selectedProgram || requestToResearchPole) {
-                                  setShowProgramSelection(false)
-                                  setShowProjectForm(true)
-                                }
-                              }}
-                              disabled={!selectedProgram && !requestToResearchPole}
-                              className="bg-uh2c-blue hover:bg-uh2c-blue/90"
-                            >
-                              Continuer
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        {/* Informations administratives (Affichées automatiquement) */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <Label className="text-sm font-medium text-blue-800">Programme</Label>
-                              <p className="text-sm text-blue-700 mt-1">{selectedProgram ? availablePrograms.find(p => p.id === selectedProgram)?.name || 'Non sélectionné' : 'Non sélectionné'}</p>
-                            </div>
-                            <div>
-                              <Label className="text-sm font-medium text-blue-800">Typologie des projets</Label>
-                              <p className="text-sm text-blue-700 mt-1">Projet de recherche financé</p>
-                            </div>
-                            <div>
-                              <Label className="text-sm font-medium text-blue-800">Descriptif du sous programme</Label>
-                              <p className="text-sm text-blue-700 mt-1">
-                                {selectedProject 
-                                  ? getSelectedProjectInfo()?.name || 'Projet de recherche en cours de développement'
-                                  : selectedProgram 
-                                    ? 'Projets de recherche disponibles dans ce programme'
-                                    : 'Programme de recherche et développement technologique'
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {selectedProgram && selectedProject && (
-                            <div className="mt-4 pt-4 border-t border-blue-200">
-                              <h4 className="font-medium text-blue-900 mb-3">Détails du programme sélectionné :</h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <Label className="text-sm font-medium text-blue-800">Typologie des projets</Label>
-                                  <p className="text-sm text-blue-700 mt-1">Projet de recherche financé</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-blue-800">Descriptif du sous programme</Label>
-                                  <p className="text-sm text-blue-700 mt-1">{getSelectedProjectInfo()?.name || 'Non sélectionné'}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-blue-800">Budget total</Label>
-                                  <p className="text-sm text-blue-700 mt-1">{getSelectedProjectInfo() ? formatBudget(getSelectedProjectInfo()!.budget) : 'Non sélectionné'}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-blue-800">Code référence</Label>
-                                  <p className="text-sm text-blue-700 mt-1">{availablePrograms.find(p => p.id === selectedProgram)?.code || 'Non sélectionné'}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="grid gap-6 py-4">
-                          {/* 1. Intitulé du projet */}
-                          <div className="space-y-2">
-                            <Label className={`text-sm font-medium ${fieldErrors.intitule ? 'text-red-600' : ''}`}>Intitulé du projet <span className="text-red-600">*</span></Label>
-                            <Input
-                              value={newProjet.intitule}
-                              onChange={(e) => {
-                                setNewProjet({ ...newProjet, intitule: e.target.value })
-                                if (e.target.value) setFieldErrors(err => ({ ...err, intitule: false }))
-                              }}
-                              placeholder="Titre du projet"
-                              className={fieldErrors.intitule ? 'border-red-500' : ''}
-                            />
-                            {fieldErrors.intitule && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire</p>}
-                          </div>
-
-                          {/* 2. Thématique du projet */}
-                          <div className="space-y-2">
-                            <Label className={`text-sm font-medium ${fieldErrors.thematique ? 'text-red-600' : ''}`}>Thématique du projet <span className="text-red-600">*</span></Label>
-                            <Select
-                              value={newProjet.thematique}
-                              onValueChange={(value) => {
-                                setNewProjet({ ...newProjet, thematique: value })
-                                if (value) setFieldErrors(err => ({ ...err, thematique: false }))
-                              }}
-                            >
-                              <SelectTrigger className={fieldErrors.thematique ? 'border-red-500' : ''}>
-                                <SelectValue placeholder="Sélectionnez une thématique" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {thematiques.map((thematique) => (
-                                  <SelectItem key={thematique} value={thematique}>
-                                    {thematique}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {fieldErrors.thematique && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire</p>}
-                          </div>
-
-                          {/* 3. Organismes partenaires */}
-                          <div className="space-y-2">
-                            <Label className={`text-sm font-medium ${fieldErrors.organismesPartenaires ? 'text-red-600' : ''}`}>Organismes partenaires <span className="text-red-600">*</span></Label>
-                            <Textarea
-                              value={newProjet.organismesPartenaires}
-                              onChange={(e) => {
-                                setNewProjet({ ...newProjet, organismesPartenaires: e.target.value })
-                                if (e.target.value) setFieldErrors(err => ({ ...err, organismesPartenaires: false }))
-                              }}
-                              placeholder="CHU Hassan II, ENSA Casablanca, Université Mohammed V..."
-                              rows={3}
-                              className={fieldErrors.organismesPartenaires ? 'border-red-500' : ''}
-                            />
-                            {fieldErrors.organismesPartenaires && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire</p>}
-                          </div>
-
-                          {/* 4. Membres associés */}
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium">Membres associés</Label>
-                            <p className="text-xs text-gray-500">Sélectionnez les membres impliqués dans cette soumission</p>
-                            <div className="border rounded-lg p-4 bg-gray-50">
-                              <div className="space-y-3">
-                                {availableMembers.map((member) => (
-                                  <div key={member.id} className="flex items-center space-x-3">
-                                    <input
-                                      type="checkbox"
-                                      id={`member-${member.id}`}
-                                      checked={newProjet.membres?.includes(member.id) || false}
-                                      onChange={() => handleMemberToggle(member.id)}
-                                      className="h-4 w-4 text-uh2c-blue rounded"
-                                    />
-                                    <Label htmlFor={`member-${member.id}`} className="text-sm flex-1">
-                                      {member.name}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                              
-                              {newProjet.membres && newProjet.membres.length > 0 && (
-                                <div className="mt-4 pt-3 border-t">
-                                  <Label className="text-xs font-medium text-gray-600">Membres sélectionnés :</Label>
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    {newProjet.membres.map((id) => {
-                                      const m = availableMembers.find(mem => mem.id === id)
-                                      return m ? (
-                                        <span key={id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-uh2c-blue text-white">
-                                          {m.name}
-                                        </span>
-                                      ) : null
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* 5. Nombre de doctorants impliqués */}
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Nombre de doctorants impliqués <span className="text-red-600">*</span></Label>
-                            <Input
-                              type="number"
-                              min="0"
-                              value={newProjet.nombreDoctorants}
-                              onChange={(e) => setNewProjet({ ...newProjet, nombreDoctorants: parseInt(e.target.value) || 0 })}
-                              placeholder="0"
-                            />
-                            
-                            {/* Sous-champs indentés */}
-                            <div className="ml-6 space-y-3 mt-3">
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Bourse <span className="text-red-600">*</span></Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={newProjet.bourse}
-                                  onChange={(e) => setNewProjet({ ...newProjet, bourse: parseInt(e.target.value) || 0 })}
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Mobilité</Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={newProjet.mobilite}
-                                  onChange={(e) => setNewProjet({ ...newProjet, mobilite: parseInt(e.target.value) || 0 })}
-                                  placeholder="0"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* 6. Durée de projet */}
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium">Durée de projet</Label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Année de début du projet <span className="text-red-600">*</span></Label>
-                                <Select
-                                  value={newProjet.anneeDebut?.toString()}
-                                  onValueChange={(value) => {
-                                    const year = parseInt(value) || new Date().getFullYear()
-                                    setNewProjet({ ...newProjet, anneeDebut: year })
-                                    if (year <= new Date().getFullYear()) {
-                                      setAnneeError("")
-                                    }
-                                  }}
-                                >
-                                  <SelectTrigger className={anneeError ? 'border-red-500' : ''}>
-                                    <SelectValue placeholder="Sélectionnez l'année" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                                      <SelectItem key={year} value={year.toString()}>
-                                        {year}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">Année de fin du projet <span className="text-red-600">*</span></Label>
-                                <Select
-                                  value={newProjet.anneeFin?.toString()}
-                                  onValueChange={(value) => {
-                                    const year = parseInt(value) || new Date().getFullYear() + 1
-                                    setNewProjet({ ...newProjet, anneeFin: year })
-                                    if (newProjet.anneeDebut && year >= newProjet.anneeDebut) {
-                                      setAnneeError("")
-                                    }
-                                  }}
-                                >
-                                  <SelectTrigger className={anneeError ? 'border-red-500' : ''}>
-                                    <SelectValue placeholder="Sélectionnez l'année" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
-                                      <SelectItem key={year} value={year.toString()}>
-                                        {year}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                            {anneeError && <p className="text-xs text-red-600 mt-1">{anneeError}</p>}
-                          </div>
-
-                          {/* 7. Budget proposé en dirhams */}
-                          <div className="space-y-3">
-                            <Label className={`text-sm font-medium ${fieldErrors.budgetTotal ? 'text-red-600' : ''}`}>Budget proposé en dirhams <span className="text-red-600">*</span></Label>
-                            <Input
-                              type="number"
-                              min="0"
-                              value={newProjet.budgetTotal}
-                              onChange={(e) => {
-                                const value = parseInt(e.target.value) || 0
-                                handleBudgetTotalChange(value)
-                                if (value > 0) setFieldErrors(err => ({ ...err, budgetTotal: false }))
-                              }}
-                              placeholder="0"
-                              className={fieldErrors.budgetTotal ? 'border-red-500' : ''}
-                            />
-                            {fieldErrors.budgetTotal && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire et doit être supérieur à 0</p>}
-                          </div>
-
-                          {/* 8. Ajout de tranche de financement */}
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">Tranches de financement</Label>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={handleAddTranche}
-                                className="text-uh2c-blue hover:text-uh2c-blue/90"
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                Ajouter une tranche
-                              </Button>
-                            </div>
-                            
-                            {newProjet.tranches && newProjet.tranches.length > 0 ? (
-                              <div className="space-y-3">
-                                {newProjet.tranches.map((tranche, index) => (
-                                  <div key={tranche.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                      <div>
-                                        <Label className="text-xs font-medium text-gray-600">Description</Label>
-                                        <Input
-                                          value={tranche.description}
-                                          onChange={(e) => handleTrancheChange(tranche.id, 'description', e.target.value)}
-                                          placeholder={`Tranche ${index + 1}`}
-                                          className="text-sm"
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs font-medium text-gray-600">Montant (MAD)</Label>
-                                        <Input
-                                          type="number"
-                                          min="0"
-                                          value={tranche.montant}
-                                          onChange={(e) => handleTrancheChange(tranche.id, 'montant', parseInt(e.target.value) || 0)}
-                                          placeholder="0"
-                                          className="text-sm"
-                                        />
-                                      </div>
-                                    </div>
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleRemoveTranche(tranche.id)}
-                                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
-                                <p className="text-sm text-gray-500">Aucune tranche ajoutée</p>
-                                <p className="text-xs text-gray-400 mt-1">Cliquez sur "Ajouter une tranche" pour commencer</p>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* 9. Justificatifs */}
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">
-                              Justificatifs 
-                              <span className={`ml-1 ${!newProjet.lien && !justificatifFile ? 'text-red-600' : 'text-gray-500'}`}>
-                                {!newProjet.lien && !justificatifFile ? '*' : (!justificatifFile ? '(optionnel)' : '')}
-                              </span>
-                            </Label>
-                            
-                            {!justificatifFile ? (
-                              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 cursor-pointer">
-                                <input
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0] || null
-                                    setJustificatifFile(file)
-                                    if (file || newProjet.lien) {
-                                      setLienJustificatifError("")
-                                    }
-                                  }}
-                                  className="hidden"
-                                  id="justificatif-input"
-                                />
-                                <label htmlFor="justificatif-input" className="cursor-pointer">
-                                  <div className="space-y-3">
-                                    <div className="mx-auto w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                                      <FileText className="h-8 w-8 text-gray-400" />
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-gray-600">
-                                        Cliquez pour télécharger ou glissez-déposez
-                                      </p>
-                                      <p className="text-xs text-gray-400 mt-1">
-                                        PDF, DOC, DOCX jusqu'à 10MB
-                                      </p>
-                                    </div>
-                                  </div>
-                                </label>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                                <FileText className="h-5 w-5 text-blue-600" />
-                                <span className="flex-1 text-sm text-gray-700 truncate">
-                                  {justificatifFile.name}
-                                </span>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    setJustificatifFile(null)
-                                    // Reset the file input
-                                    const fileInput = document.getElementById('justificatif-input') as HTMLInputElement
-                                    if (fileInput) fileInput.value = ''
-                                  }}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
-                            
-                            {lienJustificatifError && (
-                              <p className="text-xs text-red-600 mt-1">{lienJustificatifError}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end space-x-2 pt-4 border-t">
-                          <Button variant="outline" onClick={() => {
-                            if (newProjet.typeProjetContrat === "Projet de recherche financé") {
-                              setShowProjectForm(false)
-                              setShowProgramSelection(true)
-                            } else {
-                              setShowProjectForm(false)
-                              setShowTypeSelection(true)
-                            }
-                          }}>
-                            Retour
-                          </Button>
-                          <Button variant="outline" onClick={handleDialogClose}>
-                            Annuler
-                          </Button>
-                          <Button onClick={handleAddProjet} className="bg-uh2c-blue hover:bg-uh2c-blue/90">
-                            Soumettre la demande de projet
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
             </div>
+
             {/* Filters simplifiés */}
             <Card className="mb-6">
               <CardHeader>
@@ -1241,7 +427,7 @@ export default function ProjetsContrats() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col md:flex-row md:items-end md:space-x-6 gap-4 md:gap-0">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Type de contrat</Label>
                       <Select
@@ -1283,6 +469,26 @@ export default function ProjetsContrats() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label>Statut</Label>
+                      <Select
+                        value={filterStatut}
+                        onValueChange={(value) => {
+                          setFilterStatut(value)
+                          applyFilters()
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tous les statuts</SelectItem>
+                          <SelectItem value="Retenu">Retenu</SelectItem>
+                          <SelectItem value="Non retenu">Non retenu</SelectItem>
+                          <SelectItem value="En attente">En attente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="flex-1 flex md:justify-end items-center mt-2 md:mt-0">
                     <div className="text-sm text-gray-600 mt-1">
@@ -1292,10 +498,11 @@ export default function ProjetsContrats() {
                 </div>
               </CardContent>
             </Card>
+
             {/* Projects Table */}
             <Card>
               <CardHeader>
-                <CardTitle>Liste des projets et contrats</CardTitle>
+                <CardTitle>Liste des projets retenus</CardTitle>
               </CardHeader>
               <CardContent>
                 {filteredProjets.length === 0 ? (
@@ -1312,99 +519,101 @@ export default function ProjetsContrats() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-gray-200">
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">ID</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Intitulé</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Coordonnateur</th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">Thématique</th>
-                          <th className="text-center py-3 px-4 font-medium text-gray-700">Année</th>
-                          <th className="text-right py-3 px-4 font-medium text-gray-700">Budget Total</th>
-                          <th className="text-center py-3 px-4 font-medium text-gray-700">Type</th>
-                          <th className="text-center py-3 px-4 font-medium text-gray-700">Membres</th>
-                          <th className="text-center py-3 px-4 font-medium text-gray-700">Doctorants</th>
-                          <th className="text-center py-3 px-4 font-medium text-gray-700">Actions</th>
-                        </tr>
-                      </thead>
+                    <table className="w-full text-xs">
+                                        <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 w-14">ID</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 w-72">Intitulé</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 w-36">Coordonnateur</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 w-32">Thématique</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-16">Année</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-16">Type</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-16">Statut</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-32">Actions</th>
+                    </tr>
+                  </thead>
                       <tbody>
-                        {filteredProjets.map((projet, index) => (
-                          <tr key={projet.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                            <td className="py-3 px-4 font-mono text-sm">{projet.id}</td>
-                            <td className="py-3 px-4">
+                        {filteredProjets.map((projet) => (
+                          <tr key={projet.id} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-2 px-2 font-medium text-gray-900 text-xs">
+                              <div className="truncate" title={projet.codeReference}>
+                                {projet.codeReference.replace(/^([A-Z]{2}-\d{4})-(\d{3})$/, '$1-$2')}
+                              </div>
+                            </td>
+                            <td className="py-2 px-2">
                               <div className="max-w-xs">
-                                <p className="font-medium truncate" title={projet.intitule}>
-                                  {projet.intitule}
-                                </p>
-                                <p className="text-xs text-gray-500 truncate">{projet.codeReference}</p>
+                                <div className="font-medium text-gray-900 text-xs leading-tight mb-0.5 line-clamp-2">{projet.intitule}</div>
+                                <div className="text-xs text-gray-500 truncate">{projet.organismeContractant}</div>
                               </div>
                             </td>
-                            <td className="py-3 px-4">
-                              <div className="max-w-xs truncate" title={projet.coordonnateur}>
-                                {projet.coordonnateur}
-                              </div>
+                            <td className="py-2 px-2 text-gray-700 text-xs">
+                              <div className="truncate" title={projet.coordonnateur}>{projet.coordonnateur}</div>
                             </td>
-                            <td className="py-3 px-4">
-                              <div className="max-w-xs truncate" title={projet.thematique}>
-                                {projet.thematique}
-                              </div>
+                            <td className="py-2 px-2 text-gray-700 text-xs">
+                              <div className="truncate" title={projet.thematique}>{projet.thematique}</div>
                             </td>
-                            <td className="py-3 px-4 text-center">{projet.anneeDebut}</td>
-                            <td className="py-3 px-4 text-right font-mono">
-                              {formatBudget(
-                                projet.budgetTotal,
-                              )}
-                            </td>
-                            <td className="py-3 px-4 text-center">
+                            <td className="py-2 px-2 text-center text-gray-700 text-xs">{projet.anneeDebut}</td>
+                            <td className="py-2 px-2 text-center">
                               <Badge
-                                variant={projet.typeProjet === "International" ? "default" : "secondary"}
                                 className={
-                                  projet.typeProjet === "International"
-                                    ? "bg-blue-100 text-blue-800 border-blue-200"
-                                    : "bg-green-100 text-green-800 border-green-200"
+                                  projet.typeProjet === "National"
+                                    ? "bg-blue-100 text-blue-800 border-blue-200 text-xs px-0.5 py-0.5"
+                                    : "bg-purple-100 text-purple-800 border-purple-200 text-xs px-0.5 py-0.5"
                                 }
                               >
-                                {projet.typeProjet}
+                                {projet.typeProjet === "National" ? "N" : "I"}
                               </Badge>
                             </td>
-                            <td className="py-3 px-4 text-center">
-                              {projet.membres && projet.membres.length > 0 ? (
-                                <div className="flex flex-wrap gap-1 justify-center">
-                                  {projet.membres.map((id) => {
-                                    const m = availableMembers.find(mem => mem.id === id)
-                                    return m ? (
-                                      <span key={id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-uh2c-blue text-white">
-                                        {m.name}
-                                      </span>
-                                    ) : null
-                                  })}
-                                </div>
-                              ) : (
-                                <span className="text-gray-400 text-xs">-</span>
-                              )}
+                            <td className="py-2 px-2 text-center">
+                              <Badge
+                                className={
+                                  projet.statutRetenu === "Retenu"
+                                    ? "bg-green-100 text-green-800 border-green-200 text-xs px-0.5 py-0.5"
+                                    : projet.statutRetenu === "Non retenu"
+                                    ? "bg-red-100 text-red-800 border-red-200 text-xs px-0.5 py-0.5"
+                                    : "bg-yellow-100 text-yellow-800 border-yellow-200 text-xs px-0.5 py-0.5"
+                                }
+                              >
+                                {projet.statutRetenu === "Retenu" ? "R" : projet.statutRetenu === "Non retenu" ? "NR" : "EA"}
+                              </Badge>
                             </td>
-                            <td className="py-3 px-4 text-center">
-                              <div className="text-sm">
-                                <div>{projet.nombreDoctorants} impliqués</div>
-                                <div className="text-xs text-gray-500">{projet.bourse} bourses</div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center justify-center space-x-2">
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                  <Eye className="h-4 w-4" />
+                            <td className="py-2 px-2">
+                              <div className="flex items-center justify-center space-x-0.5">
+                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" title="Voir les détails">
+                                  <Eye className="h-3 w-3" />
                                 </Button>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                                  onClick={() => handleDeleteProjet(projet.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                {projet.statutRetenu === "Retenu" && (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 px-1.5 text-xs"
+                                      title="Télécharger convention"
+                                      onClick={() => handleDownloadConvention(projet)}
+                                    >
+                                      <Download className="h-3 w-3 mr-0.5" />
+                                      Conv.
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      title="Extraction données convention"
+                                      onClick={() => handleExtractConventionData(projet)}
+                                    >
+                                      <FileText className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      title="Gestion des versements"
+                                      onClick={() => handleGestionVersements(projet)}
+                                    >
+                                      <DollarSign className="h-3 w-3" />
+                                    </Button>
+                                  </>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1418,6 +627,293 @@ export default function ProjetsContrats() {
           </div>
         </main>
       </div>
+
+      {/* Modal pour gestion des versements */}
+      <Dialog open={showVersementsModal} onOpenChange={setShowVersementsModal}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Gestion des versements et budget allouée</DialogTitle>
+            <DialogDescription>
+              Gérez les versements et consultez les informations budgétaires pour le projet : {selectedProjetForModal?.intitule}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Étape 5 - Liste des projets et réception des versements */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-3">Étape 5 - Liste des projets et réception des versements</h4>
+              <p className="text-sm text-gray-600 mb-4">
+                Processus itératif à effectuer à chaque instance. Affichage de la liste des projets de recherche classés par programme.
+              </p>
+              
+              {/* Bouton de tri */}
+              <div className="flex justify-between items-center mb-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSortByTranches}
+                  className="text-blue-600 border-blue-300"
+                >
+                  Trier par tranches {sortOrder === 'asc' ? '↑' : '↓'}
+                </Button>
+              </div>
+
+              {/* Tableau des projets avec gestion des tranches */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border border-gray-200">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 border-r">Programme</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 border-r">Projet</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 border-r">Nom coordonnateur</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 border-r">Prénom</th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 border-r">Etablissement</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 border-r">Budget allouée</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 border-r">Tranche 1</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 border-r">Tranche 2</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {projets
+                      .filter(projet => projet.statutRetenu === "Retenu")
+                      .sort((a, b) => {
+                        const aTotal = a.tranches.reduce((sum, t) => sum + t.montant, 0)
+                        const bTotal = b.tranches.reduce((sum, t) => sum + t.montant, 0)
+                        return sortOrder === 'asc' ? aTotal - bTotal : bTotal - aTotal
+                      })
+                      .map((projet) => {
+                        const coordonnateurParts = projet.coordonnateur.split(' ')
+                        const nom = coordonnateurParts[coordonnateurParts.length - 1] || ''
+                        const prenom = coordonnateurParts.slice(0, -1).join(' ') || ''
+                        
+                        return (
+                          <tr key={projet.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="py-2 px-2 text-gray-700 border-r">{projet.programme || "Programme principal"}</td>
+                            <td className="py-2 px-2 text-gray-700 border-r font-medium">{projet.intitule}</td>
+                            <td className="py-2 px-2 text-gray-700 border-r">{nom}</td>
+                            <td className="py-2 px-2 text-gray-700 border-r">{prenom}</td>
+                            <td className="py-2 px-2 text-gray-700 border-r">{projet.organismeContractant}</td>
+                            <td className="py-2 px-2 text-center text-gray-700 border-r font-medium">{formatBudget(projet.budgetTotal)}</td>
+                            <td className="py-2 px-2 text-center border-r">
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium">{formatBudget(projet.tranches[0]?.montant || 0)}</div>
+                                <div className="flex items-center justify-center space-x-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={projet.tranches[0]?.recu || false}
+                                    onChange={(e) => handleTrancheRecu(projet.id, projet.tranches[0]?.id || '', e.target.checked)}
+                                    className="h-3 w-3 text-blue-600"
+                                    title="Reçu"
+                                  />
+                                  <span className="text-xs text-gray-500">Reçu</span>
+                                </div>
+                                {projet.tranches[0]?.recu && (
+                                  <input
+                                    type="date"
+                                    value={projet.tranches[0]?.dateReception || ''}
+                                    onChange={(e) => handleTrancheRecu(projet.id, projet.tranches[0]?.id || '', true, e.target.value)}
+                                    className="text-xs border border-gray-300 rounded px-1 py-0.5 w-full"
+                                  />
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-2 px-2 text-center">
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium">{formatBudget(projet.tranches[1]?.montant || 0)}</div>
+                                <div className="flex items-center justify-center space-x-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={projet.tranches[1]?.recu || false}
+                                    onChange={(e) => handleTrancheRecu(projet.id, projet.tranches[1]?.id || '', e.target.checked)}
+                                    className="h-3 w-3 text-blue-600"
+                                    title="Reçu"
+                                  />
+                                  <span className="text-xs text-gray-500">Reçu</span>
+                                </div>
+                                {projet.tranches[1]?.recu && (
+                                  <input
+                                    type="date"
+                                    value={projet.tranches[1]?.dateReception || ''}
+                                    onChange={(e) => handleTrancheRecu(projet.id, projet.tranches[1]?.id || '', true, e.target.value)}
+                                    className="text-xs border border-gray-300 rounded px-1 py-0.5 w-full"
+                                  />
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-2 px-2 text-center">
+                              <div className="flex flex-col space-y-1">
+                                {projet.tranches.map((tranche, index) => (
+                                  <div key={tranche.id} className="flex items-center justify-center space-x-1">
+                                    <input
+                                      type="checkbox"
+                                      checked={tranche.envoye || false}
+                                      onChange={(e) => handleTrancheEnvoye(projet.id, tranche.id, e.target.checked)}
+                                      className="h-3 w-3 text-green-600"
+                                      title="Envoyé"
+                                    />
+                                    <span className="text-xs text-gray-500">T{index + 1} Envoyé</span>
+                                  </div>
+                                ))}
+                                {projet.tranches.some(t => t.envoye) && (
+                                  <input
+                                    type="date"
+                                    value={projet.tranches.find(t => t.envoye)?.dateEnvoi || ''}
+                                    onChange={(e) => {
+                                      const tranche = projet.tranches.find(t => t.envoye)
+                                      if (tranche) {
+                                        handleTrancheEnvoye(projet.id, tranche.id, true, e.target.value)
+                                      }
+                                    }}
+                                    className="text-xs border border-gray-300 rounded px-1 py-0.5 w-full"
+                                    placeholder="Date ordre virement"
+                                  />
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Informations budgétaires */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Budget allouée */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3">Budget allouée</h4>
+                <p className="text-sm text-blue-700 mb-2">
+                  Le budget définitif du projet peut ne pas correspondre au budget proposé par le porteur de projet.
+                </p>
+                <div className="text-lg font-bold text-blue-900">
+                  {formatBudget(selectedProjetForModal?.budgetTotal || 0)}
+                </div>
+              </div>
+
+              {/* Tranches */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3">Tranches</h4>
+                <p className="text-sm text-green-700 mb-2">
+                  Le budget définitif des tranches peut ne pas correspondre au budget proposé.
+                </p>
+                <div className="space-y-2">
+                  {selectedProjetForModal?.tranches?.map((tranche) => (
+                    <div key={tranche.id} className="flex justify-between items-center">
+                      <span className="text-sm text-green-700">{tranche.description}</span>
+                      <span className="font-medium text-green-900">{formatBudget(tranche.montant)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modalité de versement */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h4 className="font-medium text-yellow-900 mb-3">Modalité de versement</h4>
+              <p className="text-sm text-yellow-700">
+                Les modalités de versement sont définies dans la convention et peuvent varier selon le programme.
+              </p>
+            </div>
+
+            {/* Budget prévisionnel */}
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <h4 className="font-medium text-purple-900 mb-3">Budget prévisionnel</h4>
+              <p className="text-sm text-purple-700 mb-2">
+                Tableau "Utilisation de la subvention" détaillant les postes budgétaires par projet. 
+                Correspond au programme d'emploi provisoire du projet de recherche.
+              </p>
+              <Button variant="outline" size="sm" className="text-purple-700 border-purple-300">
+                Voir le détail budgétaire
+              </Button>
+            </div>
+
+            {/* Liste des versements existants */}
+            {selectedProjetForModal?.versements && selectedProjetForModal.versements.length > 0 && (
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Versements existants</h4>
+                <div className="space-y-2">
+                  {selectedProjetForModal.versements.map((versement) => (
+                    <div key={versement.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-4">
+                          <span className="font-medium text-gray-900">
+                            {formatBudget(versement.montant)}
+                          </span>
+                          <span className="text-sm text-gray-600">
+                            {new Date(versement.date).toLocaleDateString('fr-FR')}
+                          </span>
+                          <span className="text-sm text-gray-700">
+                            {versement.description}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveVersement(versement.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Ajout d'un nouveau versement */}
+            <div className="border-t pt-4">
+              <h4 className="font-medium text-gray-900 mb-3">Ajouter un versement</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-sm font-medium">Montant (MAD)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={newVersement.montant}
+                    onChange={(e) => setNewVersement({ ...newVersement, montant: parseInt(e.target.value) || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Date</Label>
+                  <Input
+                    type="date"
+                    value={newVersement.date}
+                    onChange={(e) => setNewVersement({ ...newVersement, date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Description</Label>
+                  <Input
+                    value={newVersement.description}
+                    onChange={(e) => setNewVersement({ ...newVersement, description: e.target.value })}
+                    placeholder="Ex: Premier versement"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end mt-3">
+                <Button
+                  onClick={handleAddVersement}
+                  disabled={!newVersement.montant || !newVersement.date || !newVersement.description}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter versement
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setShowVersementsModal(false)}>
+                Fermer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
