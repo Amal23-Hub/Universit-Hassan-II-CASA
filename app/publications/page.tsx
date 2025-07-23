@@ -43,6 +43,7 @@ interface Publication {
   orcidUrl?: string
   doiUrl?: string
   detectedAffiliation?: string
+  tranche?: string
 }
 
 export default function PublicationsPage() {
@@ -69,14 +70,16 @@ export default function PublicationsPage() {
     journal: false,
     issn: false,
     base: false,
-    annee: false
+    annee: false,
+    tranche: false
   })
   const [indexeeValues, setIndexeeValues] = useState({
     titre: '',
     journal: '',
     issn: '',
     base: '',
-    annee: ''
+    annee: '',
+    tranche: ''
   })
   const [ouvrageErrors, setOuvrageErrors] = useState({
     intitule: false,
@@ -103,13 +106,15 @@ export default function PublicationsPage() {
     source: "",
     abstract: "",
     lien: "",
-    justificatifs: [] as File[]
+    justificatifs: [] as File[],
+    tranche: ""
   })
   const [genericErrors, setGenericErrors] = useState({
     title: false,
     authors: false,
     year: false,
-    source: false
+    source: false,
+    tranche: false
   })
   const [commErrors, setCommErrors] = useState({
     intitule: false,
@@ -167,6 +172,7 @@ export default function PublicationsPage() {
       detectedAffiliation: "Université Hassan II Casablanca",
       category: "Publications",
       mode: "Automatique",
+      tranche: "Tranche A"
     },
     {
       id: "2",
@@ -178,13 +184,15 @@ export default function PublicationsPage() {
       status: "validated",
       memberId: "member1",
       doi: "10.5678/efgh.2023.002",
-      journal: "Computer Science Review",
+      journal: "Computational Linguistics",
       citations: 8,
-      abstract: "Natural language processing techniques for Arabic document analysis...",
-      wosUrl: "https://webofscience.com/record/456",
+      abstract:
+        "Natural Language Processing techniques applied to Arabic document analysis...",
+      wosUrl: "https://wos.com/record/456",
       detectedAffiliation: "Université Hassan II Casablanca",
-      category: "Communications",
+      category: "Publications",
       mode: "Automatique",
+      tranche: "Tranche B"
     },
     {
       id: "3",
@@ -202,6 +210,7 @@ export default function PublicationsPage() {
       detectedAffiliation: "Université Hassan II Casablanca",
       category: "Ouvrages",
       mode: "Manuel",
+      tranche: "Tranche C"
     },
     // Exemples supplémentaires pour tester la pagination
     {
@@ -214,6 +223,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Publications",
       mode: "Automatique",
+      tranche: "Tranche B"
     },
     {
       id: "5",
@@ -225,6 +235,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Ouvrages",
       mode: "Manuel",
+      tranche: "Tranche A"
     },
     {
       id: "6",
@@ -236,6 +247,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Communications",
       mode: "Automatique",
+      tranche: "Tranche B"
     },
     {
       id: "7",
@@ -247,6 +259,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Publications",
       mode: "Automatique",
+      tranche: "Tranche A"
     },
     {
       id: "8",
@@ -258,6 +271,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Ouvrages",
       mode: "Manuel",
+      tranche: "Tranche C"
     },
     {
       id: "9",
@@ -269,6 +283,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Communications",
       mode: "Automatique",
+      tranche: "Tranche B"
     },
     {
       id: "10",
@@ -280,6 +295,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Publications",
       mode: "Automatique",
+      tranche: "Tranche C"
     },
     {
       id: "11",
@@ -291,6 +307,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Ouvrages",
       mode: "Manuel",
+      tranche: "Tranche A"
     },
     {
       id: "12",
@@ -302,6 +319,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Communications",
       mode: "Automatique",
+      tranche: "Tranche D"
     },
     {
       id: "13",
@@ -313,6 +331,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Publications",
       mode: "Automatique",
+      tranche: "Tranche B"
     },
     {
       id: "14",
@@ -324,6 +343,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Ouvrages",
       mode: "Manuel",
+      tranche: "Tranche C"
     },
     {
       id: "15",
@@ -335,6 +355,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Distinctions et Prix",
       mode: "Manuel",
+      tranche: "Non classée"
     },
     {
       id: "16",
@@ -346,6 +367,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Distinctions et Prix",
       mode: "Manuel",
+      tranche: "Non classée"
     },
     {
       id: "17",
@@ -357,6 +379,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Distinctions et Prix",
       mode: "Automatique",
+      tranche: "Non classée"
     },
     {
       id: "19",
@@ -368,6 +391,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Revue bibliographique",
       mode: "Manuel",
+      tranche: "Tranche A"
     },
     {
       id: "20",
@@ -379,6 +403,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Revue bibliographique",
       mode: "Automatique",
+      tranche: "Tranche B"
     },
     {
       id: "21",
@@ -390,6 +415,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Revue bibliographique",
       mode: "Manuel",
+      tranche: "Tranche C"
     },
     {
       id: "18",
@@ -401,6 +427,7 @@ export default function PublicationsPage() {
       memberId: "member1",
       category: "Communications",
       mode: "Automatique",
+      tranche: "Tranche D"
     },
   ])
 
@@ -856,19 +883,33 @@ export default function PublicationsPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Année</label>
-                    <p className="text-gray-900">{selectedPublication.year}</p>
+                    <label className="text-sm font-medium text-gray-700">Date</label>
+                    <p className="text-gray-900">
+                      {selectedPublication.date ? selectedPublication.date : `${selectedPublication.year}-01-01`}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Citations</label>
                     <p className="text-gray-900">
-                      {selectedPublication.citations} fois ({selectedPublication.source})
+                      {selectedPublication.citations ? `${selectedPublication.citations} fois` : "Aucune citation"} ({selectedPublication.source})
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Résumé</label>
+                  <label className="text-sm font-medium text-gray-700">Tranche</label>
+                  <p className="text-gray-900">
+                    {selectedPublication.tranche ? (
+                      <Badge variant="outline" className="text-sm">
+                        {selectedPublication.tranche}
+                      </Badge>
+                    ) : (
+                      <span className="text-gray-500 italic">Non définie</span>
+                    )}
+                  </p>
+                </div>
+
+                <div>
                   <p className="text-gray-700 text-sm leading-relaxed">{selectedPublication.abstract}</p>
                 </div>
 
@@ -925,23 +966,13 @@ export default function PublicationsPage() {
                   Fermer
                 </Button>
                 {selectedPublication.status === "pending" && (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleRejectPublication(selectedPublication)}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Rejeter
-                    </Button>
-                    <Button
-                      onClick={() => handleValidatePublication(selectedPublication)}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Valider cette publication
-                    </Button>
-                  </>
+                  <Button
+                    onClick={() => handleValidatePublication(selectedPublication)}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Valider cette publication
+                  </Button>
                 )}
               </div>
             </div>
@@ -1241,30 +1272,45 @@ export default function PublicationsPage() {
                   )}
                   <div className="mb-4">
                     <Label htmlFor="annee-indexee">
-                      Année de publication <span className="text-red-600">*</span>
+                      Date de publication <span className="text-red-600">*</span>
                     </Label>
                     <Input
                       id="annee-indexee"
                       type="number"
-                      min="1900"
-                      max={getCurrentYear()}
-                      placeholder={getCurrentYear().toString()}
-                      className={`h-11 rounded-lg text-base ${yearError || indexeeErrors.annee ? 'border-red-500' : ''}`}
+                      required
+                      placeholder="2024"
+                      className={`h-11 rounded-lg text-base ${indexeeErrors.annee ? 'border-red-500' : ''}`}
                       value={indexeeValues.annee}
                       onChange={(e) => {
                         setIndexeeValues(v => ({ ...v, annee: e.target.value }))
                         if (e.target.value) setIndexeeErrors(err => ({ ...err, annee: false }))
-                        const year = parseInt(e.target.value)
-                        if (year > getCurrentYear()) {
-                          setYearError("L'année ne peut pas être supérieure à l'année actuelle")
-                        } else {
-                          setYearError("")
-                        }
                       }}
                     />
-                    {(indexeeErrors.annee || yearError) && (
-                      <p className="text-xs text-red-600 mt-1">{yearError || 'Ce champ est obligatoire'}</p>
-                    )}
+                    {indexeeErrors.annee && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire</p>}
+                  </div>
+                  <div className="mb-4">
+                    <Label htmlFor="tranche-indexee">
+                      Tranche <span className="text-red-600">*</span>
+                    </Label>
+                    <Select
+                      value={indexeeValues.tranche}
+                      onValueChange={(value) => {
+                        setIndexeeValues(v => ({ ...v, tranche: value }))
+                        if (value) setIndexeeErrors(err => ({ ...err, tranche: false }))
+                      }}
+                    >
+                      <SelectTrigger className={`h-11 rounded-lg text-base ${indexeeErrors.tranche ? 'border-red-500' : ''}`}>
+                        <SelectValue placeholder="Choisir une tranche" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Tranche A">Tranche A</SelectItem>
+                        <SelectItem value="Tranche B">Tranche B</SelectItem>
+                        <SelectItem value="Tranche C">Tranche C</SelectItem>
+                        <SelectItem value="Tranche D">Tranche D</SelectItem>
+                        <SelectItem value="Non classée">Non classée</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {indexeeErrors.tranche && <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire</p>}
                   </div>
                   <div className="mb-4">
                     <Label htmlFor="lien-revue">
@@ -1364,12 +1410,13 @@ export default function PublicationsPage() {
                         e.preventDefault()
                         
                         // Validation de tous les champs obligatoires
-                        let errors = { titre: false, journal: false, issn: false, base: false, annee: false }
+                        let errors = { titre: false, journal: false, issn: false, base: false, annee: false, tranche: false }
                         if (!indexeeValues.titre) errors.titre = true
                         if (!indexeeValues.journal) errors.journal = true
                         if (!indexeeValues.issn) errors.issn = true
                         if (!indexeeValues.base) errors.base = true
                         if (!indexeeValues.annee) errors.annee = true
+                        if (!indexeeValues.tranche) errors.tranche = true
                         setIndexeeErrors(errors)
                         
                         // Validation d'année
@@ -1401,8 +1448,8 @@ export default function PublicationsPage() {
                         setManualFormData({ lien: "", justificatif: null })
                         setLienJustificatifError("")
                         setYearError("")
-                        setIndexeeErrors({ titre: false, journal: false, issn: false, base: false, annee: false })
-                        setIndexeeValues({ titre: '', journal: '', issn: '', base: '', annee: '' })
+                        setIndexeeErrors({ titre: false, journal: false, issn: false, base: false, annee: false, tranche: false })
+                        setIndexeeValues({ titre: '', journal: '', issn: '', base: '', annee: '', tranche: '' })
                       }}
                     >
                       Enregistrer
@@ -1974,7 +2021,8 @@ export default function PublicationsPage() {
                           annee: !commValues.annee,
                           ville: !commValues.ville,
                           pays: !commValues.pays,
-                          base: !commValues.base
+                          base: !commValues.base,
+                          justificatif: !commFormData.justificatif
                         }
                         
                         if (Object.values(errors).some(Boolean)) {
@@ -2051,7 +2099,7 @@ export default function PublicationsPage() {
                   </div>
                   <div className="mb-4">
                     <Label htmlFor="annee-ouvrage" className={ouvrageErrors.annee ? 'text-red-600' : ''}>
-                      Année <span className="text-red-600">*</span>
+                      Date <span className="text-red-600">*</span>
                     </Label>
                     <Input
                       id="annee-ouvrage"
@@ -2275,7 +2323,7 @@ export default function PublicationsPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="mb-4">
                       <Label htmlFor="year" className={genericErrors.year ? 'text-red-600' : ''}>
-                        Année <span className="text-red-600">*</span>
+                        Date <span className="text-red-600">*</span>
                       </Label>
                       <Input 
                         id="year" 
@@ -2484,12 +2532,13 @@ export default function PublicationsPage() {
                     </Button>
                     <Button onClick={() => {
                       // Validation des champs obligatoires
-                      const errors = {
-                        title: !formData.title,
-                        authors: !formData.authors,
-                        year: !formData.year,
-                        source: !formData.source
-                      }
+                                              const errors = {
+                          title: !formData.title,
+                          authors: !formData.authors,
+                          year: !formData.year,
+                          source: !formData.source,
+                          tranche: !formData.tranche
+                        }
                       
                       if (Object.values(errors).some(Boolean)) {
                         setGenericErrors(errors)
@@ -2526,11 +2575,12 @@ export default function PublicationsPage() {
                         source: "",
                         abstract: "",
                         lien: "",
-                        justificatifs: []
+                        justificatifs: [],
+                        tranche: ""
                       })
                       setLienJustificatifError("")
                       setYearError("")
-                      setGenericErrors({ title: false, authors: false, year: false, source: false })
+                      setGenericErrors({ title: false, authors: false, year: false, source: false, tranche: false })
                     }}>
                       <Plus className="h-4 w-4 mr-2" />
                       Ajouter la publication

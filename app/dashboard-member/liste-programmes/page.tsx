@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -34,12 +34,15 @@ interface Member {
   etat: string
   titre: string
   qualite: string
-  affiliation: string
+  etablissement: string
 }
 
 export default function ListeProgrammes() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterOrganisme, setFilterOrganisme] = useState("all")
+  const [filterStatut, setFilterStatut] = useState("all")
+  const [filterAnnee, setFilterAnnee] = useState("all")
+  const [filterProgramme, setFilterProgramme] = useState("all")
   const [selectedProgramme, setSelectedProgramme] = useState<Programme | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showSubmitModal, setShowSubmitModal] = useState(false)
@@ -56,8 +59,10 @@ export default function ListeProgrammes() {
   })
   const [organismesPartenaires, setOrganismesPartenaires] = useState<string[]>([])
   const [nouvelOrganisme, setNouvelOrganisme] = useState("")
-  const [filterTitre, setFilterTitre] = useState("all")
-  const [filterEtat, setFilterEtat] = useState("all")
+  const [memberSearchTerm, setMemberSearchTerm] = useState("")
+  
+  // Référence pour le timer de réinitialisation automatique
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const [formErrors, setFormErrors] = useState({
     intitule: false,
@@ -97,15 +102,13 @@ export default function ListeProgrammes() {
     nom: "",
     prenom: "",
     titre: "",
-    qualite: "",
-    affiliation: ""
+    etablissement: ""
   })
   const [newMemberErrors, setNewMemberErrors] = useState({
     nom: false,
     prenom: false,
     titre: false,
-    qualite: false,
-    affiliation: false
+    etablissement: false
   })
 
   // Données des programmes
@@ -277,17 +280,101 @@ export default function ListeProgrammes() {
         "Analyse technico-économique",
         "Certifications de transport"
       ]
+    },
+    {
+      id: "7",
+      name: "Programme de Recherche en Nanotechnologies (Expiré)",
+      organisme: "Ministère de l'Enseignement Supérieur",
+      dateDebut: "2022-01-01",
+      dateFin: "2023-12-31",
+      description: "Développement de nanotechnologies pour applications médicales et industrielles",
+      budget: 3500000,
+      nombreProjets: 7,
+      objectifs: [
+        "Développer des nanomatériaux innovants",
+        "Applications médicales des nanotechnologies",
+        "Transfert technologique vers l'industrie",
+        "Formation d'experts en nanotechnologies"
+      ],
+      criteres: [
+        "Expertise en nanosciences",
+        "Applications pratiques démontrées",
+        "Potentiel industriel",
+        "Sécurité des nanomatériaux"
+      ],
+      documents: [
+        "Étude de toxicité",
+        "Protocoles de sécurité",
+        "Plan de transfert technologique",
+        "Certifications de sécurité"
+      ]
+    },
+    {
+      id: "8",
+      name: "Programme de Recherche en Biotechnologies (Expiré)",
+      organisme: "Ministère de la Santé",
+      dateDebut: "2021-03-01",
+      dateFin: "2023-02-28",
+      description: "Développement de biotechnologies pour la santé et l'environnement",
+      budget: 4200000,
+      nombreProjets: 11,
+      objectifs: [
+        "Développer des thérapies innovantes",
+        "Solutions environnementales biotechnologiques",
+        "Améliorer la production agricole",
+        "Créer des bioproduits"
+      ],
+      criteres: [
+        "Expertise en biotechnologies",
+        "Validation biologique",
+        "Impact environnemental positif",
+        "Potentiel commercial"
+      ],
+      documents: [
+        "Études précliniques",
+        "Évaluation environnementale",
+        "Plan de commercialisation",
+        "Autorisations réglementaires"
+      ]
+    },
+    {
+      id: "9",
+      name: "Programme de Recherche en Intelligence Artificielle Avancée (Expiré)",
+      organisme: "Agence Nationale de Sécurité",
+      dateDebut: "2020-09-01",
+      dateFin: "2022-08-31",
+      description: "Développement d'algorithmes d'IA avancés pour la sécurité nationale",
+      budget: 6800000,
+      nombreProjets: 14,
+      objectifs: [
+        "Développer des systèmes d'IA de sécurité",
+        "Protection contre les cyberattaques",
+        "Surveillance intelligente",
+        "Détection de menaces avancées"
+      ],
+      criteres: [
+        "Expertise en IA et sécurité",
+        "Tests de robustesse",
+        "Conformité aux normes de sécurité",
+        "Intégration avec les systèmes existants"
+      ],
+      documents: [
+        "Analyse de sécurité",
+        "Tests de pénétration",
+        "Plan de déploiement sécurisé",
+        "Certifications de sécurité"
+      ]
     }
   ]
 
   // Données des membres
   const [availableMembers, setAvailableMembers] = useState<Member[]>([
-    { id: "1", nom: "Benali", prenom: "Ahmed", etat: "Actif", titre: "Dr.", qualite: "Membre directeur", affiliation: "Ministère de l'Enseignement Supérieur" },
-    { id: "2", nom: "Zahra", prenom: "Fatima", etat: "Actif", titre: "Dr.", qualite: "Membre associé", affiliation: "Agence Nationale de Sécurité" },
-    { id: "3", nom: "El Harti", prenom: "Sara", etat: "Actif", titre: "Dr.", qualite: "Chercheur", affiliation: "Ministère de la Santé" },
-    { id: "4", nom: "Lahby", prenom: "Mohamed", etat: "Actif", titre: "Dr.", qualite: "Membre directeur", affiliation: "Ministère de l'Énergie" },
-    { id: "5", nom: "Alaoui", prenom: "Karim", etat: "Actif", titre: "Pr.", qualite: "Expert", affiliation: "Ministère de l'Agriculture" },
-    { id: "6", nom: "Bennani", prenom: "Amina", etat: "Actif", titre: "Dr.", qualite: "Membre associé", affiliation: "Ministère des Transports" }
+    { id: "1", nom: "Benali", prenom: "Ahmed", etat: "Actif", titre: "Dr.", qualite: "Membre directeur", etablissement: "Ministère de l'Enseignement Supérieur" },
+    { id: "2", nom: "Zahra", prenom: "Fatima", etat: "Actif", titre: "Dr.", qualite: "Membre associé", etablissement: "Agence Nationale de Sécurité" },
+    { id: "3", nom: "El Harti", prenom: "Sara", etat: "Actif", titre: "Dr.", qualite: "Chercheur", etablissement: "Ministère de la Santé" },
+    { id: "4", nom: "Lahby", prenom: "Mohamed", etat: "Actif", titre: "Dr.", qualite: "Membre directeur", etablissement: "Ministère de l'Énergie" },
+    { id: "5", nom: "Alaoui", prenom: "Karim", etat: "Actif", titre: "Pr.", qualite: "Expert", etablissement: "Ministère de l'Agriculture" },
+    { id: "6", nom: "Bennani", prenom: "Amina", etat: "Actif", titre: "Dr.", qualite: "Membre associé", etablissement: "Ministère des Transports" }
   ])
 
   // Thématiques disponibles
@@ -306,12 +393,25 @@ export default function ListeProgrammes() {
     "Autres"
   ]
 
+  // Fonction pour vérifier si un programme est en cours
+  const isProgrammeActif = (dateFin: string) => {
+    return new Date(dateFin) >= new Date()
+  }
+
   // Filtrage des programmes
   const filteredProgrammes = programmes.filter(programme => {
     const matchesSearch = programme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          programme.organisme.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesOrganisme = filterOrganisme === "all" || programme.organisme === filterOrganisme
-    return matchesSearch && matchesOrganisme
+    const matchesStatut = filterStatut === "all" || 
+      (filterStatut === "en_cours" && isProgrammeActif(programme.dateFin)) ||
+      (filterStatut === "expire" && !isProgrammeActif(programme.dateFin))
+    const matchesAnnee = filterAnnee === "all" || 
+      new Date(programme.dateDebut).getFullYear().toString() === filterAnnee ||
+      new Date(programme.dateFin).getFullYear().toString() === filterAnnee
+    const matchesProgramme = filterProgramme === "all" || programme.name === filterProgramme
+    
+    return matchesSearch && matchesOrganisme && matchesStatut && matchesAnnee && matchesProgramme
   })
 
   // Liste des organismes uniques pour le filtre
@@ -324,11 +424,6 @@ export default function ListeProgrammes() {
       currency: "MAD",
       minimumFractionDigits: 0,
     }).format(amount)
-  }
-
-  // Fonction pour vérifier si un programme est en cours
-  const isProgrammeActif = (dateFin: string) => {
-    return new Date(dateFin) >= new Date()
   }
 
   // Fonction pour soumettre un projet
@@ -399,11 +494,16 @@ export default function ListeProgrammes() {
     setOrganismesPartenaires(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Filtrage des membres
+  // Filtrage des membres par recherche
   const filteredMembers = availableMembers.filter(member => {
-    const titreMatch = filterTitre === "all" || member.titre === filterTitre
-    const qualiteMatch = filterEtat === "all" || member.qualite === filterEtat
-    return titreMatch && qualiteMatch
+    const searchLower = memberSearchTerm.toLowerCase()
+    const fullName = `${member.nom} ${member.prenom}`.toLowerCase()
+    const titre = member.titre.toLowerCase()
+    const qualite = member.qualite.toLowerCase()
+    
+    return fullName.includes(searchLower) || 
+           titre.includes(searchLower) || 
+           qualite.includes(searchLower)
   })
 
   const handleMemberSelect = (memberId: string) => {
@@ -418,8 +518,7 @@ export default function ListeProgrammes() {
       nom: !newMember.nom.trim(),
       prenom: !newMember.prenom.trim(),
       titre: !newMember.titre.trim(),
-      qualite: !newMember.qualite.trim(),
-      affiliation: !newMember.affiliation.trim()
+      etablissement: !newMember.etablissement.trim()
     }
     
     setNewMemberErrors(errors)
@@ -435,8 +534,8 @@ export default function ListeProgrammes() {
       prenom: newMember.prenom.trim(),
       etat: "Actif",
       titre: newMember.titre.trim(),
-      qualite: newMember.qualite.trim(),
-      affiliation: newMember.affiliation.trim()
+      qualite: "Membre externe",
+      etablissement: newMember.etablissement.trim()
     }
     
     // Ajouter à la liste des membres disponibles
@@ -450,8 +549,7 @@ export default function ListeProgrammes() {
       nom: "",
       prenom: "",
       titre: "",
-      qualite: "",
-      affiliation: ""
+      etablissement: ""
     })
     
     // Fermer le modal
@@ -585,6 +683,62 @@ export default function ListeProgrammes() {
     selectedMembers.includes(member.id)
   )
 
+  // Fonction de réinitialisation automatique des filtres
+  const resetFilters = () => {
+    setSearchTerm("")
+    setFilterOrganisme("all")
+    setFilterStatut("all")
+    setFilterAnnee("all")
+    setFilterProgramme("all")
+  }
+
+  // Logique de réinitialisation automatique après 5 minutes d'inactivité
+  useEffect(() => {
+    const handleUserActivity = () => {
+      // Annuler le timer précédent
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current)
+      }
+      
+      // Démarrer un nouveau timer de 5 minutes
+      resetTimerRef.current = setTimeout(() => {
+        resetFilters()
+      }, 5 * 60 * 1000) // 5 minutes
+    }
+
+    // Écouter les événements d'activité utilisateur
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart']
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity, true)
+    })
+
+    // Démarrer le timer initial
+    handleUserActivity()
+
+    // Nettoyage
+    return () => {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current)
+      }
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity, true)
+      })
+    }
+  }, [])
+
+  // Réinitialisation automatique quand l'utilisateur quitte la page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      resetFilters()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [])
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -598,26 +752,33 @@ export default function ListeProgrammes() {
               <p className="text-gray-600 mt-1">Consultez les programmes de recherche disponibles et soumettre vos projets</p>
             </div>
 
-            {/* Filtres simples */}
-            <Card className="mb-6">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Recherche et filtres</CardTitle>
+            {/* Section de recherche et filtres améliorée */}
+            <Card className="mb-6 border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Search className="h-5 w-5 text-blue-600" />
+                  Recherche et filtres
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Rechercher un programme..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <div>
+              <CardContent className="space-y-4">
+                {/* Barre de recherche principale */}
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input
+                    placeholder="Rechercher un programme..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-12 h-12 text-base border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl"
+                  />
+                </div>
+
+                {/* Filtres en grille */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Organisme</Label>
                     <Select value={filterOrganisme} onValueChange={setFilterOrganisme}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Filtrer par organisme" />
+                      <SelectTrigger className="h-11 border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg">
+                        <SelectValue placeholder="Tous les organismes" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tous les organismes</SelectItem>
@@ -629,7 +790,60 @@ export default function ListeProgrammes() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Statut</Label>
+                    <Select value={filterStatut} onValueChange={setFilterStatut}>
+                      <SelectTrigger className="h-11 border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg">
+                        <SelectValue placeholder="Tous les statuts" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les statuts</SelectItem>
+                        <SelectItem value="en_cours">En cours</SelectItem>
+                        <SelectItem value="expire">Expiré</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Année</Label>
+                    <Select value={filterAnnee} onValueChange={setFilterAnnee}>
+                      <SelectTrigger className="h-11 border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg">
+                        <SelectValue placeholder="Toutes les années" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toutes les années</SelectItem>
+                        {Array.from(new Set(programmes.flatMap(p => [
+                          new Date(p.dateDebut).getFullYear(),
+                          new Date(p.dateFin).getFullYear()
+                        ]))).sort((a, b) => b - a).map((year) => (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Programme</Label>
+                    <Select value={filterProgramme} onValueChange={setFilterProgramme}>
+                      <SelectTrigger className="h-11 border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg">
+                        <SelectValue placeholder="Tous les programmes" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les programmes</SelectItem>
+                        {programmes.map((programme) => (
+                          <SelectItem key={programme.id} value={programme.name}>
+                            {programme.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+
+
               </CardContent>
             </Card>
 
@@ -681,7 +895,7 @@ export default function ListeProgrammes() {
                           <Badge 
                             className={isProgrammeActif(programme.dateFin) 
                               ? "bg-green-100 text-green-800" 
-                              : "bg-gray-100 text-gray-600"
+                              : "bg-red-100 text-red-800"
                             }
                           >
                             {isProgrammeActif(programme.dateFin) ? "En cours" : "Expiré"}
@@ -1085,59 +1299,45 @@ export default function ListeProgrammes() {
                   </p>
                   
                   <div className="space-y-3">
-                    {/* Filtres */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs font-medium text-gray-600">Filtrer par titre</Label>
-                        <Select onValueChange={(value) => setFilterTitre(value)}>
-                          <SelectTrigger className="mt-1 h-9 text-sm">
-                            <SelectValue placeholder="Tous les titres" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Tous les titres</SelectItem>
-                            <SelectItem value="Dr.">Dr.</SelectItem>
-                            <SelectItem value="Pr.">Pr.</SelectItem>
-                            <SelectItem value="M.">M.</SelectItem>
-                            <SelectItem value="Mme.">Mme.</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-gray-600">Filtrer par qualité</Label>
-                        <Select onValueChange={(value) => setFilterEtat(value)}>
-                          <SelectTrigger className="mt-1 h-9 text-sm">
-                            <SelectValue placeholder="Toutes les qualités" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Toutes les qualités</SelectItem>
-                            <SelectItem value="Membre directeur">Membre directeur</SelectItem>
-                            <SelectItem value="Membre associé">Membre associé</SelectItem>
-                            <SelectItem value="Chercheur">Chercheur</SelectItem>
-                            <SelectItem value="Expert">Expert</SelectItem>
-                            <SelectItem value="Responsable">Responsable</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Liste déroulante des membres */}
+                    {/* Liste déroulante des membres avec recherche intégrée */}
                     <div>
                       <Label className="text-xs font-medium text-gray-600">Sélectionner un membre</Label>
                       <Select onValueChange={(value) => handleMemberSelect(value)}>
                         <SelectTrigger className="mt-1 h-9 text-sm">
-                          <SelectValue placeholder="Choisir un membre..." />
+                          <SelectValue placeholder="Rechercher et choisir un membre..." />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
-                          {filteredMembers.map((member) => (
-                            <SelectItem key={member.id} value={member.id}>
-                              <div className="flex items-center justify-between w-full">
-                                <span>{member.nom} {member.prenom}</span>
-                                <div className="flex items-center gap-2 text-gray-500">
-                                  <span className="text-xs ml-2">{member.titre}</span>
+                          {/* Champ de recherche dans le dropdown */}
+                          <div className="p-2 border-b border-gray-200">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                              <Input
+                                placeholder="Rechercher un membre..."
+                                value={memberSearchTerm}
+                                onChange={(e) => setMemberSearchTerm(e.target.value)}
+                                className="pl-8 h-8 text-sm border-0 focus:ring-0 focus:border-0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* Liste des membres filtrés */}
+                          {filteredMembers.length > 0 ? (
+                            filteredMembers.map((member) => (
+                              <SelectItem key={member.id} value={member.id}>
+                                <div className="flex items-center justify-between w-full">
+                                  <span>{member.nom} {member.prenom}</span>
+                                  <div className="flex items-center gap-2 text-gray-500">
+                                    <span className="text-xs ml-2">{member.titre}</span>
+                                  </div>
                                 </div>
-                              </div>
-                            </SelectItem>
-                          ))}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <div className="px-2 py-1 text-sm text-gray-500">
+                              Aucun membre trouvé
+                            </div>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1188,11 +1388,11 @@ export default function ListeProgrammes() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label htmlFor="anneeDebut" className={`text-xs font-medium ${formErrors.anneeDebut ? 'text-red-600' : 'text-gray-600'}`}>
-                        Année de début <span className="text-red-500">*</span>
+                        Date de début <span className="text-red-500">*</span>
                       </Label>
                       <Select value={formData.anneeDebut} onValueChange={(value) => handleInputChange("anneeDebut", value)}>
                         <SelectTrigger className={`mt-1 h-9 text-sm ${formErrors.anneeDebut ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
-                          <SelectValue placeholder="Sélectionnez l'année" />
+                          <SelectValue placeholder="Sélectionnez la date" />
                         </SelectTrigger>
                         <SelectContent>
                           {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map((year) => (
@@ -1203,17 +1403,17 @@ export default function ListeProgrammes() {
                         </SelectContent>
                       </Select>
                       {formErrors.anneeDebut && (
-                        <p className="text-red-500 text-xs mt-1">L'année de début est obligatoire</p>
+                        <p className="text-red-500 text-xs mt-1">La date de début est obligatoire</p>
                       )}
                     </div>
 
                     <div>
                       <Label htmlFor="anneeFin" className={`text-xs font-medium ${formErrors.anneeFin ? 'text-red-600' : 'text-gray-600'}`}>
-                        Année de fin <span className="text-red-500">*</span>
+                        Date de fin <span className="text-red-500">*</span>
                       </Label>
                       <Select value={formData.anneeFin} onValueChange={(value) => handleInputChange("anneeFin", value)}>
                         <SelectTrigger className={`mt-1 h-9 text-sm ${formErrors.anneeFin ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
-                          <SelectValue placeholder="Sélectionnez l'année" />
+                          <SelectValue placeholder="Sélectionnez la date" />
                         </SelectTrigger>
                         <SelectContent>
                           {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map((year) => (
@@ -1224,7 +1424,7 @@ export default function ListeProgrammes() {
                         </SelectContent>
                       </Select>
                       {formErrors.anneeFin && (
-                        <p className="text-red-500 text-xs mt-1">L'année de fin est obligatoire</p>
+                        <p className="text-red-500 text-xs mt-1">La date de fin est obligatoire</p>
                       )}
                     </div>
                   </div>
@@ -1546,7 +1746,7 @@ export default function ListeProgrammes() {
 
       {/* Modal pour ajouter un nouveau membre */}
       <Dialog open={showAddMemberModal} onOpenChange={setShowAddMemberModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg">Ajouter un nouveau membre</DialogTitle>
           </DialogHeader>
@@ -1605,39 +1805,18 @@ export default function ListeProgrammes() {
             </div>
 
             <div>
-              <Label htmlFor="newMemberQualite" className={`text-sm font-medium ${newMemberErrors.qualite ? 'text-red-600' : 'text-gray-700'}`}>
-                Qualité <span className="text-red-500">*</span>
-              </Label>
-              <Select value={newMember.qualite} onValueChange={(value) => handleNewMemberInputChange("qualite", value)}>
-                <SelectTrigger className={`mt-1 h-10 text-sm ${newMemberErrors.qualite ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
-                  <SelectValue placeholder="Sélectionnez une qualité" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Membre directeur">Membre directeur</SelectItem>
-                  <SelectItem value="Membre associé">Membre associé</SelectItem>
-                  <SelectItem value="Chercheur">Chercheur</SelectItem>
-                  <SelectItem value="Expert">Expert</SelectItem>
-                  <SelectItem value="Responsable">Responsable</SelectItem>
-                </SelectContent>
-              </Select>
-              {newMemberErrors.qualite && (
-                <p className="text-red-500 text-xs mt-1">La qualité est obligatoire</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="newMemberAffiliation" className={`text-sm font-medium ${newMemberErrors.affiliation ? 'text-red-600' : 'text-gray-700'}`}>
-                Affiliation <span className="text-red-500">*</span>
+              <Label htmlFor="newMemberEtablissement" className={`text-sm font-medium ${newMemberErrors.etablissement ? 'text-red-600' : 'text-gray-700'}`}>
+                Établissement <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="newMemberAffiliation"
+                id="newMemberEtablissement"
                 placeholder="Ex: Université Hassan II, Ministère..."
-                value={newMember.affiliation}
-                onChange={(e) => handleNewMemberInputChange("affiliation", e.target.value)}
-                className={`mt-1 h-10 text-sm ${newMemberErrors.affiliation ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                value={newMember.etablissement}
+                onChange={(e) => handleNewMemberInputChange("etablissement", e.target.value)}
+                className={`mt-1 h-10 text-sm ${newMemberErrors.etablissement ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
               />
-              {newMemberErrors.affiliation && (
-                <p className="text-red-500 text-xs mt-1">L'affiliation est obligatoire</p>
+              {newMemberErrors.etablissement && (
+                <p className="text-red-500 text-xs mt-1">L'établissement est obligatoire</p>
               )}
             </div>
           </div>

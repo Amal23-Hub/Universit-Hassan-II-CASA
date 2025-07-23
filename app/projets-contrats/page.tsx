@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Eye, FileText, DollarSign, Plus, Trash2, Filter, Download, XCircle } from "lucide-react"
+import { Eye, FileText, DollarSign, Plus, Trash2, Filter, XCircle, Upload } from "lucide-react"
 import { Header } from "@/components/header"
 import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
@@ -83,7 +83,8 @@ export default function ProjetsContrats() {
           montant: 1000000, 
           description: "Deuxième tranche",
           recu: false,
-          envoye: false
+          envoye: true,
+          dateEnvoi: "2024-06-01"
         }
       ],
       nombreDoctorants: 3,
@@ -187,6 +188,10 @@ export default function ProjetsContrats() {
     date: "",
     description: ""
   })
+  const [uploadingConvention, setUploadingConvention] = useState<string | null>(null)
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [selectedProjetForUpload, setSelectedProjetForUpload] = useState<ProjetContrat | null>(null)
+  const [uploadFile, setUploadFile] = useState<File | null>(null)
 
   // Filter logic
   const applyFilters = () => {
@@ -243,57 +248,52 @@ export default function ProjetsContrats() {
     return [...new Set(years)].sort((a, b) => b - a)
   }
 
-  const handleDownloadConvention = (projet: ProjetContrat) => {
-    // Le système offre à l'utilisateur la possibilité de télécharger la convention
-    // associée à un programme spécifique. Cette convention englobe tous les projets
-    // retenus dans le cadre du programme concerné.
-    
-    if (projet.convention) {
-      // Vérifier d'abord si le fichier existe
-      fetch('/convention-exemple.pdf', { method: 'HEAD' })
-        .then(response => {
-          if (response.ok) {
-            // Le fichier existe, procéder au téléchargement
-            return fetch('/convention-exemple.pdf')
-          } else {
-            throw new Error('Fichier convention non trouvé')
-          }
-        })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob)
-          const link = document.createElement('a')
-          link.href = url
-          link.download = `convention-${projet.codeReference}.pdf`
-          link.style.display = 'none'
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-          window.URL.revokeObjectURL(url)
-          
-          console.log(`Téléchargement réussi de la convention pour le projet: ${projet.intitule}`)
-          console.log(`Référence: Voir Convention-Exemple.PDF`)
-        })
-        .catch(error => {
-          console.error('Erreur lors du téléchargement:', error)
-          
-          // Si le téléchargement échoue, essayer d'ouvrir dans un nouvel onglet
-          try {
-            const newWindow = window.open('/convention-exemple.pdf', '_blank')
-            if (newWindow) {
-              alert(`Convention ouverte dans un nouvel onglet pour le projet: ${projet.intitule}`)
-            } else {
-              // Si l'ouverture dans un nouvel onglet échoue (bloqueur de popup)
-              alert(`Impossible d'ouvrir la convention. Veuillez cliquer sur le lien suivant:\n\n${window.location.origin}/convention-exemple.pdf`)
-            }
-          } catch (windowError) {
-            console.error('Erreur lors de l\'ouverture dans un nouvel onglet:', windowError)
-            alert(`Erreur lors de l'ouverture de la convention. Veuillez vérifier que le fichier existe.`)
-          }
-        })
-    } else {
-      alert('Aucune convention disponible pour ce projet retenu')
+  const handleUploadConvention = (projet: ProjetContrat) => {
+    setSelectedProjetForUpload(projet)
+    setShowUploadModal(true)
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setUploadFile(file)
     }
+  }
+
+  const handleConfirmUpload = () => {
+    if (!selectedProjetForUpload || !uploadFile) return
+
+    setUploadingConvention(selectedProjetForUpload.id)
+    
+    // Simuler l'upload (dans un vrai projet, vous enverriez le fichier au serveur)
+    setTimeout(() => {
+      // Mettre à jour le projet avec le nouveau nom de fichier
+      const updatedProjets = projets.map(p => {
+        if (p.id === selectedProjetForUpload.id) {
+          return {
+            ...p,
+            convention: uploadFile.name
+          }
+        }
+        return p
+      })
+      
+      setProjets(updatedProjets)
+      setUploadingConvention(null)
+      setShowUploadModal(false)
+      setSelectedProjetForUpload(null)
+      setUploadFile(null)
+      
+      // Feedback utilisateur
+      alert(`Convention "${uploadFile.name}" uploadée avec succès pour le projet: ${selectedProjetForUpload.intitule}`)
+      console.log(`Convention uploadée: ${uploadFile.name} pour le projet: ${selectedProjetForUpload.intitule}`)
+    }, 1500) // Simulation d'un délai d'upload
+  }
+
+  const handleCancelUpload = () => {
+    setShowUploadModal(false)
+    setSelectedProjetForUpload(null)
+    setUploadFile(null)
   }
 
   const handleGestionVersements = (projet: ProjetContrat) => {
@@ -427,17 +427,16 @@ export default function ProjetsContrats() {
                         
             {/* Filters simplifiés */}
             <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Filter className="h-5 w-5 mr-2" />
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-sm">
+                  <Filter className="h-4 w-4 mr-2" />
                   Filtres et recherche
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:flex-row md:items-end md:space-x-6 gap-4 md:gap-0">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Type de contrat</Label>
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-xs">Type de contrat</Label>
                       <Select
                         value={filterType}
                         onValueChange={(value) => {
@@ -445,7 +444,7 @@ export default function ProjetsContrats() {
                           applyFilters()
                         }}
                       >
-                        <SelectTrigger>
+                      <SelectTrigger className="h-8 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -455,8 +454,8 @@ export default function ProjetsContrats() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Année</Label>
+                  <div>
+                    <Label className="text-xs">Année</Label>
                       <Select
                         value={filterAnnee}
                         onValueChange={(value) => {
@@ -464,7 +463,7 @@ export default function ProjetsContrats() {
                           applyFilters()
                         }}
                       >
-                        <SelectTrigger>
+                      <SelectTrigger className="h-8 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -477,8 +476,8 @@ export default function ProjetsContrats() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Statut</Label>
+                  <div>
+                    <Label className="text-xs">Statut</Label>
                       <Select
                         value={filterStatut}
                         onValueChange={(value) => {
@@ -486,7 +485,7 @@ export default function ProjetsContrats() {
                           applyFilters()
                         }}
                       >
-                        <SelectTrigger>
+                      <SelectTrigger className="h-8 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -498,11 +497,8 @@ export default function ProjetsContrats() {
                       </Select>
                     </div>
                   </div>
-                  <div className="flex-1 flex md:justify-end items-center mt-2 md:mt-0">
-                    <div className="text-sm text-gray-600 mt-1">
+                <div className="mt-3 text-sm text-gray-600">
                       {filteredProjets.length} projet(s)
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -595,12 +591,17 @@ export default function ProjetsContrats() {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="h-6 px-1.5 text-xs"
-                                      title="Télécharger convention"
-                                      onClick={() => handleDownloadConvention(projet)}
+                                      className="h-6 px-2 text-xs"
+                                      title="Upload convention"
+                                      onClick={() => handleUploadConvention(projet)}
+                                      disabled={uploadingConvention === projet.id}
                                     >
-                                      <Download className="h-3 w-3 mr-0.5" />
-                                      Conv.
+                                      {uploadingConvention === projet.id ? (
+                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600 mr-1" />
+                                      ) : (
+                                        <Upload className="h-3 w-3 mr-1" />
+                                      )}
+                                      {uploadingConvention === projet.id ? "Upload..." : "Conv."}
                                     </Button>
                                     <Button
                                       variant="ghost"
@@ -1114,44 +1115,61 @@ export default function ProjetsContrats() {
                     </div>
                     <h3 className="text-base font-semibold text-gray-900">Tranches budgétaires</h3>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {selectedProjetForDetails.tranches && selectedProjetForDetails.tranches.length > 0 ? (
-                      selectedProjetForDetails.tranches.map((tranche) => (
-                        <div key={tranche.id} className="bg-white rounded p-3 border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3">
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm text-gray-900">{tranche.description}</p>
-                                  <p className="text-sm text-gray-600">{formatBudget(tranche.montant)}</p>
+                      selectedProjetForDetails.tranches.map((tranche) => {
+                        // Déterminer le statut de la tranche
+                        let statutTranche = "En cours"
+                        let statutColor = "bg-yellow-100 text-yellow-800"
+                        
+                        if (tranche.recu) {
+                          statutTranche = "Reçu"
+                          statutColor = "bg-green-100 text-green-800"
+                        } else if (tranche.envoye) {
+                          statutTranche = "En cours"
+                          statutColor = "bg-blue-100 text-blue-800"
+                        }
+                        
+                        return (
+                          <div key={tranche.id} className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-medium text-sm text-gray-900">{tranche.description}</h4>
+                                  <Badge className={`${statutColor} text-xs font-medium`}>
+                                    {statutTranche}
+                                  </Badge>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                  {tranche.recu && (
-                                    <Badge className="bg-green-100 text-green-800 text-xs">
-                                      Reçu
-                                    </Badge>
+                                <div className="text-lg font-bold text-uh2c-blue mb-3">
+                                  {formatBudget(tranche.montant)}
+                                </div>
+                                
+                                {/* Détails des dates */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                  {tranche.dateReception && (
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                      <span className="text-gray-600">Reçu le:</span>
+                                      <span className="font-medium text-gray-900">
+                                        {new Date(tranche.dateReception).toLocaleDateString('fr-FR')}
+                                      </span>
+                                    </div>
                                   )}
-                                  {tranche.envoye && (
-                                    <Badge className="bg-blue-100 text-blue-800 text-xs">
-                                      Envoyé
-                                    </Badge>
+                                  {tranche.dateEnvoi && (
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                      <span className="text-gray-600">Envoyé le:</span>
+                                      <span className="font-medium text-gray-900">
+                                        {new Date(tranche.dateEnvoi).toLocaleDateString('fr-FR')}
+                                      </span>
+                                    </div>
                                   )}
                                 </div>
                               </div>
-                              {tranche.dateReception && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Reçu le: {new Date(tranche.dateReception).toLocaleDateString('fr-FR')}
-                                </p>
-                              )}
-                              {tranche.dateEnvoi && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Envoyé le: {new Date(tranche.dateEnvoi).toLocaleDateString('fr-FR')}
-                                </p>
-                              )}
                             </div>
                           </div>
-                        </div>
-                      ))
+                        )
+                      })
                     ) : (
                       <div className="bg-white rounded p-4 border border-gray-200 text-center">
                         <p className="text-sm text-gray-500">Aucune tranche budgétaire définie</p>
@@ -1173,6 +1191,92 @@ export default function ProjetsContrats() {
           </div>
         </div>
       )}
+
+      {/* Modal pour upload de convention */}
+      <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5 text-uh2c-blue" />
+              Upload Convention
+            </DialogTitle>
+            <DialogDescription>
+              Sélectionnez le fichier de convention à uploader
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Sélection de fichier */}
+            <div className="space-y-2">
+              <Label htmlFor="convention-file">Fichier de convention</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-uh2c-blue transition-colors">
+                <input
+                  id="convention-file"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <label htmlFor="convention-file" className="cursor-pointer">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    {uploadFile ? (
+                      <span className="text-uh2c-blue font-medium">{uploadFile.name}</span>
+                    ) : (
+                      <>
+                        Cliquez pour sélectionner un fichier<br />
+                        <span className="text-xs text-gray-500">PDF, DOC, DOCX acceptés</span>
+                      </>
+                    )}
+                  </p>
+                </label>
+              </div>
+            </div>
+
+            {/* Aperçu du fichier sélectionné */}
+            {uploadFile && (
+              <div className="bg-uh2c-blue/5 rounded-lg p-3 border border-uh2c-blue/20">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-uh2c-blue" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-uh2c-blue">{uploadFile.name}</p>
+                    <p className="text-xs text-uh2c-blue/80">
+                      Taille: {(uploadFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+            <Button
+              variant="outline"
+              onClick={handleCancelUpload}
+              disabled={uploadingConvention === selectedProjetForUpload?.id}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleConfirmUpload}
+              disabled={!uploadFile || uploadingConvention === selectedProjetForUpload?.id}
+              className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white"
+            >
+              {uploadingConvention === selectedProjetForUpload?.id ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Upload en cours...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Convention
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 

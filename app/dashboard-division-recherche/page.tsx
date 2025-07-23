@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Sidebar } from "@/components/sidebar"
+import { DivisionRechercheSidebar } from "@/components/division-recherche-sidebar"
 import { Header } from "@/components/header"
 import { 
   BarChart3, 
@@ -36,6 +36,8 @@ export default function DashboardDivisionRecherche() {
     tauxValidation: 74,
     delaiMoyenEvaluation: 15
   })
+
+
 
   const [recentActivities] = useState([
     {
@@ -124,6 +126,8 @@ export default function DashboardDivisionRecherche() {
     }).format(amount)
   }
 
+
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "approved":
@@ -171,7 +175,7 @@ export default function DashboardDivisionRecherche() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <DivisionRechercheSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
@@ -199,6 +203,8 @@ export default function DashboardDivisionRecherche() {
                 </Card>
               ))}
             </div>
+
+            
 
             {/* Statistiques principales */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

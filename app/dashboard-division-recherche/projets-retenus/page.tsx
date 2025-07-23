@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Sidebar } from "@/components/sidebar"
+import { DivisionRechercheSidebar } from "@/components/division-recherche-sidebar"
 import { Header } from "@/components/header"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Search, Filter, Eye, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
@@ -21,6 +21,8 @@ interface ProjetRetenu {
   nomCoordonnateur: string
   prenomCoordonnateur: string
   etablissement: string
+  laboratoire: string
+  enseignantChercheur: string
   budgetPropose: number
   statutRetenu: "Retenu" | "Non retenu" | null
   dateReception: string
@@ -52,6 +54,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "Benali",
       prenomCoordonnateur: "Ahmed",
       etablissement: "Université Hassan II",
+      laboratoire: "Laboratoire de Physique des Matériaux et d'Électronique",
+      enseignantChercheur: "Dr. Ahmed BENALI",
       budgetPropose: 500000,
       statutRetenu: null,
       dateReception: "2024-02-15",
@@ -81,6 +85,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "Benali",
       prenomCoordonnateur: "Ahmed",
       etablissement: "Université Hassan II",
+      laboratoire: "Laboratoire de Bioinformatique et de Génomique",
+      enseignantChercheur: "Dr. Ahmed BENALI",
       budgetPropose: 500000,
       statutRetenu: "Non retenu",
       dateReception: "2024-01-15",
@@ -118,6 +124,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "Zahra",
       prenomCoordonnateur: "Fatima",
       etablissement: "ENSA Casablanca",
+      laboratoire: "Laboratoire de Systèmes Intelligents",
+      enseignantChercheur: "Dr. Fatima ZAHRA",
       budgetPropose: 1200000,
       statutRetenu: "Retenu",
       dateReception: "2024-01-20",
@@ -155,6 +163,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "El Harti",
       prenomCoordonnateur: "Sara",
       etablissement: "CHU Hassan II",
+      laboratoire: "Laboratoire de Recherche en Santé Numérique",
+      enseignantChercheur: "Dr. Sara EL HARTI",
       budgetPropose: 850000,
       statutRetenu: "Non retenu",
       dateReception: "2024-01-25",
@@ -184,6 +194,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "Lahby",
       prenomCoordonnateur: "Mohamed",
       etablissement: "Université Mohammed V",
+      laboratoire: "Laboratoire d'Énergies Renouvelables et d'Efficacité Énergétique",
+      enseignantChercheur: "Dr. Mohamed LAHBY",
       budgetPropose: 600000,
       statutRetenu: "Retenu",
       dateReception: "2024-01-30",
@@ -221,6 +233,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "Alami",
       prenomCoordonnateur: "Youssef",
       etablissement: "IAV Hassan II",
+      laboratoire: "Laboratoire d'Agriculture Intelligente et de Précision",
+      enseignantChercheur: "Dr. Youssef ALAMI",
       budgetPropose: 450000,
       statutRetenu: "Non retenu",
       dateReception: "2024-02-05",
@@ -250,6 +264,8 @@ export default function ProjetsRetenus() {
       nomCoordonnateur: "Benali",
       prenomCoordonnateur: "Ahmed",
       etablissement: "Université Hassan II",
+      laboratoire: "Laboratoire de Physique des Matériaux et d'Électronique",
+      enseignantChercheur: "Dr. Ahmed BENALI",
       budgetPropose: 500000,
       statutRetenu: null,
       dateReception: "2024-02-10",
@@ -276,7 +292,8 @@ export default function ProjetsRetenus() {
   const [filteredProjets, setFilteredProjets] = useState<ProjetRetenu[]>(projets)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterProgramme, setFilterProgramme] = useState<string>("all")
-  const [filterRetenu, setFilterRetenu] = useState<string>("all")
+  const [filterLaboratoire, setFilterLaboratoire] = useState<string>("all")
+  const [filterEnseignant, setFilterEnseignant] = useState<string>("all")
   const [filterSource, setFilterSource] = useState<string>("all")
   const [selectedProjet, setSelectedProjet] = useState<ProjetRetenu | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -299,7 +316,9 @@ export default function ProjetsRetenus() {
           projet.prenomCoordonnateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
           projet.thematique.toLowerCase().includes(searchTerm.toLowerCase()) ||
           projet.etablissement.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          projet.programme.toLowerCase().includes(searchTerm.toLowerCase())
+          projet.programme.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          projet.laboratoire.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          projet.enseignantChercheur.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
@@ -309,21 +328,22 @@ export default function ProjetsRetenus() {
     }
 
     // Filtre par statut
-    if (filterRetenu !== "all") {
-      if (filterRetenu === "null") {
-        filtered = filtered.filter((projet) => projet.statutRetenu === null)
-      } else {
-        filtered = filtered.filter((projet) => projet.statutRetenu === filterRetenu)
-      }
-    }
-
-    // Filtre par source
     if (filterSource !== "all") {
       filtered = filtered.filter((projet) => projet.sourceReception === filterSource)
     }
 
+    // Filtre par laboratoire
+    if (filterLaboratoire !== "all") {
+      filtered = filtered.filter((projet) => projet.laboratoire === filterLaboratoire)
+    }
+
+    // Filtre par enseignant chercheur
+    if (filterEnseignant !== "all") {
+      filtered = filtered.filter((projet) => projet.enseignantChercheur === filterEnseignant)
+    }
+
     setFilteredProjets(filtered)
-  }, [projets, searchTerm, filterProgramme, filterRetenu, filterSource])
+  }, [projets, searchTerm, filterProgramme, filterLaboratoire, filterEnseignant, filterSource])
 
   const handleRetenuToggle = (projetId: string, nouveauStatut: "Retenu" | "Non retenu") => {
     // Confirmation spéciale pour le statut "Retenu"
@@ -381,6 +401,14 @@ export default function ProjetsRetenus() {
     return [...new Set(projets.map((p) => p.programme))].sort()
   }
 
+  const getUniqueLaboratoires = () => {
+    return [...new Set(projets.map((p) => p.laboratoire))].sort()
+  }
+
+  const getUniqueEnseignants = () => {
+    return [...new Set(projets.map((p) => p.enseignantChercheur))].sort()
+  }
+
   const getStats = () => {
     const total = projets.length
     const retenus = projets.filter(p => p.statutRetenu === "Retenu").length
@@ -396,26 +424,26 @@ export default function ProjetsRetenus() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <DivisionRechercheSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
           <div className="mx-auto">
-            <div className="mb-4">
-              <h1 className="text-xl font-bold text-gray-900">projet de recherche</h1>
-            </div>
+                            <div className="mb-4">
+                  <h1 className="text-xl font-bold text-gray-900">Projet de recherche retenus</h1>
+                </div>
 
             {/* Filters */}
             <Card className="mb-3">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center text-sm">
                   <Filter className="h-4 w-4 mr-2" />
-                  Filtres
+                  Filtres et recherche
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="flex flex-col md:flex-row md:items-end md:space-x-4 gap-3 md:gap-0">
-                  <div className="flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
                     <Label className="text-xs">Recherche</Label>
                     <div className="relative mt-1">
                       <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
@@ -427,7 +455,7 @@ export default function ProjetsRetenus() {
                       />
                     </div>
                   </div>
-                  <div className="flex-1">
+                  <div>
                     <Label className="text-xs">Programme</Label>
                     <Select
                       value={filterProgramme}
@@ -446,20 +474,41 @@ export default function ProjetsRetenus() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex-1">
-                    <Label className="text-xs">Statut</Label>
+                  <div>
+                    <Label className="text-xs">Laboratoire</Label>
                     <Select
-                      value={filterRetenu}
-                      onValueChange={(value) => setFilterRetenu(value)}
+                      value={filterLaboratoire}
+                      onValueChange={(value) => setFilterLaboratoire(value)}
                     >
                       <SelectTrigger className="h-8 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Tous les statuts</SelectItem>
-                        <SelectItem value="Retenu">Retenu</SelectItem>
-                        <SelectItem value="Non retenu">Non retenu</SelectItem>
-                        <SelectItem value="null">Non défini</SelectItem>
+                        <SelectItem value="all">Tous les laboratoires</SelectItem>
+                        {getUniqueLaboratoires().map((laboratoire) => (
+                          <SelectItem key={laboratoire} value={laboratoire}>
+                            {laboratoire}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Enseignant chercheur</Label>
+                    <Select
+                      value={filterEnseignant}
+                      onValueChange={(value) => setFilterEnseignant(value)}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les enseignants</SelectItem>
+                        {getUniqueEnseignants().map((enseignant) => (
+                          <SelectItem key={enseignant} value={enseignant}>
+                            {enseignant}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -490,21 +539,22 @@ export default function ProjetsRetenus() {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/6">Programme</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/8">Programme</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/4">Projet</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/8">Thématique</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Coordonnateur</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Établissement</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/8">Laboratoire</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/8">Enseignant chercheur</th>
                           <th className="text-right py-2 px-3 font-medium text-gray-700 whitespace-nowrap">Budget proposé</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Retenu</th>
                           <th className="text-center py-2 px-3 font-medium text-gray-700">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredProjets.map((projet, index) => (
                           <tr key={projet.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                            <td className="py-2 px-3 w-1/6">
-                              <span className="font-medium text-gray-900 whitespace-nowrap">{projet.programme}</span>
+                            <td className="py-2 px-3 w-1/8">
+                              <span className="font-medium text-gray-900 text-xs truncate block" title={projet.programme}>{projet.programme}</span>
                             </td>
                             <td className="py-2 px-3 w-1/4">
                               <span className="text-gray-900 whitespace-nowrap">{projet.projet}</span>
@@ -520,44 +570,14 @@ export default function ProjetsRetenus() {
                             <td className="py-2 px-3">
                               <span className="text-gray-700 whitespace-nowrap">{projet.etablissement}</span>
                             </td>
+                            <td className="py-2 px-3 w-1/8">
+                              <span className="text-gray-700 text-xs truncate block" title={projet.laboratoire}>{projet.laboratoire}</span>
+                            </td>
+                            <td className="py-2 px-3 w-1/8">
+                              <span className="text-gray-700 text-xs truncate block" title={projet.enseignantChercheur}>{projet.enseignantChercheur}</span>
+                            </td>
                             <td className="py-2 px-3 text-right">
                               <span className="font-medium text-gray-900 whitespace-nowrap">{formatBudget(projet.budgetPropose)}</span>
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {projet.statutRetenu === "Retenu" ? (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleRetenuToggle(projet.id, "Non retenu")}
-                                  className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700 text-white border-green-600 shadow-md"
-                                >
-                                  Retenu
-                                </Button>
-                              ) : projet.statutRetenu === "Non retenu" ? (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleRetenuToggle(projet.id, "Retenu")}
-                                  className="h-6 px-2 text-xs bg-red-600 hover:bg-red-700 text-white border-red-600"
-                                >
-                                  Non retenu
-                                </Button>
-                              ) : (
-                                <div className="flex gap-2 justify-center">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleRetenuToggle(projet.id, "Retenu")}
-                                    className="h-6 px-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300"
-                                  >
-                                    Retenu
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleRetenuToggle(projet.id, "Non retenu")}
-                                    className="h-6 px-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300"
-                                  >
-                                    Non retenu
-                                  </Button>
-                                </div>
-                              )}
                             </td>
                             <td className="py-2 px-3 text-center">
                               <Button
