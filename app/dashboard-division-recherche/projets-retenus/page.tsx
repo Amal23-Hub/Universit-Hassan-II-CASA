@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { DivisionRechercheSidebar } from "@/components/division-recherche-sidebar"
 import { Header } from "@/components/header"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Filter, Eye, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
+import { Search, Filter, Eye, CheckCircle, XCircle, AlertTriangle, FileText, Users, Calendar, DollarSign } from "lucide-react"
 import Image from "next/image"
 
 interface ProjetRetenu {
@@ -302,6 +302,12 @@ export default function ProjetsRetenus() {
     projetId: string
     nouveauStatut: "Retenu" | "Non retenu"
   } | null>(null)
+  
+  // États pour les nouveaux modals
+  const [showConventionModal, setShowConventionModal] = useState(false)
+  const [showProgrammeEmploiModal, setShowProgrammeEmploiModal] = useState(false)
+  const [showVersementsModal, setShowVersementsModal] = useState(false)
+  const [showLivrablesModal, setShowLivrablesModal] = useState(false)
 
   // Appliquer les filtres automatiquement quand les projets ou les filtres changent
   useEffect(() => {
@@ -387,6 +393,26 @@ export default function ProjetsRetenus() {
   const handleVoirDetails = (projet: ProjetRetenu) => {
     setSelectedProjet(projet)
     setShowDetailsModal(true)
+  }
+
+  const handleConvention = (projet: ProjetRetenu) => {
+    setSelectedProjet(projet)
+    setShowConventionModal(true)
+  }
+
+  const handleProgrammeEmploi = (projet: ProjetRetenu) => {
+    setSelectedProjet(projet)
+    setShowProgrammeEmploiModal(true)
+  }
+
+  const handleVersements = (projet: ProjetRetenu) => {
+    setSelectedProjet(projet)
+    setShowVersementsModal(true)
+  }
+
+  const handleLivrables = (projet: ProjetRetenu) => {
+    setSelectedProjet(projet)
+    setShowLivrablesModal(true)
   }
 
   const formatBudget = (amount: number) => {
@@ -580,14 +606,53 @@ export default function ProjetsRetenus() {
                               <span className="font-medium text-gray-900 whitespace-nowrap">{formatBudget(projet.budgetPropose)}</span>
                             </td>
                             <td className="py-2 px-3 text-center">
-                              <Button
-                                size="sm"
-                                onClick={() => handleVoirDetails(projet)}
-                                className="h-6 w-6 p-0 bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
-                                title="Voir les détails"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
+                              <div className="flex items-center justify-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleVoirDetails(projet)}
+                                  className="h-6 w-6 p-0 hover:bg-uh2c-blue/10 hover:text-uh2c-blue"
+                                  title="Voir les détails"
+                                >
+                                  <Eye className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleConvention(projet)}
+                                  className="h-6 w-6 p-0 hover:bg-uh2c-blue/10 hover:text-uh2c-blue"
+                                  title="Convention"
+                                >
+                                  <FileText className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleProgrammeEmploi(projet)}
+                                  className="h-6 w-6 p-0 hover:bg-uh2c-blue/10 hover:text-uh2c-blue"
+                                  title="Programme d'emploi"
+                                >
+                                  <Users className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleVersements(projet)}
+                                  className="h-6 w-6 p-0 text-gray-600 hover:bg-uh2c-blue/10 hover:text-uh2c-blue border border-gray-200 hover:border-uh2c-blue/30"
+                                  title="Versements"
+                                >
+                                  <DollarSign className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleLivrables(projet)}
+                                  className="h-6 w-6 p-0 hover:bg-uh2c-blue/10 hover:text-uh2c-blue"
+                                  title="Livrables"
+                                >
+                                  <Calendar className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -916,6 +981,624 @@ export default function ProjetsRetenus() {
                 <Button size="sm" onClick={confirmStatusChange} className="bg-green-600 hover:bg-green-700 text-white border-green-600">
                   Confirmer
                 </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Convention */}
+      {showConventionModal && selectedProjet && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="bg-uh2c-blue border-b border-uh2c-blue/20 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-white" />
+                  <h2 className="text-lg font-semibold text-white">Convention - {selectedProjet.projet}</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowConventionModal(false)}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Informations du projet</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Programme</Label>
+                        <p className="text-sm text-gray-900">{selectedProjet.programme}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Coordonnateur</Label>
+                        <p className="text-sm text-gray-900">{selectedProjet.nomCoordonnateur} {selectedProjet.prenomCoordonnateur}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Budget</Label>
+                        <p className="text-sm text-gray-900">{formatBudget(selectedProjet.budgetPropose)}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Actions</h3>
+                    <div className="space-y-3">
+                      <Button className="w-full bg-uh2c-blue hover:bg-uh2c-blue/90 text-white">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Générer la convention
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Télécharger modèle
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Voir conventions existantes
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Programme d'emploi */}
+      {showProgrammeEmploiModal && selectedProjet && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="bg-uh2c-blue border-b border-uh2c-blue/20 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-white" />
+                  <h2 className="text-lg font-semibold text-white">Programme d'emploi - {selectedProjet.projet}</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowProgrammeEmploiModal(false)}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="space-y-6">
+                {/* Informations du projet */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Informations du projet</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Budget total</Label>
+                      <p className="text-lg font-bold text-uh2c-blue">{formatBudget(selectedProjet.budgetPropose)}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Coordonnateur</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.nomCoordonnateur} {selectedProjet.prenomCoordonnateur}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Programme</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.programme}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sélection de la tranche */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Saisie du budget par tranche</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 mb-2">Sélectionner la tranche</Label>
+                      <Select>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Choisir une tranche" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="tranche1">Tranche 1 - 30% (150.000 MAD)</SelectItem>
+                          <SelectItem value="tranche2">Tranche 2 - 40% (200.000 MAD)</SelectItem>
+                          <SelectItem value="tranche3">Tranche 3 - 30% (150.000 MAD)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 mb-2">Date de fin de tranche</Label>
+                      <Input type="date" className="w-full" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Saisie du budget par rubrique */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget utilisé par rubrique (réel consommé)</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Personnel</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="Montant en MAD" 
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Équipement</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="Montant en MAD" 
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Fonctionnement</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="Montant en MAD" 
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Mission</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="Montant en MAD" 
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Publication</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="Montant en MAD" 
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">Autres</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="Montant en MAD" 
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comparaison budget prévisionnel vs réel */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Comparaison budget prévisionnel vs réel</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Rubrique</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700">Prévisionnel</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700">Réel</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700">Écart</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-gray-100">
+                          <td className="py-2 px-3">Personnel</td>
+                          <td className="py-2 px-3 text-right">45.000 MAD</td>
+                          <td className="py-2 px-3 text-right">42.500 MAD</td>
+                          <td className="py-2 px-3 text-right text-green-600">-2.500 MAD</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className="bg-green-100 text-green-800 text-xs">Sous-budget</Badge>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-gray-100">
+                          <td className="py-2 px-3">Équipement</td>
+                          <td className="py-2 px-3 text-right">30.000 MAD</td>
+                          <td className="py-2 px-3 text-right">32.000 MAD</td>
+                          <td className="py-2 px-3 text-right text-red-600">+2.000 MAD</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className="bg-red-100 text-red-800 text-xs">Dépassement</Badge>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-gray-100">
+                          <td className="py-2 px-3">Fonctionnement</td>
+                          <td className="py-2 px-3 text-right">25.000 MAD</td>
+                          <td className="py-2 px-3 text-right">24.800 MAD</td>
+                          <td className="py-2 px-3 text-right text-green-600">-200 MAD</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className="bg-green-100 text-green-800 text-xs">Sous-budget</Badge>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-gray-100">
+                          <td className="py-2 px-3">Mission</td>
+                          <td className="py-2 px-3 text-right">20.000 MAD</td>
+                          <td className="py-2 px-3 text-right">20.000 MAD</td>
+                          <td className="py-2 px-3 text-right text-gray-600">0 MAD</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className="bg-gray-100 text-gray-800 text-xs">Conforme</Badge>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-gray-100">
+                          <td className="py-2 px-3">Publication</td>
+                          <td className="py-2 px-3 text-right">15.000 MAD</td>
+                          <td className="py-2 px-3 text-right">15.700 MAD</td>
+                          <td className="py-2 px-3 text-right text-red-600">+700 MAD</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className="bg-red-100 text-red-800 text-xs">Dépassement</Badge>
+                          </td>
+                        </tr>
+                        <tr className="bg-gray-50 font-medium">
+                          <td className="py-2 px-3">Total</td>
+                          <td className="py-2 px-3 text-right">135.000 MAD</td>
+                          <td className="py-2 px-3 text-right">135.000 MAD</td>
+                          <td className="py-2 px-3 text-right text-gray-600">0 MAD</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className="bg-gray-100 text-gray-800 text-xs">Conforme</Badge>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button className="w-full bg-uh2c-blue hover:bg-uh2c-blue/90 text-white">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Générer le document de justification
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Préparer déblocage tranche suivante
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <Users className="w-4 h-4 mr-2" />
+                      Historique des programmes d'emploi
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Versements */}
+      {showVersementsModal && selectedProjet && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="bg-uh2c-blue border-b border-uh2c-blue/20 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-5 h-5 text-white" />
+                  <h2 className="text-lg font-semibold text-white">Gestion des versements - {selectedProjet.projet}</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowVersementsModal(false)}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="space-y-6">
+                {/* Informations du projet */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Informations du projet</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Programme</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.programme}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Coordonnateur</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.nomCoordonnateur} {selectedProjet.prenomCoordonnateur}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Établissement</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.etablissement}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Budget alloué</Label>
+                      <p className="text-lg font-bold text-uh2c-blue">{formatBudget(selectedProjet.budgetPropose)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contrôles de tri */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Liste des projets classés par programme</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <Label className="text-sm font-medium text-gray-700">Trier par tranches:</Label>
+                        <Select>
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Ordre" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="asc">Croissant</SelectItem>
+                            <SelectItem value="desc">Décroissant</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tableau des versements */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 bg-gray-50">
+                          <th className="text-left py-3 px-4 font-medium text-gray-700">Programme</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-700">Projet</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-700">Nom coordonateur</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-700">Prénom</th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-700">Établissement</th>
+                          <th className="text-right py-3 px-4 font-medium text-gray-700">Budget alloué</th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-700">Tranche 1</th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-700">Tranche 2</th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-700">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4">{selectedProjet.programme}</td>
+                          <td className="py-3 px-4 font-medium">{selectedProjet.projet}</td>
+                          <td className="py-3 px-4">{selectedProjet.nomCoordonnateur}</td>
+                          <td className="py-3 px-4">{selectedProjet.prenomCoordonnateur}</td>
+                          <td className="py-3 px-4">{selectedProjet.etablissement}</td>
+                          <td className="py-3 px-4 text-right font-medium">{formatBudget(selectedProjet.budgetPropose)}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="tranche1-recu" />
+                                <Label htmlFor="tranche1-recu" className="text-xs">Reçu</Label>
+                              </div>
+                              <Input 
+                                type="date" 
+                                className="w-32 text-xs h-8"
+                                placeholder="Date réception"
+                              />
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="tranche2-recu" />
+                                <Label htmlFor="tranche2-recu" className="text-xs">Reçu</Label>
+                              </div>
+                              <Input 
+                                type="date" 
+                                className="w-32 text-xs h-8"
+                                placeholder="Date réception"
+                              />
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex flex-col space-y-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="h-7 text-xs"
+                                title="Marquer comme envoyé"
+                              >
+                                <DollarSign className="w-3 h-3 mr-1" />
+                                Envoyé
+                              </Button>
+                              <Input 
+                                type="date" 
+                                className="w-28 text-xs h-6"
+                                placeholder="Date envoi"
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                        {/* Exemple avec d'autres projets */}
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4">Programme National de Recherche en IA</td>
+                          <td className="py-3 px-4 font-medium">Développement d'algorithmes d'IA</td>
+                          <td className="py-3 px-4">Zahra</td>
+                          <td className="py-3 px-4">Fatima</td>
+                          <td className="py-3 px-4">ENSA Casablanca</td>
+                          <td className="py-3 px-4 text-right font-medium">1.200.000 MAD</td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="tranche1-recu-2" defaultChecked />
+                                <Label htmlFor="tranche1-recu-2" className="text-xs">Reçu</Label>
+                              </div>
+                              <Input 
+                                type="date" 
+                                className="w-32 text-xs h-8"
+                                defaultValue="2024-03-15"
+                              />
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col items-center space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="tranche2-recu-2" />
+                                <Label htmlFor="tranche2-recu-2" className="text-xs">Reçu</Label>
+                              </div>
+                              <Input 
+                                type="date" 
+                                className="w-32 text-xs h-8"
+                                placeholder="Date réception"
+                              />
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex flex-col space-y-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="h-7 text-xs"
+                                title="Marquer comme envoyé"
+                              >
+                                <DollarSign className="w-3 h-3 mr-1" />
+                                Envoyé
+                              </Button>
+                              <Input 
+                                type="date" 
+                                className="w-28 text-xs h-6"
+                                placeholder="Date envoi"
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Résumé des versements */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Résumé des versements</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-green-800">Tranche 1</p>
+                          <p className="text-sm text-green-600">{formatBudget(selectedProjet.budgetPropose * 0.3)} (30%)</p>
+                        </div>
+                        <Badge className="bg-green-100 text-green-800">Reçu</Badge>
+                      </div>
+                      <p className="text-xs text-green-600 mt-2">Reçu le: 15/03/2024</p>
+                    </div>
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-yellow-800">Tranche 2</p>
+                          <p className="text-sm text-yellow-600">{formatBudget(selectedProjet.budgetPropose * 0.4)} (40%)</p>
+                        </div>
+                        <Badge className="bg-yellow-100 text-yellow-800">Envoyé</Badge>
+                      </div>
+                      <p className="text-xs text-yellow-600 mt-2">Envoyé le: 01/06/2024</p>
+                    </div>
+                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-800">Tranche 3</p>
+                          <p className="text-sm text-gray-600">{formatBudget(selectedProjet.budgetPropose * 0.3)} (30%)</p>
+                        </div>
+                        <Badge className="bg-gray-100 text-gray-800">Non émis</Badge>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-2">En attente</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button className="w-full bg-uh2c-blue hover:bg-uh2c-blue/90 text-white">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Nouveau versement
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Générer rapport
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Historique complet
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Livrables */}
+      {showLivrablesModal && selectedProjet && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="bg-uh2c-blue border-b border-uh2c-blue/20 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5 text-white" />
+                  <h2 className="text-lg font-semibold text-white">Livrables - {selectedProjet.projet}</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLivrablesModal(false)}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Tranches de livrables</h3>
+                    <div className="space-y-3">
+                      <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-green-800">Tranche 1 - Rapport initial</p>
+                            <p className="text-sm text-green-600">Livré le 15/03/2024</p>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800">Livré</Badge>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-yellow-800">Tranche 2 - Rapport intermédiaire</p>
+                            <p className="text-sm text-yellow-600">Échéance: 15/06/2024</p>
+                          </div>
+                          <Badge className="bg-yellow-100 text-yellow-800">En cours</Badge>
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-gray-800">Tranche 3 - Rapport final</p>
+                            <p className="text-sm text-gray-600">Échéance: 15/12/2024</p>
+                          </div>
+                          <Badge className="bg-gray-100 text-gray-800">À venir</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Actions</h3>
+                    <div className="space-y-3">
+                      <Button className="w-full bg-uh2c-blue hover:bg-uh2c-blue/90 text-white">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Nouveau livrable
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Planifier échéances
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Historique des livrables
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

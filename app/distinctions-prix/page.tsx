@@ -38,8 +38,7 @@ interface DistinctionPrix {
     nom: string
     prenom: string
     titre: string
-    qualite: string
-    affiliation: string
+    etablissement: string
   }>
 }
 
@@ -138,20 +137,19 @@ export default function DistinctionsPrix() {
     nom: false,
     prenom: false,
     titre: false,
-    qualite: false,
-    affiliation: false
+    etablissement: false
   })
   const [newExternalMember, setNewExternalMember] = useState({
     nom: "",
     prenom: "",
     titre: "",
-    qualite: "",
-    affiliation: ""
+    etablissement: ""
   })
   const [isDragOver, setIsDragOver] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [filterTitre, setFilterTitre] = useState("all")
   const [filterEtat, setFilterEtat] = useState("all")
+  const [memberSearchTerm, setMemberSearchTerm] = useState("")
   const [availableMembers] = useState([
     { id: "1", nom: "Benali", prenom: "Ahmed", etat: "Actif", titre: "Dr." },
     { id: "2", nom: "Zahra", prenom: "Fatima", etat: "Actif", titre: "Dr." },
@@ -483,7 +481,11 @@ export default function DistinctionsPrix() {
   const filteredMembers = availableMembers.filter(member => {
     const titreMatch = filterTitre === "all" || member.titre === filterTitre
     const etatMatch = filterEtat === "all" || member.etat === filterEtat
-    return titreMatch && etatMatch
+    const searchMatch = !memberSearchTerm || 
+      member.nom.toLowerCase().includes(memberSearchTerm.toLowerCase()) ||
+      member.prenom.toLowerCase().includes(memberSearchTerm.toLowerCase()) ||
+      member.titre.toLowerCase().includes(memberSearchTerm.toLowerCase())
+    return titreMatch && etatMatch && searchMatch
   })
 
   const handleMemberSelect = (memberId: string) => {
@@ -505,8 +507,7 @@ export default function DistinctionsPrix() {
       nom: !newExternalMember.nom.trim(),
       prenom: !newExternalMember.prenom.trim(),
       titre: !newExternalMember.titre.trim(),
-      qualite: !newExternalMember.qualite.trim(),
-      affiliation: !newExternalMember.affiliation.trim()
+      etablissement: !newExternalMember.etablissement.trim()
     }
     
     setExternalMemberErrors(errors)
@@ -521,8 +522,7 @@ export default function DistinctionsPrix() {
       nom: newExternalMember.nom.trim(),
       prenom: newExternalMember.prenom.trim(),
       titre: newExternalMember.titre.trim(),
-      qualite: newExternalMember.qualite.trim(),
-      affiliation: newExternalMember.affiliation.trim()
+      etablissement: newExternalMember.etablissement.trim()
     }
     
     // Ajouter à la liste des membres externes
@@ -536,8 +536,7 @@ export default function DistinctionsPrix() {
       nom: "",
       prenom: "",
       titre: "",
-      qualite: "",
-      affiliation: ""
+      etablissement: ""
     })
     
     // Fermer le popup
@@ -703,65 +702,52 @@ export default function DistinctionsPrix() {
                               <Label className="text-sm font-medium">Membres associés <span className="text-red-600">*</span></Label>
                               
                               <div className="space-y-4">
-                                {/* Filtres */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                  <div>
-                                    <Label className="text-xs font-medium text-gray-600">Filtrer par titre</Label>
-                                    <Select onValueChange={(value) => setFilterTitre(value)}>
-                                      <SelectTrigger className="mt-1 h-9 text-sm">
-                                        <SelectValue placeholder="Tous les titres" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="all">Tous les titres</SelectItem>
-                                        <SelectItem value="Dr.">Dr.</SelectItem>
-                                        <SelectItem value="Pr.">Pr.</SelectItem>
-                                        <SelectItem value="M.">M.</SelectItem>
-                                        <SelectItem value="Mme.">Mme.</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div>
-                                    <Label className="text-xs font-medium text-gray-600">Filtrer par qualité</Label>
-                                    <Select onValueChange={(value) => setFilterEtat(value)}>
-                                      <SelectTrigger className="mt-1 h-9 text-sm">
-                                        <SelectValue placeholder="Toutes les qualités" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="all">Toutes les qualités</SelectItem>
-                                        <SelectItem value="Actif">Actif</SelectItem>
-                                        <SelectItem value="Inactif">Inactif</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </div>
 
                                 {/* Liste déroulante des membres */}
                                 <div>
                                   <Label className="text-xs font-medium text-gray-600">Sélectionner un membre</Label>
                                   <Select onValueChange={(value) => handleMemberSelect(value)}>
                                     <SelectTrigger className="mt-1 h-9 text-sm">
-                                      <SelectValue placeholder="Choisir un membre..." />
+                                      <SelectValue placeholder="Rechercher et choisir un membre..." />
                                     </SelectTrigger>
                                     <SelectContent className="max-h-60">
-                                      {filteredMembers.map((member) => (
-                                        <SelectItem key={member.id} value={member.id}>
-                                          <div className="flex items-center justify-between w-full">
-                                            <span>{member.nom} {member.prenom}</span>
-                                            <div className="flex items-center gap-2 text-gray-500">
-                                              <Badge className="bg-green-100 text-green-800 text-xs px-1 py-0.5">
-                                                {member.etat}
-                                              </Badge>
-                                              <span className="text-xs">{member.titre}</span>
+                                      {/* Champ de recherche dans le dropdown */}
+                                      <div className="p-2 border-b border-gray-200">
+                                        <div className="relative">
+                                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                          <Input
+                                            placeholder="Rechercher un membre..."
+                                            value={memberSearchTerm}
+                                            onChange={(e) => setMemberSearchTerm(e.target.value)}
+                                            className="pl-8 h-8 text-sm border-0 focus:ring-0 focus:border-0"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                      </div>
+                                      
+                                      {/* Liste des membres filtrés */}
+                                      {filteredMembers.length > 0 ? (
+                                        filteredMembers.map((member) => (
+                                          <SelectItem key={member.id} value={member.id}>
+                                            <div className="flex items-center justify-between w-full">
+                                              <span>{member.nom} {member.prenom} </span>
+                                              <div className="flex items-center gap-2 text-gray-500">
+                                                <span className="text-xs">{member.titre}</span>
+                                              </div>
                                             </div>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
+                                          </SelectItem>
+                                        ))
+                                      ) : (
+                                        <div className="px-2 py-1 text-sm text-gray-500">
+                                          Aucun membre trouvé
+                                        </div>
+                                      )}
                                     </SelectContent>
                                   </Select>
                                 </div>
 
                                 {/* Bouton pour ajouter un membre externe */}
-                                <div>
+                                <div className="flex justify-center">
                                   <Button
                                     type="button"
                                     variant="outline"
@@ -804,7 +790,7 @@ export default function DistinctionsPrix() {
                                     <div className="flex flex-wrap gap-1">
                                       {newDistinction.membresExternes.map((member) => (
                                         <span key={member.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-600 text-white">
-                                          {member.titre} {member.nom} {member.prenom} ({member.qualite})
+                                          {member.titre} {member.nom} {member.prenom} ({member.etablissement})
                                           <button
                                             type="button"
                                             onClick={() => handleRemoveExternalMember(member.id)}
@@ -939,82 +925,91 @@ export default function DistinctionsPrix() {
                             </div>
                           </div>
 
-                          {/* Lien */}
-                          <div className="space-y-2">
-                            <Label htmlFor="lien">
-                              Lien 
-                              <span className={`ml-1 ${!newDistinction.lien && !selectedFile ? 'text-red-600' : 'text-gray-500'}`}>
-                                {!newDistinction.lien && !selectedFile ? '*' : (selectedFile ? '(optionnel)' : '')}
-                              </span>
-                            </Label>
-                            <Input
-                              id="lien"
-                              type="url"
-                              value={newDistinction.lien}
-                              onChange={(e) => handleInputChange("lien", e.target.value)}
-                              placeholder="https://example.com/distinction"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Fournissez un lien OU un justificatif (au moins l'un des deux est requis)
-                            </p>
-                          </div>
-
-                          {/* Justificatifs */}
-                          <div className="space-y-2">
-                            <Label htmlFor="justificatifs">
-                              Justificatifs 
-                              <span className={`ml-1 ${!newDistinction.lien && !selectedFile ? 'text-red-600' : 'text-gray-500'}`}>
-                                {!newDistinction.lien && !selectedFile ? '*' : (newDistinction.lien ? '(optionnels)' : '')}
-                              </span>
-                            </Label>
+                          {/* Destination et prix */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium">Destination et prix <span className="text-red-600">*</span></Label>
                             
-                            {!selectedFile ? (
-                              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 cursor-pointer">
-                                <input
-                                  type="file"
-                                  accept=".pdf,.doc,.docx"
-                                  onChange={handleFileInputChange}
-                                  className="hidden"
-                                  id="file-input"
+                            <div className="space-y-4">
+                              {/* Lien vers la distinction/prix */}
+                              <div>
+                                <Label className="text-xs font-medium text-gray-600">Lien vers la distinction</Label>
+                                <Input
+                                  type="url"
+                                  value={newDistinction.lien}
+                                  onChange={(e) => handleInputChange("lien", e.target.value)}
+                                  placeholder="https://example.com/distinction"
+                                  className="mt-1 h-9 text-sm"
                                 />
-                                <label htmlFor="file-input" className="cursor-pointer">
-                                  <div className="space-y-3">
-                                    <div className="mx-auto w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                                      <FileText className="h-8 w-8 text-gray-400" />
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-gray-600">
-                                        Cliquez pour télécharger ou glissez-déposez
-                                      </p>
-                                      <p className="text-xs text-gray-400 mt-1">
-                                        PDF, DOC, DOCX jusqu'à 10MB
-                                      </p>
-                                    </div>
-                                  </div>
-                                </label>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Fournissez un lien OU un justificatif (au moins l'un des deux est requis)
+                                </p>
                               </div>
-                            ) : (
-                              <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                                <FileText className="h-5 w-5 text-blue-600" />
-                                <span className="flex-1 text-sm text-gray-700 truncate">
-                                  {selectedFile.name}
-                                </span>
+
+                              {/* Justificatifs */}
+                              <div>
+                                <Label className="text-xs font-medium text-gray-600">Justificatifs</Label>
+                                
+                                {!selectedFile ? (
+                                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 hover:bg-gray-50 cursor-pointer mt-1">
+                                    <input
+                                      type="file"
+                                      accept=".pdf,.doc,.docx"
+                                      onChange={handleFileInputChange}
+                                      className="hidden"
+                                      id="file-input"
+                                    />
+                                    <label htmlFor="file-input" className="cursor-pointer">
+                                      <div className="space-y-2">
+                                        <div className="mx-auto w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                          <FileText className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-medium text-gray-600">
+                                            Cliquez pour télécharger ou glissez-déposez
+                                          </p>
+                                          <p className="text-xs text-gray-400 mt-1">
+                                            PDF, DOC, DOCX jusqu'à 10MB
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </label>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg bg-gray-50 mt-1">
+                                    <FileText className="h-4 w-4 text-blue-600" />
+                                    <span className="flex-1 text-xs text-gray-700 truncate">
+                                      {selectedFile.name}
+                                    </span>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={removeFile}
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Bouton pour ajouter un autre justificatif */}
+                              <div className="pt-2">
                                 <Button
                                   type="button"
                                   variant="outline"
-                                  size="sm"
-                                  onClick={removeFile}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => document.getElementById('file-input')?.click()}
+                                  className="w-full h-9 text-sm border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Ajouter un autre justificatif
                                 </Button>
                               </div>
-                            )}
+                            </div>
                             
                             {lienJustificatifError && (
                               <p className="text-xs text-red-600 mt-1">{lienJustificatifError}</p>
                             )}
-
                           </div>
                         </div>
                         <form onSubmit={handleAddDistinction}>
@@ -1215,7 +1210,7 @@ export default function DistinctionsPrix() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <Label htmlFor="externalMemberTitre" className={`text-sm font-medium ${externalMemberErrors.titre ? 'text-red-600' : 'text-gray-700'}`}>
                   Titre <span className="text-red-500">*</span>
@@ -1238,42 +1233,18 @@ export default function DistinctionsPrix() {
               </div>
 
               <div>
-                <Label htmlFor="externalMemberQualite" className={`text-sm font-medium ${externalMemberErrors.qualite ? 'text-red-600' : 'text-gray-700'}`}>
-                  Qualité <span className="text-red-500">*</span>
-                </Label>
-                <Select value={newExternalMember.qualite} onValueChange={(value) => handleExternalMemberInputChange("qualite", value)}>
-                  <SelectTrigger className={`mt-1 h-10 text-sm ${externalMemberErrors.qualite ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
-                    <SelectValue placeholder="Sélectionner une qualité" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Membre directeur">Membre directeur</SelectItem>
-                    <SelectItem value="Membre associé">Membre associé</SelectItem>
-                    <SelectItem value="Chercheur">Chercheur</SelectItem>
-                    <SelectItem value="Expert">Expert</SelectItem>
-                    <SelectItem value="Responsable">Responsable</SelectItem>
-                    <SelectItem value="Collaborateur">Collaborateur</SelectItem>
-                  </SelectContent>
-                </Select>
-                {externalMemberErrors.qualite && (
-                  <p className="text-red-500 text-xs mt-1">La qualité est obligatoire</p>
-                )}
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <div>
-                <Label htmlFor="externalMemberAffiliation" className={`text-sm font-medium ${externalMemberErrors.affiliation ? 'text-red-600' : 'text-gray-700'}`}>
-                  Affiliation <span className="text-red-500">*</span>
+                <Label htmlFor="externalMemberEtablissement" className={`text-sm font-medium ${externalMemberErrors.etablissement ? 'text-red-600' : 'text-gray-700'}`}>
+                  Établissement <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="externalMemberAffiliation"
+                  id="externalMemberEtablissement"
                   placeholder="Ex: Université Hassan II, Ministère, Entreprise..."
-                  value={newExternalMember.affiliation}
-                  onChange={(e) => handleExternalMemberInputChange("affiliation", e.target.value)}
-                  className={`mt-1 h-10 text-sm ${externalMemberErrors.affiliation ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  value={newExternalMember.etablissement}
+                  onChange={(e) => handleExternalMemberInputChange("etablissement", e.target.value)}
+                  className={`mt-1 h-10 text-sm ${externalMemberErrors.etablissement ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                 />
-                {externalMemberErrors.affiliation && (
-                  <p className="text-red-500 text-xs mt-1">L'affiliation est obligatoire</p>
+                {externalMemberErrors.etablissement && (
+                  <p className="text-red-500 text-xs mt-1">L'établissement est obligatoire</p>
                 )}
               </div>
             </div>

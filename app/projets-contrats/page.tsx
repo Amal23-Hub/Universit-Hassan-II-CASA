@@ -1133,20 +1133,20 @@ export default function ProjetsContrats() {
                         return (
                           <div key={tranche.id} className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
                             <div className="flex items-start justify-between">
-                              <div className="flex-1">
+                            <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
                                   <h4 className="font-medium text-sm text-gray-900">{tranche.description}</h4>
                                   <Badge className={`${statutColor} text-xs font-medium`}>
                                     {statutTranche}
-                                  </Badge>
+                                    </Badge>
                                 </div>
                                 <div className="text-lg font-bold text-uh2c-blue mb-3">
                                   {formatBudget(tranche.montant)}
-                                </div>
+                              </div>
                                 
                                 {/* Détails des dates */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                  {tranche.dateReception && (
+                              {tranche.dateReception && (
                                     <div className="flex items-center space-x-2">
                                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                       <span className="text-gray-600">Reçu le:</span>
@@ -1154,8 +1154,8 @@ export default function ProjetsContrats() {
                                         {new Date(tranche.dateReception).toLocaleDateString('fr-FR')}
                                       </span>
                                     </div>
-                                  )}
-                                  {tranche.dateEnvoi && (
+                              )}
+                              {tranche.dateEnvoi && (
                                     <div className="flex items-center space-x-2">
                                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                       <span className="text-gray-600">Envoyé le:</span>
@@ -1163,10 +1163,10 @@ export default function ProjetsContrats() {
                                         {new Date(tranche.dateEnvoi).toLocaleDateString('fr-FR')}
                                       </span>
                                     </div>
-                                  )}
-                                </div>
-                              </div>
+                              )}
                             </div>
+                          </div>
+                        </div>
                           </div>
                         )
                       })
