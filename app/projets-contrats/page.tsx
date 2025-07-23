@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Eye, FileText, DollarSign, Plus, Trash2, Filter, Download } from "lucide-react"
+import { Eye, FileText, DollarSign, Plus, Trash2, Filter, Download, XCircle } from "lucide-react"
 import { Header } from "@/components/header"
 import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
@@ -180,6 +180,8 @@ export default function ProjetsContrats() {
   const [filterStatut, setFilterStatut] = useState<string>("all")
   const [showVersementsModal, setShowVersementsModal] = useState(false)
   const [selectedProjetForModal, setSelectedProjetForModal] = useState<ProjetContrat | null>(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [selectedProjetForDetails, setSelectedProjetForDetails] = useState<ProjetContrat | null>(null)
   const [newVersement, setNewVersement] = useState({
     montant: 0,
     date: "",
@@ -296,6 +298,11 @@ export default function ProjetsContrats() {
 
   const handleGestionVersements = (projet: ProjetContrat) => {
     router.push(`/dashboard-division-recherche/versements?projetId=${projet.id}`)
+  }
+
+  const handleVoirDetails = (projet: ProjetContrat) => {
+    setSelectedProjetForDetails(projet)
+    setShowDetailsModal(true)
   }
 
   const handleAddVersement = () => {
@@ -574,7 +581,13 @@ export default function ProjetsContrats() {
                             </td>
                             <td className="py-2 px-2">
                               <div className="flex items-center justify-center space-x-0.5">
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" title="Voir les détails">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-6 p-0" 
+                                  title="Voir les détails"
+                                  onClick={() => handleVoirDetails(projet)}
+                                >
                                   <Eye className="h-3 w-3" />
                                 </Button>
                                 {projet.statutRetenu === "Retenu" && (
@@ -900,6 +913,266 @@ export default function ProjetsContrats() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Modal pour les détails du projet */}
+      {showDetailsModal && selectedProjetForDetails && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Header avec couleur UH2C */}
+            <div className="bg-uh2c-blue border-b border-uh2c-blue/20 p-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 bg-white/20 rounded flex items-center justify-center">
+                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">Détails du projet</h2>
+                    <p className="text-xs text-white/80">ID: {selectedProjetForDetails.codeReference}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDetailsModal(false)}
+                  className="h-5 w-5 p-0 text-white hover:bg-white/20 rounded"
+                >
+                  <XCircle className="h-2.5 w-2.5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="space-y-4">
+                {/* Statut du projet - Banner en haut */}
+                <div className={`rounded-lg p-3 border-l-4 ${
+                  selectedProjetForDetails.statutRetenu === "Retenu"
+                    ? "bg-green-50 border-green-500"
+                    : selectedProjetForDetails.statutRetenu === "Non retenu"
+                    ? "bg-red-50 border-red-500"
+                    : "bg-yellow-50 border-yellow-500"
+                }`}>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      selectedProjetForDetails.statutRetenu === "Retenu"
+                        ? "bg-green-500"
+                        : selectedProjetForDetails.statutRetenu === "Non retenu"
+                        ? "bg-red-500"
+                        : "bg-yellow-500"
+                    }`}></div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">Statut du projet</h3>
+                      <p className={`text-sm font-medium ${
+                        selectedProjetForDetails.statutRetenu === "Retenu"
+                          ? "text-green-700"
+                          : selectedProjetForDetails.statutRetenu === "Non retenu"
+                          ? "text-red-700"
+                          : "text-yellow-700"
+                      }`}>
+                        {selectedProjetForDetails.statutRetenu || "Non défini"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations générales du projet */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Informations générales</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Type de projet</Label>
+                      <p className="text-sm text-gray-900">{selectedProjetForDetails.typeProjetContrat}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Type</Label>
+                      <Badge variant="secondary" className="bg-uh2c-blue/10 text-uh2c-blue border-uh2c-blue/20 text-xs">
+                        {selectedProjetForDetails.typeProjet}
+                      </Badge>
+                    </div>
+                    <div className="md:col-span-2 bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Intitulé du projet</Label>
+                      <p className="text-sm font-medium text-gray-900">{selectedProjetForDetails.intitule}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Thématique</Label>
+                      <Badge variant="outline" className="bg-uh2c-blue/5 text-uh2c-blue border-uh2c-blue/20 text-xs">
+                        {selectedProjetForDetails.thematique}
+                      </Badge>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Code de référence</Label>
+                      <p className="text-sm font-medium text-gray-900">{selectedProjetForDetails.codeReference}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations du coordonnateur */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Coordonnateur</h3>
+                  </div>
+                  <div className="bg-white rounded p-3 border border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-uh2c-blue rounded-full flex items-center justify-center">
+                        <span className="text-white font-medium text-sm">
+                          {selectedProjetForDetails.coordonnateur.split(' ').map(n => n.charAt(0)).join('')}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">{selectedProjetForDetails.coordonnateur}</p>
+                        <p className="text-xs text-gray-600">Coordonnateur principal</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations de l'organisme contractant */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Organisme contractant</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Organisme</Label>
+                      <p className="text-sm text-gray-900">{selectedProjetForDetails.organismeContractant}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Organismes partenaires</Label>
+                      <p className="text-sm text-gray-900">{selectedProjetForDetails.organismesPartenaires}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Durée et budget */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Durée de projet */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-base font-semibold text-gray-900">Durée de projet</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white rounded p-3 border border-gray-200">
+                        <Label className="text-xs font-medium text-gray-600 mb-1 block">Année de début</Label>
+                        <p className="text-sm font-medium text-gray-900">{selectedProjetForDetails.anneeDebut}</p>
+                      </div>
+                      <div className="bg-white rounded p-3 border border-gray-200">
+                        <Label className="text-xs font-medium text-gray-600 mb-1 block">Année de fin</Label>
+                        <p className="text-sm font-medium text-gray-900">{selectedProjetForDetails.anneeFin}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Budget total */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                      </div>
+                      <h3 className="text-base font-semibold text-gray-900">Budget total</h3>
+                    </div>
+                    <div className="bg-white rounded p-4 border border-gray-200 text-center">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Montant en dirhams</Label>
+                      <p className="text-uh2c-blue font-bold text-xl">{formatBudget(selectedProjetForDetails.budgetTotal)}</p>
+                      <p className="text-xs text-gray-500 mt-1">Budget total du projet</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tranches budgétaires */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Tranches budgétaires</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {selectedProjetForDetails.tranches && selectedProjetForDetails.tranches.length > 0 ? (
+                      selectedProjetForDetails.tranches.map((tranche) => (
+                        <div key={tranche.id} className="bg-white rounded p-3 border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3">
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm text-gray-900">{tranche.description}</p>
+                                  <p className="text-sm text-gray-600">{formatBudget(tranche.montant)}</p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  {tranche.recu && (
+                                    <Badge className="bg-green-100 text-green-800 text-xs">
+                                      Reçu
+                                    </Badge>
+                                  )}
+                                  {tranche.envoye && (
+                                    <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                      Envoyé
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              {tranche.dateReception && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Reçu le: {new Date(tranche.dateReception).toLocaleDateString('fr-FR')}
+                                </p>
+                              )}
+                              {tranche.dateEnvoi && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Envoyé le: {new Date(tranche.dateEnvoi).toLocaleDateString('fr-FR')}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-white rounded p-4 border border-gray-200 text-center">
+                        <p className="text-sm text-gray-500">Aucune tranche budgétaire définie</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
+                <Button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white px-4 py-2 rounded text-sm"
+                >
+                  Fermer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

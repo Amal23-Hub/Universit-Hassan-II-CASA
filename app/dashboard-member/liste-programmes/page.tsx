@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Eye, FileText, Calendar, Building, Users, DollarSign, Target, Upload, Plus, Info } from "lucide-react"
+import { Search, Eye, FileText, Calendar, Building, Users, DollarSign, Target, Upload, Plus, Info, CheckCircle } from "lucide-react"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 
@@ -722,21 +722,23 @@ export default function ListeProgrammes() {
                       <p className="text-sm text-gray-600">{programme.description}</p>
                       
                       {/* Boutons d'action en bas */}
-                      <div className="flex gap-3 pt-3 border-t border-gray-100">
+                      <div className="flex gap-2 pt-3 border-t border-gray-100 justify-end">
                         <Button
                           onClick={() => handleSoumettreProjet(programme)}
                           disabled={!isProgrammeActif(programme.dateFin)}
-                          className="flex-1 bg-uh2c-blue hover:bg-uh2c-blue/90 text-white text-sm h-9"
+                          size="sm"
+                          className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white text-xs h-7 px-3"
                         >
-                          <FileText className="h-4 w-4 mr-2" />
+                          <FileText className="h-3 w-3 mr-1" />
                           Soumettre un projet
                         </Button>
                         <Button
                           onClick={() => handleVoirDetails(programme)}
-                          variant="outline"
-                          className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 text-sm h-9"
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-xs h-7 px-3"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
+                          <Eye className="h-3 w-3 mr-1" />
                           Détails
                         </Button>
                       </div>
@@ -787,7 +789,7 @@ export default function ListeProgrammes() {
       {/* Modal de détails du programme */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+          <DialogHeader className="pb-3">
             <DialogTitle className="text-2xl font-bold text-gray-900">
               {selectedProgramme?.name}
             </DialogTitle>
@@ -796,43 +798,42 @@ export default function ListeProgrammes() {
           {selectedProgramme && (
             <div className="space-y-6">
               {/* Informations générales */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2 space-y-3">
                   <div className="flex items-center gap-2">
                     <Building className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm font-medium text-gray-500">Organisme</p>
-                      <p className="text-base text-gray-900">{selectedProgramme.organisme}</p>
+                      <p className="text-base text-gray-900 font-medium">{selectedProgramme.organisme}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm font-medium text-gray-500">Période</p>
-                      <p className="text-base text-gray-900">
+                      <p className="text-base text-gray-900 font-medium">
                         {new Date(selectedProgramme.dateDebut).toLocaleDateString('fr-FR')} - {new Date(selectedProgramme.dateFin).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm font-medium text-gray-500">Nombre de projets</p>
-                      <p className="text-base text-gray-900">{selectedProgramme.nombreProjets} projets</p>
+                      <p className="text-base text-gray-900 font-medium">{selectedProgramme.nombreProjets} projets</p>
                     </div>
                   </div>
                 </div>
                 
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-2 mb-2">
                     <Target className="h-5 w-5 text-gray-500" />
                     <p className="text-sm font-medium text-gray-500">Statut</p>
                   </div>
                   <Badge 
                     className={isProgrammeActif(selectedProgramme.dateFin) 
-                      ? "bg-green-100 text-green-800 text-sm px-3 py-1" 
-                      : "bg-gray-100 text-gray-600 text-sm px-3 py-1"
+                      ? "bg-green-100 text-green-800 text-sm px-3 py-1 font-medium" 
+                      : "bg-gray-100 text-gray-600 text-sm px-3 py-1 font-medium"
                     }
                   >
                     {isProgrammeActif(selectedProgramme.dateFin) ? "Actif" : "Expiré"}
@@ -841,20 +842,26 @@ export default function ListeProgrammes() {
               </div>
 
               {/* Description */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-                <p className="text-gray-700 leading-relaxed">{selectedProgramme.description}</p>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Description
+                </h3>
+                <p className="text-gray-700 leading-relaxed text-sm">{selectedProgramme.description}</p>
               </div>
 
               {/* Objectifs */}
               {selectedProgramme.objectifs && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Objectifs du programme</h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Objectifs du programme
+                  </h3>
                   <ul className="space-y-2">
                     {selectedProgramme.objectifs.map((objectif, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-uh2c-blue rounded-full mt-2 flex-shrink-0"></div>
-                        <span className="text-gray-700">{objectif}</span>
+                        <span className="text-gray-700 text-sm">{objectif}</span>
                       </li>
                     ))}
                   </ul>
@@ -863,13 +870,16 @@ export default function ListeProgrammes() {
 
               {/* Critères d'éligibilité */}
               {selectedProgramme.criteres && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Critères d'éligibilité</h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    Critères d'éligibilité
+                  </h3>
                   <ul className="space-y-2">
                     {selectedProgramme.criteres.map((critere, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <span className="text-gray-700">{critere}</span>
+                        <div className="w-2 h-2 bg-uh2c-blue rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700 text-sm">{critere}</span>
                       </li>
                     ))}
                   </ul>
@@ -878,13 +888,16 @@ export default function ListeProgrammes() {
 
               {/* Documents requis */}
               {selectedProgramme.documents && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Documents requis</h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Documents requis
+                  </h3>
                   <ul className="space-y-2">
                     {selectedProgramme.documents.map((document, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <span className="text-gray-700">{document}</span>
+                        <div className="w-2 h-2 bg-uh2c-blue rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700 text-sm">{document}</span>
                       </li>
                     ))}
                   </ul>
@@ -892,19 +905,21 @@ export default function ListeProgrammes() {
               )}
 
               {/* Boutons d'action */}
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex gap-3 pt-4 border-t border-gray-200 justify-end">
                 <Button
                   onClick={() => handleSoumettreProjet(selectedProgramme)}
                   disabled={!isProgrammeActif(selectedProgramme.dateFin)}
-                  className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white flex-1"
+                  size="sm"
+                  className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white text-sm h-8 px-4"
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Soumettre un projet
                 </Button>
                 <Button
                   onClick={() => setShowDetailsModal(false)}
-                  variant="outline"
-                  className="flex-1"
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm h-8 px-4"
                 >
                   Fermer
                 </Button>
