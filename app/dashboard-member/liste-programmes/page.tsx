@@ -33,6 +33,8 @@ interface Member {
   prenom: string
   etat: string
   titre: string
+  qualite: string
+  affiliation: string
 }
 
 export default function ListeProgrammes() {
@@ -90,6 +92,21 @@ export default function ListeProgrammes() {
   const [createdProgramName, setCreatedProgramName] = useState("")
   const [showProjectSubmittedMessage, setShowProjectSubmittedMessage] = useState(false)
   const [submittedProjectName, setSubmittedProjectName] = useState("")
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false)
+  const [newMember, setNewMember] = useState({
+    nom: "",
+    prenom: "",
+    titre: "",
+    qualite: "",
+    affiliation: ""
+  })
+  const [newMemberErrors, setNewMemberErrors] = useState({
+    nom: false,
+    prenom: false,
+    titre: false,
+    qualite: false,
+    affiliation: false
+  })
 
   // Données des programmes
   const programmes: Programme[] = [
@@ -264,14 +281,14 @@ export default function ListeProgrammes() {
   ]
 
   // Données des membres
-  const availableMembers: Member[] = [
-    { id: "1", nom: "Benali", prenom: "Ahmed", etat: "Actif", titre: "Dr." },
-    { id: "2", nom: "Zahra", prenom: "Fatima", etat: "Actif", titre: "Dr." },
-    { id: "3", nom: "El Harti", prenom: "Sara", etat: "Actif", titre: "Dr." },
-    { id: "4", nom: "Lahby", prenom: "Mohamed", etat: "Actif", titre: "Dr." },
-    { id: "5", nom: "Alaoui", prenom: "Karim", etat: "Actif", titre: "Pr." },
-    { id: "6", nom: "Bennani", prenom: "Amina", etat: "Actif", titre: "Dr." }
-  ]
+  const [availableMembers, setAvailableMembers] = useState<Member[]>([
+    { id: "1", nom: "Benali", prenom: "Ahmed", etat: "Actif", titre: "Dr.", qualite: "Membre directeur", affiliation: "Ministère de l'Enseignement Supérieur" },
+    { id: "2", nom: "Zahra", prenom: "Fatima", etat: "Actif", titre: "Dr.", qualite: "Membre associé", affiliation: "Agence Nationale de Sécurité" },
+    { id: "3", nom: "El Harti", prenom: "Sara", etat: "Actif", titre: "Dr.", qualite: "Chercheur", affiliation: "Ministère de la Santé" },
+    { id: "4", nom: "Lahby", prenom: "Mohamed", etat: "Actif", titre: "Dr.", qualite: "Membre directeur", affiliation: "Ministère de l'Énergie" },
+    { id: "5", nom: "Alaoui", prenom: "Karim", etat: "Actif", titre: "Pr.", qualite: "Expert", affiliation: "Ministère de l'Agriculture" },
+    { id: "6", nom: "Bennani", prenom: "Amina", etat: "Actif", titre: "Dr.", qualite: "Membre associé", affiliation: "Ministère des Transports" }
+  ])
 
   // Thématiques disponibles
   const thematiques = [
@@ -309,7 +326,7 @@ export default function ListeProgrammes() {
     }).format(amount)
   }
 
-  // Fonction pour vérifier si un programme est actif
+  // Fonction pour vérifier si un programme est en cours
   const isProgrammeActif = (dateFin: string) => {
     return new Date(dateFin) >= new Date()
   }
@@ -385,13 +402,74 @@ export default function ListeProgrammes() {
   // Filtrage des membres
   const filteredMembers = availableMembers.filter(member => {
     const titreMatch = filterTitre === "all" || member.titre === filterTitre
-    const etatMatch = filterEtat === "all" || member.etat === filterEtat
-    return titreMatch && etatMatch
+    const qualiteMatch = filterEtat === "all" || member.qualite === filterEtat
+    return titreMatch && qualiteMatch
   })
 
   const handleMemberSelect = (memberId: string) => {
     if (!selectedMembers.includes(memberId)) {
       setSelectedMembers(prev => [...prev, memberId])
+    }
+  }
+
+  const handleAddNewMember = () => {
+    // Validation
+    const errors = {
+      nom: !newMember.nom.trim(),
+      prenom: !newMember.prenom.trim(),
+      titre: !newMember.titre.trim(),
+      qualite: !newMember.qualite.trim(),
+      affiliation: !newMember.affiliation.trim()
+    }
+    
+    setNewMemberErrors(errors)
+    
+    if (Object.values(errors).some(error => error)) {
+      return
+    }
+    
+    // Créer un nouveau membre
+    const newMemberData: Member = {
+      id: Date.now().toString(),
+      nom: newMember.nom.trim(),
+      prenom: newMember.prenom.trim(),
+      etat: "Actif",
+      titre: newMember.titre.trim(),
+      qualite: newMember.qualite.trim(),
+      affiliation: newMember.affiliation.trim()
+    }
+    
+    // Ajouter à la liste des membres disponibles
+    setAvailableMembers(prev => [...prev, newMemberData])
+    
+    // Ajouter aux membres sélectionnés
+    setSelectedMembers(prev => [...prev, newMemberData.id])
+    
+    // Réinitialiser le formulaire
+    setNewMember({
+      nom: "",
+      prenom: "",
+      titre: "",
+      qualite: "",
+      affiliation: ""
+    })
+    
+    // Fermer le modal
+    setShowAddMemberModal(false)
+  }
+
+  const handleNewMemberInputChange = (field: string, value: string) => {
+    setNewMember(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    
+    // Effacer l'erreur pour ce champ
+    if (newMemberErrors[field as keyof typeof newMemberErrors]) {
+      setNewMemberErrors(prev => ({
+        ...prev,
+        [field]: false
+      }))
     }
   }
 
@@ -561,7 +639,7 @@ export default function ListeProgrammes() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Programmes actifs</p>
+                      <p className="text-sm font-medium text-gray-600">Programmes en cours</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {programmes.filter(p => isProgrammeActif(p.dateFin)).length}
                       </p>
@@ -588,8 +666,6 @@ export default function ListeProgrammes() {
                   </div>
                 </CardContent>
               </Card>
-              
-
             </div>
 
             {/* Liste des programmes simplifiée */}
@@ -608,7 +684,7 @@ export default function ListeProgrammes() {
                               : "bg-gray-100 text-gray-600"
                             }
                           >
-                            {isProgrammeActif(programme.dateFin) ? "Actif" : "Expiré"}
+                            {isProgrammeActif(programme.dateFin) ? "En cours" : "Expiré"}
                           </Badge>
                         </div>
                       </div>
@@ -1019,8 +1095,11 @@ export default function ListeProgrammes() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">Toutes les qualités</SelectItem>
-                            <SelectItem value="Actif">Actif</SelectItem>
-                            <SelectItem value="Inactif">Inactif</SelectItem>
+                            <SelectItem value="Membre directeur">Membre directeur</SelectItem>
+                            <SelectItem value="Membre associé">Membre associé</SelectItem>
+                            <SelectItem value="Chercheur">Chercheur</SelectItem>
+                            <SelectItem value="Expert">Expert</SelectItem>
+                            <SelectItem value="Responsable">Responsable</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1039,16 +1118,26 @@ export default function ListeProgrammes() {
                               <div className="flex items-center justify-between w-full">
                                 <span>{member.nom} {member.prenom}</span>
                                 <div className="flex items-center gap-2 text-gray-500">
-                                  <Badge className="bg-green-100 text-green-800 text-xs px-1 py-0.5">
-                                    {member.etat}
-                                  </Badge>
-                                  <span className="text-xs">{member.titre}</span>
+                                  <span className="text-xs ml-2">{member.titre}</span>
                                 </div>
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    {/* Bouton pour ajouter un autre membre */}
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowAddMemberModal(true)}
+                        className="w-full h-9 text-sm border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Ajouter un autre membre
+                      </Button>
                     </div>
 
                     {/* Membres sélectionnés */}
@@ -1439,6 +1528,124 @@ export default function ListeProgrammes() {
           </div>
         </div>
       )}
+
+      {/* Modal pour ajouter un nouveau membre */}
+      <Dialog open={showAddMemberModal} onOpenChange={setShowAddMemberModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg">Ajouter un nouveau membre</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="newMemberNom" className={`text-sm font-medium ${newMemberErrors.nom ? 'text-red-600' : 'text-gray-700'}`}>
+                Nom <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="newMemberNom"
+                placeholder="Nom du membre"
+                value={newMember.nom}
+                onChange={(e) => handleNewMemberInputChange("nom", e.target.value)}
+                className={`mt-1 h-10 text-sm ${newMemberErrors.nom ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {newMemberErrors.nom && (
+                <p className="text-red-500 text-xs mt-1">Le nom est obligatoire</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="newMemberPrenom" className={`text-sm font-medium ${newMemberErrors.prenom ? 'text-red-600' : 'text-gray-700'}`}>
+                Prénom <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="newMemberPrenom"
+                placeholder="Prénom du membre"
+                value={newMember.prenom}
+                onChange={(e) => handleNewMemberInputChange("prenom", e.target.value)}
+                className={`mt-1 h-10 text-sm ${newMemberErrors.prenom ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {newMemberErrors.prenom && (
+                <p className="text-red-500 text-xs mt-1">Le prénom est obligatoire</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="newMemberTitre" className={`text-sm font-medium ${newMemberErrors.titre ? 'text-red-600' : 'text-gray-700'}`}>
+                Titre <span className="text-red-500">*</span>
+              </Label>
+              <Select value={newMember.titre} onValueChange={(value) => handleNewMemberInputChange("titre", value)}>
+                <SelectTrigger className={`mt-1 h-10 text-sm ${newMemberErrors.titre ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
+                  <SelectValue placeholder="Sélectionnez un titre" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Dr.">Dr.</SelectItem>
+                  <SelectItem value="Pr.">Pr.</SelectItem>
+                  <SelectItem value="M.">M.</SelectItem>
+                  <SelectItem value="Mme.">Mme.</SelectItem>
+                </SelectContent>
+              </Select>
+              {newMemberErrors.titre && (
+                <p className="text-red-500 text-xs mt-1">Le titre est obligatoire</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="newMemberQualite" className={`text-sm font-medium ${newMemberErrors.qualite ? 'text-red-600' : 'text-gray-700'}`}>
+                Qualité <span className="text-red-500">*</span>
+              </Label>
+              <Select value={newMember.qualite} onValueChange={(value) => handleNewMemberInputChange("qualite", value)}>
+                <SelectTrigger className={`mt-1 h-10 text-sm ${newMemberErrors.qualite ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
+                  <SelectValue placeholder="Sélectionnez une qualité" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Membre directeur">Membre directeur</SelectItem>
+                  <SelectItem value="Membre associé">Membre associé</SelectItem>
+                  <SelectItem value="Chercheur">Chercheur</SelectItem>
+                  <SelectItem value="Expert">Expert</SelectItem>
+                  <SelectItem value="Responsable">Responsable</SelectItem>
+                </SelectContent>
+              </Select>
+              {newMemberErrors.qualite && (
+                <p className="text-red-500 text-xs mt-1">La qualité est obligatoire</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="newMemberAffiliation" className={`text-sm font-medium ${newMemberErrors.affiliation ? 'text-red-600' : 'text-gray-700'}`}>
+                Affiliation <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="newMemberAffiliation"
+                placeholder="Ex: Université Hassan II, Ministère..."
+                value={newMember.affiliation}
+                onChange={(e) => handleNewMemberInputChange("affiliation", e.target.value)}
+                className={`mt-1 h-10 text-sm ${newMemberErrors.affiliation ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {newMemberErrors.affiliation && (
+                <p className="text-red-500 text-xs mt-1">L'affiliation est obligatoire</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAddMemberModal(false)}
+              className="flex-1 h-10 text-sm"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddNewMember}
+              className="flex-1 bg-uh2c-blue hover:bg-uh2c-blue/90 text-white h-10 text-sm"
+            >
+              Ajouter le membre
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
-} 
+}

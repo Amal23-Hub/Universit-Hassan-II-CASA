@@ -21,7 +21,7 @@ interface Programme {
   budgetUtilise: number
   dateDebut: string
   dateFin: string
-  statut: "Actif" | "En pause" | "Terminé" | "En préparation"
+  statut: "En cours" | "En pause" | "Terminé" | "En préparation"
   nombreProjets: number
   responsable: string
   thematique: string
@@ -38,7 +38,7 @@ export default function Programmes() {
       budgetUtilise: 3200000,
       dateDebut: "2024-01-01",
       dateFin: "2026-12-31",
-      statut: "Actif",
+      statut: "En cours",
       nombreProjets: 15,
       responsable: "Dr. Ahmed Benali",
       thematique: "Intelligence Artificielle"
@@ -52,7 +52,7 @@ export default function Programmes() {
       budgetUtilise: 1800000,
       dateDebut: "2024-03-01",
       dateFin: "2025-12-31",
-      statut: "Actif",
+      statut: "En cours",
       nombreProjets: 8,
       responsable: "Dr. Fatima Zahra",
       thematique: "Cybersécurité"
@@ -66,7 +66,7 @@ export default function Programmes() {
       budgetUtilise: 2500000,
       dateDebut: "2024-02-01",
       dateFin: "2026-06-30",
-      statut: "Actif",
+      statut: "En cours",
       nombreProjets: 12,
       responsable: "Dr. Sara El Harti",
       thematique: "Santé Numérique"
@@ -110,7 +110,7 @@ export default function Programmes() {
 
   const getStatutColor = (statut: string) => {
     switch (statut) {
-      case "Actif":
+      case "En cours":
         return "bg-green-100 text-green-800"
       case "En pause":
         return "bg-yellow-100 text-yellow-800"
@@ -228,7 +228,7 @@ export default function Programmes() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tous les statuts</SelectItem>
-                        <SelectItem value="Actif">Actif</SelectItem>
+                        <SelectItem value="En cours">En cours</SelectItem>
                         <SelectItem value="En pause">En pause</SelectItem>
                         <SelectItem value="Terminé">Terminé</SelectItem>
                         <SelectItem value="En préparation">En préparation</SelectItem>

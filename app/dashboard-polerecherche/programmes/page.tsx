@@ -24,7 +24,7 @@ interface Programme {
   dateLimite: string
   organismeContractant: string
   financement: number
-  statut: "actif" | "inactif" | "en_cours"
+  statut: "en_cours" | "inactif" | "termine"
   createdAt: string
 }
 
@@ -139,7 +139,7 @@ export default function ProgrammesPage() {
       const newProgramme: Programme = {
         id: `PROG${String(programmes.length + 1).padStart(3, "0")}`,
         ...formData,
-        statut: "actif",
+        statut: "en_cours",
         createdAt: new Date().toISOString()
       }
       setProgrammes([...programmes, newProgramme])
@@ -211,12 +211,12 @@ export default function ProgrammesPage() {
 
   const getStatutBadge = (statut: string) => {
     switch (statut) {
-      case "actif":
-        return <Badge className="bg-green-100 text-green-800">Actif</Badge>
+      case "en_cours":
+        return <Badge className="bg-green-100 text-green-800">En cours</Badge>
       case "inactif":
         return <Badge className="bg-gray-100 text-gray-800">Inactif</Badge>
-      case "en_cours":
-        return <Badge className="bg-blue-100 text-blue-800">En cours</Badge>
+      case "termine":
+        return <Badge className="bg-blue-100 text-blue-800">Terminé</Badge>
       default:
         return <Badge className="bg-gray-100 text-gray-800">{statut}</Badge>
     }
@@ -476,9 +476,9 @@ export default function ProgrammesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="actif">Actif</SelectItem>
-                  <SelectItem value="inactif">Inactif</SelectItem>
                   <SelectItem value="en_cours">En cours</SelectItem>
+                  <SelectItem value="inactif">Inactif</SelectItem>
+                  <SelectItem value="termine">Terminé</SelectItem>
                 </SelectContent>
               </Select>
             </div>

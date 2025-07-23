@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -33,6 +33,14 @@ interface DistinctionPrix {
   commentaireExpert?: string
   typeProjet?: "individuel" | "collectif"
   membres?: string[]
+  membresExternes?: Array<{
+    id: string
+    nom: string
+    prenom: string
+    titre: string
+    qualite: string
+    affiliation: string
+  }>
 }
 
 export default function DistinctionsPrix() {
@@ -121,9 +129,25 @@ export default function DistinctionsPrix() {
     commentaireExpert: "",
     typeProjet: "individuel",
     membres: [],
+    membresExternes: [],
   })
 
   const [showMembersSection, setShowMembersSection] = useState(false)
+  const [showExternalMemberForm, setShowExternalMemberForm] = useState(false)
+  const [externalMemberErrors, setExternalMemberErrors] = useState({
+    nom: false,
+    prenom: false,
+    titre: false,
+    qualite: false,
+    affiliation: false
+  })
+  const [newExternalMember, setNewExternalMember] = useState({
+    nom: "",
+    prenom: "",
+    titre: "",
+    qualite: "",
+    affiliation: ""
+  })
   const [isDragOver, setIsDragOver] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [filterTitre, setFilterTitre] = useState("all")
@@ -161,9 +185,9 @@ export default function DistinctionsPrix() {
   }
 
   // Apply filters when dependencies change
-  useState(() => {
+  useEffect(() => {
     applyFilters()
-  })
+  }, [distinctions, searchTerm, filterAnnee])
 
   const validateDate = (value: string, type: "jour" | "mois" | "annee") => {
     if (!value) {
@@ -186,62 +210,51 @@ export default function DistinctionsPrix() {
     return true
   }
 
-  const handleAddDistinction = () => {
+  const handleAddDistinction = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    console.log("handleAddDistinction appelé")
+    console.log("newDistinction:", newDistinction)
+    console.log("selectedFile:", selectedFile)
+    
     // Validation des champs obligatoires
-    const requiredFields = {
-      intitule: newDistinction.intitule,
-      evenement: newDistinction.evenement,
-      organisme: newDistinction.organisme,
-      date: newDistinction.date,
-      dateType: newDistinction.dateType,
-      justificatifs: newDistinction.justificatifs,
-      typeProjet: newDistinction.typeProjet,
+    const errors = {
+      intitule: !newDistinction.intitule?.trim(),
+      evenement: !newDistinction.evenement?.trim(),
+      organisme: !newDistinction.organisme?.trim(),
+      date: !newDistinction.date?.trim(),
+      lien: !newDistinction.lien?.trim() && !selectedFile
     }
+    
+    console.log("Erreurs de validation:", errors)
 
     // Vérification supplémentaire pour les projets collectifs
     if (newDistinction.typeProjet === "collectif") {
-      if (!newDistinction.membres || newDistinction.membres.length === 0) {
-        alert("Veuillez sélectionner au moins un membre pour un projet collectif")
+      const totalMembers = (newDistinction.membres?.length || 0) + (newDistinction.membresExternes?.length || 0)
+      console.log("totalMembers:", totalMembers)
+      if (totalMembers === 0) {
+        alert("Veuillez sélectionner au moins un membre (interne ou externe) pour un projet collectif")
         return
       }
     }
 
-    // Validation conditionnelle : lien OU justificatifs obligatoire
-    if (!newDistinction.lien && !selectedFile) {
+    // Vérifier s'il y a des erreurs
+    if (Object.values(errors).some(Boolean)) {
+      console.log("Formulaire bloqué à cause d'erreurs")
+      setFieldErrors(errors)
+      if (errors.lien) {
       setLienJustificatifError("Veuillez fournir soit un lien, soit un justificatif.")
-      return
-    }
-    setLienJustificatifError("")
-
-    // Vérification que tous les champs obligatoires sont remplis
-    const missingFields = Object.entries(requiredFields)
-      .filter(([key, value]) => {
-        // Exclure justificatifs de la validation obligatoire car il peut être remplacé par lien
-        if (key === "justificatifs") return false
-        return !value
-      })
-      .map(([key]) => key)
-
-    if (missingFields.length > 0) {
-      const newFieldErrors = {
-        intitule: !newDistinction.intitule,
-        evenement: !newDistinction.evenement,
-        organisme: !newDistinction.organisme,
-        date: !newDistinction.date
       }
-      setFieldErrors(newFieldErrors)
       return
     }
-    setFieldErrors({
-      intitule: false,
-      evenement: false,
-      organisme: false,
-      date: false
-    })
-
+    
+    // Validation de la date
     if (!validateDate(newDistinction.date || "", newDistinction.dateType || "jour")) {
+      console.log("Erreur: validation de date échouée")
       return
     }
+    
+    console.log("Toutes les validations passées, création de la distinction...")
 
     const id = `DP${String(distinctions.length + 1).padStart(3, "0")}`
     const distinction: DistinctionPrix = {
@@ -257,10 +270,15 @@ export default function DistinctionsPrix() {
       commentaireExpert: newDistinction.commentaireExpert,
       typeProjet: newDistinction.typeProjet,
       membres: newDistinction.membres,
+      membresExternes: newDistinction.membresExternes,
     }
-
-    setDistinctions([...distinctions, distinction])
-    setFilteredDistinctions([...distinctions, distinction])
+    
+    console.log("Distinction créée:", distinction)
+    
+    // Ajouter la distinction
+    setDistinctions(prev => [...prev, distinction])
+    
+    // Réinitialiser le formulaire
     setNewDistinction({
       intitule: "",
       evenement: "",
@@ -273,11 +291,27 @@ export default function DistinctionsPrix() {
       commentaireExpert: "",
       typeProjet: "individuel",
       membres: [],
+      membresExternes: [],
     })
+    
+    // Réinitialiser les erreurs
+    setFieldErrors({
+      intitule: false,
+      evenement: false,
+      organisme: false,
+      date: false
+    })
+    setLienJustificatifError("")
+    setDateError("")
+    
+    // Réinitialiser les états du formulaire
     setShowMembersSection(false)
+    setShowExternalMemberForm(false)
     setSelectedFile(null)
     setIsDragOver(false)
     setIsDialogOpen(false)
+    
+    console.log("Distinction ajoutée avec succès")
   }
 
   const handleDeleteDistinction = (id: string) => {
@@ -461,9 +495,100 @@ export default function DistinctionsPrix() {
     }
   }
 
+  const handleAddExternalMember = () => {
+    setShowExternalMemberForm(true)
+  }
+
+  const handleSubmitExternalMember = () => {
+    // Validation
+    const errors = {
+      nom: !newExternalMember.nom.trim(),
+      prenom: !newExternalMember.prenom.trim(),
+      titre: !newExternalMember.titre.trim(),
+      qualite: !newExternalMember.qualite.trim(),
+      affiliation: !newExternalMember.affiliation.trim()
+    }
+    
+    setExternalMemberErrors(errors)
+    
+    if (Object.values(errors).some(error => error)) {
+      return
+    }
+    
+    // Créer le nouveau membre externe
+    const externalMember = {
+      id: `ext_${Date.now()}`,
+      nom: newExternalMember.nom.trim(),
+      prenom: newExternalMember.prenom.trim(),
+      titre: newExternalMember.titre.trim(),
+      qualite: newExternalMember.qualite.trim(),
+      affiliation: newExternalMember.affiliation.trim()
+    }
+    
+    // Ajouter à la liste des membres externes
+    setNewDistinction(prev => ({
+      ...prev,
+      membresExternes: [...(prev.membresExternes || []), externalMember]
+    }))
+    
+    // Réinitialiser le formulaire
+    setNewExternalMember({
+      nom: "",
+      prenom: "",
+      titre: "",
+      qualite: "",
+      affiliation: ""
+    })
+    
+    // Fermer le popup
+    setShowExternalMemberForm(false)
+  }
+
+  const handleExternalMemberInputChange = (field: string, value: string) => {
+    setNewExternalMember(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    
+    // Effacer l'erreur pour ce champ
+    if (externalMemberErrors[field as keyof typeof externalMemberErrors]) {
+      setExternalMemberErrors(prev => ({
+        ...prev,
+        [field]: false
+      }))
+    }
+  }
+
+  const handleRemoveExternalMember = (memberId: string) => {
+    setNewDistinction(prev => ({
+      ...prev,
+      membresExternes: prev.membresExternes?.filter(member => member.id !== memberId) || []
+    }))
+  }
+
   const getUniqueYears = () => {
     const years = [...new Set(distinctions.map((d) => d.date.substring(0, 4)))].sort((a, b) => Number(b) - Number(a))
     return years
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setNewDistinction(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    
+    // Effacer l'erreur pour ce champ quand l'utilisateur commence à taper
+    if (fieldErrors[field as keyof typeof fieldErrors]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [field]: false
+      }))
+    }
+    
+    // Effacer l'erreur de lien/justificatif si l'utilisateur remplit le lien
+    if (field === "lien" && lienJustificatifError) {
+      setLienJustificatifError("")
+    }
   }
 
   return (
@@ -577,7 +702,7 @@ export default function DistinctionsPrix() {
                             <div className="space-y-3">
                               <Label className="text-sm font-medium">Membres associés <span className="text-red-600">*</span></Label>
                               
-                              <div className="space-y-3">
+                              <div className="space-y-4">
                                 {/* Filtres */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                   <div>
@@ -635,10 +760,26 @@ export default function DistinctionsPrix() {
                                   </Select>
                                 </div>
 
-                                {/* Membres sélectionnés */}
+                                {/* Bouton pour ajouter un membre externe */}
+                                <div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowExternalMemberForm(!showExternalMemberForm)}
+                                    className="text-uh2c-blue border-uh2c-blue/30 hover:bg-uh2c-blue/5"
+                                  >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Ajouter un membre externe
+                                  </Button>
+                                </div>
+
+
+
+                                {/* Membres sélectionnés (internes) */}
                                 {getSelectedMemberNames().length > 0 && (
                                   <div>
-                                    <p className="text-xs font-medium text-gray-600 mb-2">Membres sélectionnés :</p>
+                                    <p className="text-xs font-medium text-gray-600 mb-2">Membres internes sélectionnés :</p>
                                     <div className="flex flex-wrap gap-1">
                                       {getSelectedMemberNames().map((name, index) => (
                                         <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-uh2c-blue text-white">
@@ -646,6 +787,27 @@ export default function DistinctionsPrix() {
                                           <button
                                             type="button"
                                             onClick={() => handleRemoveMember(name)}
+                                            className="ml-2 text-white hover:text-red-200"
+                                          >
+                                            ×
+                                          </button>
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Membres externes ajoutés */}
+                                {newDistinction.membresExternes && newDistinction.membresExternes.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-600 mb-2">Membres externes ajoutés :</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {newDistinction.membresExternes.map((member) => (
+                                        <span key={member.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-600 text-white">
+                                          {member.titre} {member.nom} {member.prenom} ({member.qualite})
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveExternalMember(member.id)}
                                             className="ml-2 text-white hover:text-red-200"
                                           >
                                             ×
@@ -668,12 +830,7 @@ export default function DistinctionsPrix() {
                               <Input
                                 id="intitule"
                                 value={newDistinction.intitule}
-                                onChange={(e) => {
-                                  setNewDistinction({ ...newDistinction, intitule: e.target.value })
-                                  if (fieldErrors.intitule) {
-                                    setFieldErrors({ ...fieldErrors, intitule: false })
-                                  }
-                                }}
+                                onChange={(e) => handleInputChange("intitule", e.target.value)}
                                 placeholder="Titre de la distinction"
                                 className={fieldErrors.intitule ? "border-red-500 focus:border-red-500" : ""}
                               />
@@ -685,12 +842,7 @@ export default function DistinctionsPrix() {
                               <Input
                                 id="evenement"
                                 value={newDistinction.evenement}
-                                onChange={(e) => {
-                                  setNewDistinction({ ...newDistinction, evenement: e.target.value })
-                                  if (fieldErrors.evenement) {
-                                    setFieldErrors({ ...fieldErrors, evenement: false })
-                                  }
-                                }}
+                                onChange={(e) => handleInputChange("evenement", e.target.value)}
                                 placeholder="Conférence Nationale de la Recherche"
                                 className={fieldErrors.evenement ? "border-red-500 focus:border-red-500" : ""}
                               />
@@ -706,12 +858,7 @@ export default function DistinctionsPrix() {
                               <Input
                                 id="organisme"
                                 value={newDistinction.organisme}
-                                onChange={(e) => {
-                                  setNewDistinction({ ...newDistinction, organisme: e.target.value })
-                                  if (fieldErrors.organisme) {
-                                    setFieldErrors({ ...fieldErrors, organisme: false })
-                                  }
-                                }}
+                                onChange={(e) => handleInputChange("organisme", e.target.value)}
                                 placeholder="Ministère de l'Enseignement Supérieur"
                                 className={fieldErrors.organisme ? "border-red-500 focus:border-red-500" : ""}
                               />
@@ -759,11 +906,8 @@ export default function DistinctionsPrix() {
                                       max={getCurrentYear()}
                                       value={newDistinction.date}
                                       onChange={(e) => {
-                                        setNewDistinction({ ...newDistinction, date: e.target.value })
+                                        handleInputChange("date", e.target.value)
                                         validateDate(e.target.value, "annee")
-                                        if (fieldErrors.date) {
-                                          setFieldErrors({ ...fieldErrors, date: false })
-                                        }
                                       }}
                                       placeholder={getCurrentYear().toString()}
                                       className={`flex-1 ${fieldErrors.date ? "border-red-500 focus:border-red-500" : ""}`}
@@ -807,10 +951,7 @@ export default function DistinctionsPrix() {
                               id="lien"
                               type="url"
                               value={newDistinction.lien}
-                              onChange={(e) => {
-                                setNewDistinction({ ...newDistinction, lien: e.target.value })
-                                setLienJustificatifError("")
-                              }}
+                              onChange={(e) => handleInputChange("lien", e.target.value)}
                               placeholder="https://example.com/distinction"
                             />
                             <p className="text-xs text-gray-500 mt-1">
@@ -876,14 +1017,16 @@ export default function DistinctionsPrix() {
 
                           </div>
                         </div>
+                        <form onSubmit={handleAddDistinction}>
                         <div className="flex justify-end space-x-2 pt-4 border-t">
-                          <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                             Annuler
                           </Button>
-                          <Button onClick={handleAddDistinction} className="bg-uh2c-blue hover:bg-uh2c-blue/90">
+                            <Button type="submit" className="bg-uh2c-blue hover:bg-uh2c-blue/90">
                             Ajouter la distinction
                           </Button>
                         </div>
+                        </form>
                       </DialogContent>
                     </Dialog>
                   </div>
@@ -1026,6 +1169,135 @@ export default function DistinctionsPrix() {
           </div>
         </main>
       </div>
+
+      {/* Modal pour ajouter un membre externe */}
+      <Dialog open={showExternalMemberForm} onOpenChange={setShowExternalMemberForm}>
+        <DialogContent className="max-w-lg w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-xl font-semibold">Ajouter un membre externe</DialogTitle>
+            <DialogDescription className="text-sm text-gray-600">
+              Remplissez les informations du membre externe à ajouter au projet.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="externalMemberNom" className={`text-sm font-medium ${externalMemberErrors.nom ? 'text-red-600' : 'text-gray-700'}`}>
+                  Nom <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="externalMemberNom"
+                  placeholder="Nom de famille"
+                  value={newExternalMember.nom}
+                  onChange={(e) => handleExternalMemberInputChange("nom", e.target.value)}
+                  className={`mt-1 h-10 text-sm ${externalMemberErrors.nom ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                />
+                {externalMemberErrors.nom && (
+                  <p className="text-red-500 text-xs mt-1">Le nom est obligatoire</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="externalMemberPrenom" className={`text-sm font-medium ${externalMemberErrors.prenom ? 'text-red-600' : 'text-gray-700'}`}>
+                  Prénom <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="externalMemberPrenom"
+                  placeholder="Prénom"
+                  value={newExternalMember.prenom}
+                  onChange={(e) => handleExternalMemberInputChange("prenom", e.target.value)}
+                  className={`mt-1 h-10 text-sm ${externalMemberErrors.prenom ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                />
+                {externalMemberErrors.prenom && (
+                  <p className="text-red-500 text-xs mt-1">Le prénom est obligatoire</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="externalMemberTitre" className={`text-sm font-medium ${externalMemberErrors.titre ? 'text-red-600' : 'text-gray-700'}`}>
+                  Titre <span className="text-red-500">*</span>
+                </Label>
+                <Select value={newExternalMember.titre} onValueChange={(value) => handleExternalMemberInputChange("titre", value)}>
+                  <SelectTrigger className={`mt-1 h-10 text-sm ${externalMemberErrors.titre ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
+                    <SelectValue placeholder="Sélectionner un titre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Dr.">Dr.</SelectItem>
+                    <SelectItem value="Pr.">Pr.</SelectItem>
+                    <SelectItem value="M.">M.</SelectItem>
+                    <SelectItem value="Mme.">Mme.</SelectItem>
+                    <SelectItem value="Mlle.">Mlle.</SelectItem>
+                  </SelectContent>
+                </Select>
+                {externalMemberErrors.titre && (
+                  <p className="text-red-500 text-xs mt-1">Le titre est obligatoire</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="externalMemberQualite" className={`text-sm font-medium ${externalMemberErrors.qualite ? 'text-red-600' : 'text-gray-700'}`}>
+                  Qualité <span className="text-red-500">*</span>
+                </Label>
+                <Select value={newExternalMember.qualite} onValueChange={(value) => handleExternalMemberInputChange("qualite", value)}>
+                  <SelectTrigger className={`mt-1 h-10 text-sm ${externalMemberErrors.qualite ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}>
+                    <SelectValue placeholder="Sélectionner une qualité" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Membre directeur">Membre directeur</SelectItem>
+                    <SelectItem value="Membre associé">Membre associé</SelectItem>
+                    <SelectItem value="Chercheur">Chercheur</SelectItem>
+                    <SelectItem value="Expert">Expert</SelectItem>
+                    <SelectItem value="Responsable">Responsable</SelectItem>
+                    <SelectItem value="Collaborateur">Collaborateur</SelectItem>
+                  </SelectContent>
+                </Select>
+                {externalMemberErrors.qualite && (
+                  <p className="text-red-500 text-xs mt-1">La qualité est obligatoire</p>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <div>
+                <Label htmlFor="externalMemberAffiliation" className={`text-sm font-medium ${externalMemberErrors.affiliation ? 'text-red-600' : 'text-gray-700'}`}>
+                  Affiliation <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="externalMemberAffiliation"
+                  placeholder="Ex: Université Hassan II, Ministère, Entreprise..."
+                  value={newExternalMember.affiliation}
+                  onChange={(e) => handleExternalMemberInputChange("affiliation", e.target.value)}
+                  className={`mt-1 h-10 text-sm ${externalMemberErrors.affiliation ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                />
+                {externalMemberErrors.affiliation && (
+                  <p className="text-red-500 text-xs mt-1">L'affiliation est obligatoire</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-6 border-t border-gray-200 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowExternalMemberForm(false)}
+              className="flex-1 h-11 text-sm font-medium"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmitExternalMember}
+              className="flex-1 bg-uh2c-blue hover:bg-uh2c-blue/90 text-white h-11 text-sm font-medium"
+            >
+              Ajouter le membre
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 

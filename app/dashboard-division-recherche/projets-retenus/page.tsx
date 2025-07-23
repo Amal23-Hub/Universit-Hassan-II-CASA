@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Filter, Eye, CheckCircle, XCircle } from "lucide-react"
+import { Search, Filter, Eye, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
 import Image from "next/image"
 
 interface ProjetRetenu {
@@ -22,13 +22,57 @@ interface ProjetRetenu {
   prenomCoordonnateur: string
   etablissement: string
   budgetPropose: number
-  retenu: boolean
+  statutRetenu: "Retenu" | "Non retenu" | null
   dateReception: string
   sourceReception: "email" | "courrier"
+  // Informations supplémentaires du formulaire
+  typologie?: string
+  descriptifProgramme?: string
+  organismesPartenaires?: string[]
+  membresAssocies?: Array<{
+    id: string
+    nom: string
+    prenom: string
+    titre: string
+    qualite: string
+    affiliation: string
+  }>
+  anneeDebut?: string
+  anneeFin?: string
+  document?: string
 }
 
 export default function ProjetsRetenus() {
   const [projets, setProjets] = useState<ProjetRetenu[]>([
+    {
+      id: "PR000",
+      programme: "Programme de Recherche en Santé Numérique",
+      projet: "IA pour diagnostic médical",
+      thematique: "Santé Numérique",
+      nomCoordonnateur: "Benali",
+      prenomCoordonnateur: "Ahmed",
+      etablissement: "Université Hassan II",
+      budgetPropose: 500000,
+      statutRetenu: null,
+      dateReception: "2024-02-15",
+      sourceReception: "email",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Innovation technologique dans le domaine de la santé et de la télémédecine",
+      organismesPartenaires: ["CHU Hassan II", "Ministère de la Santé"],
+      membresAssocies: [
+        {
+          id: "0",
+          nom: "Benali",
+          prenom: "Ahmed",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "Université Hassan II"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2026",
+      document: "projet_sante_numerique_ia.pdf"
+    },
     {
       id: "PR001",
       programme: "Programme National de Recherche en IA",
@@ -38,9 +82,33 @@ export default function ProjetsRetenus() {
       prenomCoordonnateur: "Ahmed",
       etablissement: "Université Hassan II",
       budgetPropose: 500000,
-      retenu: false,
+      statutRetenu: "Non retenu",
       dateReception: "2024-01-15",
-      sourceReception: "email"
+      sourceReception: "email",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Programme de recherche en intelligence artificielle pour le développement de solutions innovantes",
+      organismesPartenaires: ["CHU Hassan II", "Ministère de l'Éducation"],
+      membresAssocies: [
+        {
+          id: "1",
+          nom: "Benali",
+          prenom: "Ahmed",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "Université Hassan II"
+        },
+        {
+          id: "2",
+          nom: "Zahra",
+          prenom: "Fatima",
+          titre: "Dr.",
+          qualite: "Membre associé",
+          affiliation: "ENSA Casablanca"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2026",
+      document: "projet_ia_education.pdf"
     },
     {
       id: "PR002",
@@ -51,9 +119,33 @@ export default function ProjetsRetenus() {
       prenomCoordonnateur: "Fatima",
       etablissement: "ENSA Casablanca",
       budgetPropose: 1200000,
-      retenu: true,
+      statutRetenu: "Retenu",
       dateReception: "2024-01-20",
-      sourceReception: "courrier"
+      sourceReception: "courrier",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Développement de solutions de cybersécurité pour protéger les infrastructures critiques",
+      organismesPartenaires: ["Agence Nationale de Sécurité", "Ministère de l'Intérieur"],
+      membresAssocies: [
+        {
+          id: "3",
+          nom: "Zahra",
+          prenom: "Fatima",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "ENSA Casablanca"
+        },
+        {
+          id: "4",
+          nom: "El Harti",
+          prenom: "Sara",
+          titre: "Dr.",
+          qualite: "Chercheur",
+          affiliation: "Université Mohammed V"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2027",
+      document: "projet_cybersecurite.pdf"
     },
     {
       id: "PR003",
@@ -64,9 +156,25 @@ export default function ProjetsRetenus() {
       prenomCoordonnateur: "Sara",
       etablissement: "CHU Hassan II",
       budgetPropose: 850000,
-      retenu: false,
+      statutRetenu: "Non retenu",
       dateReception: "2024-01-25",
-      sourceReception: "email"
+      sourceReception: "email",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Innovation technologique dans le domaine de la santé et de la télémédecine",
+      organismesPartenaires: ["CHU Hassan II", "Ministère de la Santé"],
+      membresAssocies: [
+        {
+          id: "5",
+          nom: "El Harti",
+          prenom: "Sara",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "CHU Hassan II"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2026",
+      document: "projet_sante_numerique.pdf"
     },
     {
       id: "PR004",
@@ -77,9 +185,33 @@ export default function ProjetsRetenus() {
       prenomCoordonnateur: "Mohamed",
       etablissement: "Université Mohammed V",
       budgetPropose: 600000,
-      retenu: true,
+      statutRetenu: "Retenu",
       dateReception: "2024-01-30",
-      sourceReception: "courrier"
+      sourceReception: "courrier",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Développement de technologies d'énergies renouvelables et d'efficacité énergétique",
+      organismesPartenaires: ["Ministère de l'Énergie", "IRESEN"],
+      membresAssocies: [
+        {
+          id: "6",
+          nom: "Lahby",
+          prenom: "Mohamed",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "Université Mohammed V"
+        },
+        {
+          id: "7",
+          nom: "Alaoui",
+          prenom: "Karim",
+          titre: "Pr.",
+          qualite: "Expert",
+          affiliation: "IRESEN"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2027",
+      document: "projet_energies_renouvelables.pdf"
     },
     {
       id: "PR005",
@@ -90,9 +222,54 @@ export default function ProjetsRetenus() {
       prenomCoordonnateur: "Youssef",
       etablissement: "IAV Hassan II",
       budgetPropose: 450000,
-      retenu: false,
+      statutRetenu: "Non retenu",
       dateReception: "2024-02-05",
-      sourceReception: "email"
+      sourceReception: "email",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Intégration des technologies numériques dans l'agriculture pour améliorer la productivité",
+      organismesPartenaires: ["Ministère de l'Agriculture", "IAV Hassan II"],
+      membresAssocies: [
+        {
+          id: "8",
+          nom: "Alami",
+          prenom: "Youssef",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "IAV Hassan II"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2026",
+      document: "projet_agriculture_intelligente.pdf"
+    },
+    {
+      id: "PR006",
+      programme: "Programme de Recherche en Santé Numérique",
+      projet: "IA pour diagnostic médical",
+      thematique: "Santé Numérique",
+      nomCoordonnateur: "Benali",
+      prenomCoordonnateur: "Ahmed",
+      etablissement: "Université Hassan II",
+      budgetPropose: 500000,
+      statutRetenu: null,
+      dateReception: "2024-02-10",
+      sourceReception: "courrier",
+      typologie: "Projet de recherche financé",
+      descriptifProgramme: "Innovation technologique dans le domaine de la santé et de la télémédecine",
+      organismesPartenaires: ["CHU Hassan II", "Ministère de la Santé"],
+      membresAssocies: [
+        {
+          id: "9",
+          nom: "Benali",
+          prenom: "Ahmed",
+          titre: "Dr.",
+          qualite: "Membre directeur",
+          affiliation: "Université Hassan II"
+        }
+      ],
+      anneeDebut: "2024",
+      anneeFin: "2026",
+      document: "projet_sante_numerique_2.pdf"
     }
   ])
 
@@ -101,12 +278,19 @@ export default function ProjetsRetenus() {
   const [filterProgramme, setFilterProgramme] = useState<string>("all")
   const [filterRetenu, setFilterRetenu] = useState<string>("all")
   const [filterSource, setFilterSource] = useState<string>("all")
+  const [selectedProjet, setSelectedProjet] = useState<ProjetRetenu | null>(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    projetId: string
+    nouveauStatut: "Retenu" | "Non retenu"
+  } | null>(null)
 
-  // Filter logic
-  const applyFilters = () => {
+  // Appliquer les filtres automatiquement quand les projets ou les filtres changent
+  useEffect(() => {
     let filtered = projets
 
-    // Search filter
+    // Filtre de recherche
     if (searchTerm) {
       filtered = filtered.filter(
         (projet) =>
@@ -119,36 +303,70 @@ export default function ProjetsRetenus() {
       )
     }
 
-    // Programme filter
+    // Filtre par programme
     if (filterProgramme !== "all") {
       filtered = filtered.filter((projet) => projet.programme === filterProgramme)
     }
 
-    // Retenu filter
+    // Filtre par statut
     if (filterRetenu !== "all") {
-      const isRetenu = filterRetenu === "retenu"
-      filtered = filtered.filter((projet) => projet.retenu === isRetenu)
+      if (filterRetenu === "null") {
+        filtered = filtered.filter((projet) => projet.statutRetenu === null)
+      } else {
+        filtered = filtered.filter((projet) => projet.statutRetenu === filterRetenu)
+      }
     }
 
-    // Source filter
+    // Filtre par source
     if (filterSource !== "all") {
       filtered = filtered.filter((projet) => projet.sourceReception === filterSource)
     }
 
     setFilteredProjets(filtered)
+  }, [projets, searchTerm, filterProgramme, filterRetenu, filterSource])
+
+  const handleRetenuToggle = (projetId: string, nouveauStatut: "Retenu" | "Non retenu") => {
+    // Confirmation spéciale pour le statut "Retenu"
+    if (nouveauStatut === "Retenu") {
+      setPendingStatusChange({ projetId, nouveauStatut })
+      setShowConfirmationModal(true)
+      return
+    }
+    
+    // Pour les autres statuts, appliquer directement
+    applyStatusChange(projetId, nouveauStatut)
   }
 
-  // Apply filters when dependencies change
-  useEffect(() => {
-    applyFilters()
-  }, [searchTerm, filterProgramme, filterRetenu, filterSource])
+  const applyStatusChange = (projetId: string, nouveauStatut: "Retenu" | "Non retenu") => {
+    const updatedProjets = projets.map(projet => {
+      if (projet.id === projetId) {
+        return {
+          ...projet,
+          statutRetenu: nouveauStatut
+        }
+      }
+      return projet
+    })
+    
+    setProjets(updatedProjets)
+  }
 
-  const handleRetenuToggle = (projetId: string) => {
-    setProjets(projets.map(projet => 
-      projet.id === projetId 
-        ? { ...projet, retenu: !projet.retenu }
-        : projet
-    ))
+  const confirmStatusChange = () => {
+    if (pendingStatusChange) {
+      applyStatusChange(pendingStatusChange.projetId, pendingStatusChange.nouveauStatut)
+      setShowConfirmationModal(false)
+      setPendingStatusChange(null)
+    }
+  }
+
+  const cancelStatusChange = () => {
+    setShowConfirmationModal(false)
+    setPendingStatusChange(null)
+  }
+
+  const handleVoirDetails = (projet: ProjetRetenu) => {
+    setSelectedProjet(projet)
+    setShowDetailsModal(true)
   }
 
   const formatBudget = (amount: number) => {
@@ -165,12 +383,13 @@ export default function ProjetsRetenus() {
 
   const getStats = () => {
     const total = projets.length
-    const retenus = projets.filter(p => p.retenu).length
-    const enAttente = total - retenus
+    const retenus = projets.filter(p => p.statutRetenu === "Retenu").length
+    const nonRetenus = projets.filter(p => p.statutRetenu === "Non retenu").length
+    const nonDefinis = projets.filter(p => p.statutRetenu === null).length
     const email = projets.filter(p => p.sourceReception === "email").length
     const courrier = projets.filter(p => p.sourceReception === "courrier").length
 
-    return { total, retenus, enAttente, email, courrier }
+    return { total, retenus, nonRetenus, nonDefinis, email, courrier }
   }
 
   const stats = getStats()
@@ -227,6 +446,23 @@ export default function ProjetsRetenus() {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="flex-1">
+                    <Label className="text-xs">Statut</Label>
+                    <Select
+                      value={filterRetenu}
+                      onValueChange={(value) => setFilterRetenu(value)}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les statuts</SelectItem>
+                        <SelectItem value="Retenu">Retenu</SelectItem>
+                        <SelectItem value="Non retenu">Non retenu</SelectItem>
+                        <SelectItem value="null">Non défini</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -254,54 +490,83 @@ export default function ProjetsRetenus() {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Programme</th>
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Projet</th>
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Thématique</th>
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Nom du coordonnateur</th>
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">prenom coordinateur</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/6">Programme</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/4">Projet</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700 w-1/8">Thématique</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Coordonnateur</th>
                           <th className="text-left py-2 px-3 font-medium text-gray-700">Établissement</th>
-                          <th className="text-right py-2 px-3 font-medium text-gray-700">Budget proposé</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700 whitespace-nowrap">Budget proposé</th>
                           <th className="text-center py-2 px-3 font-medium text-gray-700">Retenu</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredProjets.map((projet, index) => (
                           <tr key={projet.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                            <td className="py-2 px-3">
-                              <span className="font-medium text-gray-900">{projet.programme}</span>
+                            <td className="py-2 px-3 w-1/6">
+                              <span className="font-medium text-gray-900 whitespace-nowrap">{projet.programme}</span>
                             </td>
-                            <td className="py-2 px-3">
-                              <span className="text-gray-900">{projet.projet}</span>
+                            <td className="py-2 px-3 w-1/4">
+                              <span className="text-gray-900 whitespace-nowrap">{projet.projet}</span>
                             </td>
-                            <td className="py-2 px-3">
-                              <Badge variant="secondary" className="text-xs">
+                            <td className="py-2 px-3 w-1/8">
+                              <Badge variant="secondary" className="text-xs whitespace-nowrap">
                                 {projet.thematique}
                               </Badge>
                             </td>
                             <td className="py-2 px-3">
-                              <span className="text-gray-900">{projet.nomCoordonnateur}</span>
+                              <span className="text-gray-900 whitespace-nowrap">{projet.nomCoordonnateur} {projet.prenomCoordonnateur}</span>
                             </td>
                             <td className="py-2 px-3">
-                              <span className="text-gray-900">{projet.prenomCoordonnateur}</span>
-                            </td>
-                            <td className="py-2 px-3">
-                              <span className="text-gray-700">{projet.etablissement}</span>
+                              <span className="text-gray-700 whitespace-nowrap">{projet.etablissement}</span>
                             </td>
                             <td className="py-2 px-3 text-right">
-                              <span className="font-medium text-gray-900">{formatBudget(projet.budgetPropose)}</span>
+                              <span className="font-medium text-gray-900 whitespace-nowrap">{formatBudget(projet.budgetPropose)}</span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {projet.statutRetenu === "Retenu" ? (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRetenuToggle(projet.id, "Non retenu")}
+                                  className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700 text-white border-green-600 shadow-md"
+                                >
+                                  Retenu
+                                </Button>
+                              ) : projet.statutRetenu === "Non retenu" ? (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRetenuToggle(projet.id, "Retenu")}
+                                  className="h-6 px-2 text-xs bg-red-600 hover:bg-red-700 text-white border-red-600"
+                                >
+                                  Non retenu
+                                </Button>
+                              ) : (
+                                <div className="flex gap-2 justify-center">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleRetenuToggle(projet.id, "Retenu")}
+                                    className="h-6 px-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300"
+                                  >
+                                    Retenu
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleRetenuToggle(projet.id, "Non retenu")}
+                                    className="h-6 px-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300"
+                                  >
+                                    Non retenu
+                                  </Button>
+                                </div>
+                              )}
                             </td>
                             <td className="py-2 px-3 text-center">
                               <Button
-                                variant={projet.retenu ? "default" : "outline"}
                                 size="sm"
-                                onClick={() => handleRetenuToggle(projet.id)}
-                                className={`h-6 px-2 text-xs ${
-                                  projet.retenu 
-                                    ? "bg-green-600 hover:bg-green-700 text-white" 
-                                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                                }`}
+                                onClick={() => handleVoirDetails(projet)}
+                                className="h-6 w-6 p-0 bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                                title="Voir les détails"
                               >
-                                {projet.retenu ? "Retenu" : "Non retenu"}
+                                <Eye className="h-4 w-4" />
                               </Button>
                             </td>
                           </tr>
@@ -315,6 +580,327 @@ export default function ProjetsRetenus() {
           </div>
         </main>
       </div>
+
+      {/* Modal pour les détails du projet */}
+      {showDetailsModal && selectedProjet && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Header avec couleur UH2C */}
+            <div className="bg-uh2c-blue border-b border-uh2c-blue/20 p-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 bg-white/20 rounded flex items-center justify-center">
+                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">Détails du projet</h2>
+                    <p className="text-xs text-white/80">ID: {selectedProjet.id}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDetailsModal(false)}
+                  className="h-5 w-5 p-0 text-white hover:bg-white/20 rounded"
+                >
+                  <XCircle className="h-2.5 w-2.5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="space-y-4">
+                {/* Statut du projet - Banner en haut */}
+                <div className={`rounded-lg p-3 border-l-4 ${
+                  selectedProjet.statutRetenu === "Retenu"
+                    ? "bg-green-50 border-green-500"
+                    : selectedProjet.statutRetenu === "Non retenu"
+                    ? "bg-red-50 border-red-500"
+                    : "bg-yellow-50 border-yellow-500"
+                }`}>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      selectedProjet.statutRetenu === "Retenu"
+                        ? "bg-green-500"
+                        : selectedProjet.statutRetenu === "Non retenu"
+                        ? "bg-red-500"
+                        : "bg-yellow-500"
+                    }`}></div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">Statut du projet</h3>
+                      <p className={`text-sm font-medium ${
+                        selectedProjet.statutRetenu === "Retenu"
+                          ? "text-green-700"
+                          : selectedProjet.statutRetenu === "Non retenu"
+                          ? "text-red-700"
+                          : "text-yellow-700"
+                      }`}>
+                        {selectedProjet.statutRetenu || "Non défini"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations du programme */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Informations du programme</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Programme</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.programme}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Typologie</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.typologie || "Projet de recherche financé"}</p>
+                    </div>
+                    <div className="md:col-span-3 bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Descriptif du sous programme</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.descriptifProgramme}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations du projet */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Informations du projet</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Intitulé du projet *</Label>
+                      <p className="text-sm font-medium text-gray-900">{selectedProjet.projet}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Thématique du projet *</Label>
+                      <Badge variant="secondary" className="bg-uh2c-blue/10 text-uh2c-blue border-uh2c-blue/20 text-xs">
+                        {selectedProjet.thematique}
+                      </Badge>
+                    </div>
+                    <div className="md:col-span-2 bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Organismes partenaires *</Label>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedProjet.organismesPartenaires?.map((organisme, index) => (
+                          <Badge key={index} variant="outline" className="bg-uh2c-blue/5 text-uh2c-blue border-uh2c-blue/20 text-xs">
+                            {organisme}
+                          </Badge>
+                        )) || <span className="text-xs text-gray-500 italic">Aucun organisme partenaire spécifié</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Membres associés */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Membres associés</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {selectedProjet.membresAssocies && selectedProjet.membresAssocies.length > 0 ? (
+                      selectedProjet.membresAssocies.map((membre, index) => (
+                        <div key={membre.id} className="bg-white rounded p-3 border border-gray-200">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-uh2c-blue rounded-full flex items-center justify-center">
+                              <span className="text-white font-medium text-xs">
+                                {membre.nom.charAt(0)}{membre.prenom.charAt(0)}
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <p className="font-medium text-sm text-gray-900">{membre.titre} {membre.nom} {membre.prenom}</p>
+                                <Badge className="bg-uh2c-blue/10 text-uh2c-blue border-uh2c-blue/20 text-xs">
+                                  {membre.qualite}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-gray-600">{membre.affiliation}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-white rounded p-4 border border-gray-200 text-center">
+                        <p className="text-sm text-gray-500">Aucun membre associé sélectionné</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Durée et budget */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Durée de projet */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-base font-semibold text-gray-900">Durée de projet</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white rounded p-3 border border-gray-200">
+                        <Label className="text-xs font-medium text-gray-600 mb-1 block">Année de début *</Label>
+                        <p className="text-sm font-medium text-gray-900">{selectedProjet.anneeDebut || "Non spécifiée"}</p>
+                      </div>
+                      <div className="bg-white rounded p-3 border border-gray-200">
+                        <Label className="text-xs font-medium text-gray-600 mb-1 block">Année de fin *</Label>
+                        <p className="text-sm font-medium text-gray-900">{selectedProjet.anneeFin || "Non spécifiée"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Budget proposé */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                      </div>
+                      <h3 className="text-base font-semibold text-gray-900">Budget proposé</h3>
+                    </div>
+                    <div className="bg-white rounded p-4 border border-gray-200 text-center">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Montant en dirhams *</Label>
+                      <p className="text-uh2c-blue font-bold text-xl">{formatBudget(selectedProjet.budgetPropose)}</p>
+                      <p className="text-xs text-gray-500 mt-1">Budget total du projet</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Document intégral du projet */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Document intégral du projet à signer *</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-uh2c-blue/5 border border-uh2c-blue/20 rounded p-3">
+                      <div className="flex items-start space-x-2">
+                        <div className="w-4 h-4 bg-uh2c-blue rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-uh2c-blue mb-1">Confidentialité des documents</p>
+                          <p className="text-xs text-uh2c-blue/80">
+                            Tous les documents soumis dans cette section sont traités de manière strictement confidentielle. 
+                            Seuls les membres autorisés du comité d'évaluation auront accès à ces informations.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-2 block">Document sélectionné</Label>
+                      <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded border border-gray-200">
+                        <div className="w-8 h-8 bg-uh2c-blue/10 rounded flex items-center justify-center">
+                          <svg className="w-4 h-4 text-uh2c-blue" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{selectedProjet.document || "Aucun document joint"}</p>
+                          <p className="text-xs text-gray-500">PDF, DOC, DOCX jusqu'à 10MB</p>
+                        </div>
+                        <Button variant="outline" size="sm" className="text-xs text-uh2c-blue border-uh2c-blue/30 hover:bg-uh2c-blue/5">
+                          Télécharger
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informations administratives */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-6 h-6 bg-uh2c-blue rounded flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Informations administratives</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Coordonnateur</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.nomCoordonnateur} {selectedProjet.prenomCoordonnateur}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Établissement</Label>
+                      <p className="text-sm text-gray-900">{selectedProjet.etablissement}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Date de réception</Label>
+                      <p className="text-sm text-gray-900">{new Date(selectedProjet.dateReception).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                    <div className="bg-white rounded p-3 border border-gray-200">
+                      <Label className="text-xs font-medium text-gray-600 mb-1 block">Source de réception</Label>
+                      <Badge variant="outline" className="bg-uh2c-blue/5 text-uh2c-blue border-uh2c-blue/20 text-xs">
+                        {selectedProjet.sourceReception === "email" ? "Email" : "Courrier"}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
+                <Button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white px-4 py-2 rounded text-sm"
+                >
+                  Fermer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmation pour le statut "Retenu" */}
+      {showConfirmationModal && pendingStatusChange && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
+            <div className="p-4 text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmation de la décision</h3>
+              <p className="text-sm text-gray-700 mb-4">
+                Vous êtes sur le point de RETENIR le projet "{projets.find(p => p.id === pendingStatusChange.projetId)?.projet}".
+                Voulez-vous confirmer cette action ?
+              </p>
+              <div className="flex justify-center space-x-3">
+                <Button variant="outline" size="sm" onClick={cancelStatusChange} className="text-gray-700 border-gray-300 hover:bg-gray-100">
+                  Annuler
+                </Button>
+                <Button size="sm" onClick={confirmStatusChange} className="bg-green-600 hover:bg-green-700 text-white border-green-600">
+                  Confirmer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

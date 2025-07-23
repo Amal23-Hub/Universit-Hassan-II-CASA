@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Eye, FileText, DollarSign, Plus, Trash2, Filter, Download } from "lucide-react"
 import { Header } from "@/components/header"
 import { Sidebar } from "@/components/sidebar"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 interface ProjetContrat {
@@ -52,6 +53,7 @@ interface ProjetContrat {
 }
 
 export default function ProjetsContrats() {
+  const router = useRouter()
   const [projets, setProjets] = useState<ProjetContrat[]>([
     {
       id: "1",
@@ -293,15 +295,14 @@ export default function ProjetsContrats() {
   }
 
   const handleGestionVersements = (projet: ProjetContrat) => {
-    setSelectedProjetForModal(projet)
-    setShowVersementsModal(true)
+    router.push(`/dashboard-division-recherche/versements?projetId=${projet.id}`)
   }
 
   const handleAddVersement = () => {
     if (!selectedProjetForModal || !newVersement.montant || !newVersement.date || !newVersement.description) {
       return
     }
-
+    
     const newVersementWithId = {
       id: Date.now().toString(),
       ...newVersement
@@ -415,8 +416,8 @@ export default function ProjetsContrats() {
                 <h1 className="text-3xl font-bold text-gray-900">Projets retenus</h1>
                 <p className="text-gray-600 mt-2">Gérez vos projets de recherche et contrats</p>
               </div>
-            </div>
-
+                        </div>
+                        
             {/* Filters simplifiés */}
             <Card className="mb-6">
               <CardHeader>
@@ -520,18 +521,18 @@ export default function ProjetsContrats() {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
-                                        <thead>
-                    <tr className="border-b border-gray-200">
+                      <thead>
+                        <tr className="border-b border-gray-200">
                       <th className="text-left py-2 px-2 font-medium text-gray-700 w-14">ID</th>
                       <th className="text-left py-2 px-2 font-medium text-gray-700 w-72">Intitulé</th>
                       <th className="text-left py-2 px-2 font-medium text-gray-700 w-36">Coordonnateur</th>
                       <th className="text-left py-2 px-2 font-medium text-gray-700 w-32">Thématique</th>
                       <th className="text-center py-2 px-2 font-medium text-gray-700 w-16">Année</th>
-                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-16">Type</th>
-                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-16">Statut</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-28">Type</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-700 w-40">Statut</th>
                       <th className="text-center py-2 px-2 font-medium text-gray-700 w-32">Actions</th>
-                    </tr>
-                  </thead>
+                        </tr>
+                      </thead>
                       <tbody>
                         {filteredProjets.map((projet) => (
                           <tr key={projet.id} className="border-b border-gray-100 hover:bg-gray-50">
@@ -554,27 +555,21 @@ export default function ProjetsContrats() {
                             </td>
                             <td className="py-2 px-2 text-center text-gray-700 text-xs">{projet.anneeDebut}</td>
                             <td className="py-2 px-2 text-center">
-                              <Badge
-                                className={
-                                  projet.typeProjet === "National"
-                                    ? "bg-blue-100 text-blue-800 border-blue-200 text-xs px-0.5 py-0.5"
-                                    : "bg-purple-100 text-purple-800 border-purple-200 text-xs px-0.5 py-0.5"
-                                }
-                              >
-                                {projet.typeProjet === "National" ? "N" : "I"}
-                              </Badge>
+                              <span className="text-gray-900 text-xs">
+                                {projet.typeProjet === "National" ? "National" : "International"}
+                              </span>
                             </td>
-                            <td className="py-2 px-2 text-center">
+                            <td className="py-3 px-4 text-center">
                               <Badge
                                 className={
                                   projet.statutRetenu === "Retenu"
-                                    ? "bg-green-100 text-green-800 border-green-200 text-xs px-0.5 py-0.5"
+                                    ? "bg-green-100 text-green-800 border-green-200 text-xs px-4 py-2 whitespace-nowrap"
                                     : projet.statutRetenu === "Non retenu"
-                                    ? "bg-red-100 text-red-800 border-red-200 text-xs px-0.5 py-0.5"
-                                    : "bg-yellow-100 text-yellow-800 border-yellow-200 text-xs px-0.5 py-0.5"
+                                    ? "bg-red-100 text-red-800 border-red-200 text-xs px-4 py-2 whitespace-nowrap"
+                                    : "bg-yellow-100 text-yellow-800 border-yellow-200 text-xs px-4 py-2 whitespace-nowrap"
                                 }
                               >
-                                {projet.statutRetenu === "Retenu" ? "R" : projet.statutRetenu === "Non retenu" ? "NR" : "EA"}
+                                {projet.statutRetenu === "Retenu" ? "Retenu" : projet.statutRetenu === "Non retenu" ? "Non retenu" : "En attente"}
                               </Badge>
                             </td>
                             <td className="py-2 px-2">
@@ -597,18 +592,9 @@ export default function ProjetsContrats() {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="h-6 w-6 p-0"
-                                      title="Extraction données convention"
-                                      onClick={() => handleExtractConventionData(projet)}
-                                    >
-                                      <FileText className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                      title="Gestion des versements"
-                                      onClick={() => handleGestionVersements(projet)}
+                                      className="h-6 w-6 p-0 opacity-50 cursor-not-allowed"
+                                      title="Gestion des versements (désactivé)"
+                                      disabled={true}
                                     >
                                       <DollarSign className="h-3 w-3" />
                                     </Button>

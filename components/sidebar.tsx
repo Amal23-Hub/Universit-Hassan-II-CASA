@@ -57,6 +57,16 @@ const memberNavigation: NavigationItem[] = [
     icon: BookOpen,
   },
   {
+    title: "Distinctions & Prix",
+    href: "/distinctions-prix",
+    icon: Award,
+  },
+  {
+    title: "Liste des programmes",
+    href: "/dashboard-member/liste-programmes",
+    icon: List,
+  },
+  {
     title: "Mes projets retenus",
     href: "/projets-contrats",
     icon: FileText,
@@ -66,21 +76,11 @@ const memberNavigation: NavigationItem[] = [
     href: "/manifestations-scientifiques",
     icon: Calendar,
   },
-  {
-    title: "Distinctions & Prix",
-    href: "/distinctions-prix",
-    icon: Award,
-  },
   // {
   //   title: "Programme d'emploi",
   //   href: "/dashboard-member/programme-emploi",
   //   icon: Calculator,
   // },
-  {
-    title: "Liste des programmes",
-    href: "/dashboard-member/liste-programmes",
-    icon: List,
-  },
 ]
 
 const adminNavigation: NavigationItem[] = [
@@ -175,6 +175,16 @@ const memberDashboardNavigation: NavigationItem[] = [
     icon: BookOpen,
   },
   {
+    title: "Distinctions & Prix",
+    href: "/distinctions-prix",
+    icon: Award,
+  },
+  {
+    title: "Liste des programmes",
+    href: "/dashboard-member/liste-programmes",
+    icon: List,
+  },
+  {
     title: "Mes projets retenus",
     href: "/projets-contrats",
     icon: FileText,
@@ -184,21 +194,11 @@ const memberDashboardNavigation: NavigationItem[] = [
     href: "/manifestations-scientifiques",
     icon: Calendar,
   },
-  {
-    title: "Distinctions & Prix",
-    href: "/distinctions-prix",
-    icon: Award,
-  },
   // {
   //   title: "Programme d'emploi",
   //   href: "/dashboard-member/programme-emploi",
   //   icon: Calculator,
   // },
-  {
-    title: "Liste des programmes",
-    href: "/dashboard-member/liste-programmes",
-    icon: List,
-  },
 ]
 
 export function Sidebar() {

@@ -1,178 +1,120 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sidebar } from "@/components/sidebar"
+import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Eye, FileText, DollarSign, Plus, Trash2, Filter, Download, ArrowLeft } from "lucide-react"
 import { Header } from "@/components/header"
-import { 
-  DollarSign, 
-  Download, 
-  Upload, 
-  Eye, 
-  CheckCircle,
-  AlertCircle,
-  Calendar,
-  Users,
-  BarChart3,
-  Search,
-  Filter,
-  FileSpreadsheet,
-  Plus,
-  X,
-  ArrowUpDown,
-  Send,
-  Receipt
-} from "lucide-react"
+import { Sidebar } from "@/components/sidebar"
+import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
 
-interface ProjetVersement {
+interface ProjetContrat {
   id: string
-  programme: string
-  projet: string
-  nomCoordonnateur: string
-  prenomCoordonnateur: string
-  etablissement: string
-  budgetAlloue: number
-  tranches: TrancheVersement[]
-}
-
-interface TrancheVersement {
-  numero: number
-  montant: number
-  dateVersement: string
-  recu: boolean
-  dateReception?: string
-  envoye: boolean
-  dateOrdreVirement?: string
+  typeProjetContrat: "Projet de recherche financé" | "Contrat de recherche"
+  typeProjet: "National" | "International"
+  coordonnateur: string
+  intitule: string
+  thematique: string
+  organismeContractant: string
+  codeReference: string
+  anneeDebut: number
+  anneeFin: number
+  organismesPartenaires: string
+  budgetTotal: number
+  tranches: Array<{ 
+    id: string, 
+    montant: number, 
+    description: string,
+    recu?: boolean,
+    dateReception?: string,
+    envoye?: boolean,
+    dateEnvoi?: string
+  }>
+  nombreDoctorants: number
+  bourse: number
+  mobilite: number
+  phaseSoumission?: string
+  phaseConvention?: string
+  lien?: string
+  justificatifs?: string
+  membres?: string[]
+  programme?: string
+  typologie?: string
+  sousProgramme?: string
+  statutRetenu?: "Retenu" | "Non retenu" | "En attente"
+  convention?: string
+  versements?: Array<{ id: string, montant: number, date: string, description: string }>
 }
 
 export default function VersementsPage() {
-  const [projets, setProjets] = useState<ProjetVersement[]>([
-    {
-      id: "PROJ-001",
-      programme: "Programme National de Recherche en IA",
-      projet: "IA pour la santé préventive",
-      nomCoordonnateur: "Benali",
-      prenomCoordonnateur: "Ahmed",
-      etablissement: "Université Hassan II",
-      budgetAlloue: 420000,
-      tranches: [
-        {
-          numero: 1,
-          montant: 168000,
-          dateVersement: "2024-02-15",
-          recu: true,
-          dateReception: "2024-02-20",
-          envoye: true,
-          dateOrdreVirement: "2024-02-18"
-        },
-        {
-          numero: 2,
-          montant: 126000,
-          dateVersement: "2024-08-15",
-          recu: false,
-          envoye: false
-        },
-        {
-          numero: 3,
-          montant: 126000,
-          dateVersement: "2025-02-15",
-          recu: false,
-          envoye: false
-        }
-      ]
-    },
-    {
-      id: "PROJ-002",
-      programme: "Programme National de Recherche en IA",
-      projet: "Cybersécurité avancée",
-      nomCoordonnateur: "El Mansouri",
-      prenomCoordonnateur: "Fatima",
-      etablissement: "Université Mohammed V",
-      budgetAlloue: 300000,
-      tranches: [
-        {
-          numero: 1,
-          montant: 120000,
-          dateVersement: "2024-02-15",
-          recu: true,
-          dateReception: "2024-02-22",
-          envoye: true,
-          dateOrdreVirement: "2024-02-19"
-        },
-        {
-          numero: 2,
-          montant: 90000,
-          dateVersement: "2024-08-15",
-          recu: false,
-          envoye: false
-        },
-        {
-          numero: 3,
-          montant: 90000,
-          dateVersement: "2025-02-15",
-          recu: false,
-          envoye: false
-        }
-      ]
-    },
-    {
-      id: "PROJ-003",
-      programme: "Programme Énergies Renouvelables",
-      projet: "Optimisation des panneaux solaires",
-      nomCoordonnateur: "Alami",
-      prenomCoordonnateur: "Karim",
-      etablissement: "Université Ibn Zohr",
-      budgetAlloue: 650000,
-      tranches: [
-        {
-          numero: 1,
-          montant: 162500,
-          dateVersement: "2024-03-20",
-          recu: true,
-          dateReception: "2024-03-25",
-          envoye: true,
-          dateOrdreVirement: "2024-03-22"
-        },
-        {
-          numero: 2,
-          montant: 162500,
-          dateVersement: "2024-09-20",
-          recu: false,
-          envoye: false
-        },
-        {
-          numero: 3,
-          montant: 162500,
-          dateVersement: "2025-03-20",
-          recu: false,
-          envoye: false
-        },
-        {
-          numero: 4,
-          montant: 162500,
-          dateVersement: "2025-09-20",
-          recu: false,
-          envoye: false
-        }
-      ]
-    }
-  ])
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const projetId = searchParams.get('projetId')
 
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterProgramme, setFilterProgramme] = useState("all")
-  const [sortField, setSortField] = useState<string>("")
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
-  const [selectedTranche, setSelectedTranche] = useState<{projetId: string, trancheNum: number} | null>(null)
-  const [showVirementModal, setShowVirementModal] = useState(false)
-  const [ordreVirementDate, setOrdreVirementDate] = useState("")
+  const [projet, setProjet] = useState<ProjetContrat | null>(null)
+  const [showAddVersementModal, setShowAddVersementModal] = useState(false)
+  const [newVersement, setNewVersement] = useState({
+    montant: "",
+    date: "",
+    description: ""
+  })
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-  const formatCurrency = (amount: number) => {
+  // Données simulées du projet
+  const projetData: ProjetContrat = {
+    id: "1",
+    typeProjetContrat: "Projet de recherche financé",
+    typeProjet: "National",
+    coordonnateur: "Dr. Ahmed BENALI",
+    intitule: "Développement de technologies vertes pour la transition énergétique",
+    thematique: "Énergie renouvelable",
+    organismeContractant: "Ministère de l'Énergie",
+    codeReference: "PR-2024-001",
+    anneeDebut: 2024,
+    anneeFin: 2026,
+    organismesPartenaires: "Université Hassan II, CNRS",
+    budgetTotal: 1500000,
+      tranches: [
+        {
+        id: "1", 
+        montant: 500000, 
+        description: "Première tranche",
+          recu: true,
+        dateReception: "2024-01-15",
+          envoye: true,
+        dateEnvoi: "2024-01-10"
+      },
+      { 
+        id: "2", 
+        montant: 1000000, 
+        description: "Deuxième tranche",
+          recu: false,
+          envoye: false
+        }
+    ],
+    nombreDoctorants: 3,
+    bourse: 120000,
+    mobilite: 50000,
+    statutRetenu: "Retenu",
+    convention: "convention-projet-1.pdf",
+    versements: [
+      { id: "1", montant: 500000, date: "2024-01-15", description: "Premier versement" },
+      { id: "2", montant: 300000, date: "2024-06-20", description: "Deuxième versement" }
+    ]
+  }
+
+  useEffect(() => {
+    // Simuler le chargement du projet basé sur l'ID
+    setProjet(projetData)
+  }, [projetId])
+
+  const formatBudget = (amount: number) => {
     return new Intl.NumberFormat("fr-MA", {
       style: "currency",
       currency: "MAD",
@@ -180,307 +122,214 @@ export default function VersementsPage() {
     }).format(amount)
   }
 
-  const getUniqueProgrammes = () => {
-    return [...new Set(projets.map((p) => p.programme))].sort()
-  }
-
-  const handleTrancheRecuToggle = (projetId: string, trancheNum: number) => {
-    setProjets(projets.map(projet => {
-      if (projet.id === projetId) {
-        return {
-          ...projet,
-          tranches: projet.tranches.map(tranche => {
-            if (tranche.numero === trancheNum) {
-              return {
-                ...tranche,
-                recu: !tranche.recu,
-                dateReception: !tranche.recu ? new Date().toISOString().split('T')[0] : undefined
-              }
-            }
-            return tranche
-          })
-        }
+  const handleAddVersement = () => {
+    if (newVersement.montant && newVersement.date && newVersement.description) {
+      const versement = {
+        id: Date.now().toString(),
+        montant: parseFloat(newVersement.montant),
+        date: newVersement.date,
+        description: newVersement.description
       }
-      return projet
-    }))
-  }
-
-  const handleEnvoyerVirement = (projetId: string, trancheNum: number) => {
-    setSelectedTranche({ projetId, trancheNum })
-    setShowVirementModal(true)
-  }
-
-  const confirmerEnvoiVirement = () => {
-    if (selectedTranche && ordreVirementDate) {
-      setProjets(projets.map(projet => {
-        if (projet.id === selectedTranche.projetId) {
-          return {
-            ...projet,
-            tranches: projet.tranches.map(tranche => {
-              if (tranche.numero === selectedTranche.trancheNum) {
-                return {
-                  ...tranche,
-                  envoye: true,
-                  dateOrdreVirement: ordreVirementDate
-                }
-              }
-              return tranche
-            })
-          }
-        }
-        return projet
-      }))
-      setShowVirementModal(false)
-      setSelectedTranche(null)
-      setOrdreVirementDate("")
+      
+      setProjet(prev => prev ? {
+        ...prev,
+        versements: [...(prev.versements || []), versement]
+      } : null)
+      
+      setNewVersement({ montant: "", date: "", description: "" })
+      setShowAddVersementModal(false)
     }
   }
 
-  const getStats = () => {
-    const totalProjets = projets.length
-    const totalBudget = projets.reduce((sum, p) => sum + p.budgetAlloue, 0)
-    const totalTranches = projets.reduce((sum, p) => sum + p.tranches.length, 0)
-    const tranchesRecues = projets.reduce((sum, p) => 
-      sum + p.tranches.filter(t => t.recu).length, 0
-    )
-    const tranchesEnvoyees = projets.reduce((sum, p) => 
-      sum + p.tranches.filter(t => t.envoye).length, 0
-    )
-
-    return { totalProjets, totalBudget, totalTranches, tranchesRecues, tranchesEnvoyees }
+  const handleRemoveVersement = (versementId: string) => {
+    setProjet(prev => prev ? {
+      ...prev,
+      versements: (prev.versements || []).filter(v => v.id !== versementId)
+    } : null)
   }
 
-  const stats = getStats()
+  const handleSortByTranches = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')
+  }
 
-  const filteredProjets = projets.filter(projet => {
-    const matchesSearch = 
-      projet.projet.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      projet.nomCoordonnateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      projet.prenomCoordonnateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      projet.etablissement.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      projet.programme.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesProgramme = filterProgramme === "all" || projet.programme === filterProgramme
-
-    return matchesSearch && matchesProgramme
-  })
+  if (!projet) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
+            <div className="text-center py-8">
+              <p className="text-gray-500">Chargement...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
           <div className="mx-auto max-w-7xl">
-            {/* En-tête */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">Gestion des Versements</h1>
-                  <p className="text-sm text-gray-600 mt-1">Service Budget & Division Recherche</p>
-                </div>
-              </div>
+            {/* Header avec bouton retour */}
+            <div className="mb-6">
+              <Button
+                variant="ghost"
+                onClick={() => router.back()}
+                className="mb-4 text-gray-600 hover:text-gray-900"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour aux projets
+              </Button>
+              <h1 className="text-2xl font-bold text-gray-900">Gestion des versements</h1>
+              <p className="text-gray-600 mt-1">Projet : {projet.intitule}</p>
             </div>
 
-            {/* Statistiques */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
-              <Card className="h-20">
-                <CardContent className="p-3 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Total Projets</p>
-                      <p className="text-lg font-bold">{stats.totalProjets}</p>
-                    </div>
-                    <Users className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="h-20">
-                <CardContent className="p-3 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-gray-600 mb-1">Budget Total</p>
-                      <p className="text-lg font-bold truncate">{formatCurrency(stats.totalBudget)}</p>
-                    </div>
-                    <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0 ml-2" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="h-20">
-                <CardContent className="p-3 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Total Tranches</p>
-                      <p className="text-lg font-bold">{stats.totalTranches}</p>
-                    </div>
-                    <BarChart3 className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="h-20">
-                <CardContent className="p-3 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Tranches Reçues</p>
-                      <p className="text-lg font-bold text-green-600">{stats.tranchesRecues}</p>
-                    </div>
-                    <Receipt className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="h-20">
-                <CardContent className="p-3 h-full flex items-center">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Tranches Envoyées</p>
-                      <p className="text-lg font-bold text-blue-600">{stats.tranchesEnvoyees}</p>
-                    </div>
-                    <Send className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Filtres */}
-            <Card className="mb-4">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center text-sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filtres et Recherche
-                </CardTitle>
+            {/* Informations du projet */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Informations du projet</CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex flex-col md:flex-row md:items-end md:space-x-4 gap-3 md:gap-0">
-                  <div className="flex-1">
-                    <Label className="text-xs">Recherche</Label>
-                    <div className="relative mt-1">
-                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
-                      <Input
-                        placeholder="Rechercher par projet, coordonnateur, établissement..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-8 text-sm h-8"
-                      />
-                    </div>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                    <Label className="text-sm font-medium text-gray-600">Code référence</Label>
+                    <p className="text-gray-900">{projet.codeReference}</p>
                   </div>
-                  <div className="flex-1">
-                    <Label className="text-xs">Programme</Label>
-                    <Select
-                      value={filterProgramme}
-                      onValueChange={(value) => setFilterProgramme(value)}
-                    >
-                      <SelectTrigger className="h-8 text-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tous les programmes</SelectItem>
-                        {getUniqueProgrammes().map((programme) => (
-                          <SelectItem key={programme} value={programme}>
-                            {programme}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Coordonnateur</Label>
+                    <p className="text-gray-900">{projet.coordonnateur}</p>
+                  </div>
+                    <div>
+                    <Label className="text-sm font-medium text-gray-600">Budget total</Label>
+                    <p className="text-gray-900 font-semibold">{formatBudget(projet.budgetTotal)}</p>
+                  </div>
+                    <div>
+                    <Label className="text-sm font-medium text-gray-600">Organisme contractant</Label>
+                    <p className="text-gray-900">{projet.organismeContractant}</p>
+                  </div>
+                    <div>
+                    <Label className="text-sm font-medium text-gray-600">Période</Label>
+                    <p className="text-gray-900">{projet.anneeDebut} - {projet.anneeFin}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Statut</Label>
+                    <Badge className={
+                      projet.statutRetenu === "Retenu" 
+                        ? "bg-green-100 text-green-800 whitespace-nowrap" 
+                        : projet.statutRetenu === "Non retenu"
+                        ? "bg-red-100 text-red-800 whitespace-nowrap"
+                        : "bg-yellow-100 text-yellow-800 whitespace-nowrap"
+                    }>
+                      {projet.statutRetenu}
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Tableau des projets */}
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-blue-50 border-b">
-                <CardTitle className="text-base flex items-center">
-                  <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-                  Liste des Projets - Gestion des Versements
-                </CardTitle>
+            {/* Gestion des versements */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg">Gestion des versements</CardTitle>
+                <Button
+                  onClick={() => setShowAddVersementModal(true)}
+                  className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter un versement
+                </Button>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent>
+                {projet.versements && projet.versements.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Date</th>
+                          <th className="text-left py-2 px-3 font-medium text-gray-700">Description</th>
+                          <th className="text-right py-2 px-3 font-medium text-gray-700">Montant</th>
+                          <th className="text-center py-2 px-3 font-medium text-gray-700">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {projet.versements
+                          .sort((a, b) => sortOrder === 'asc' 
+                            ? new Date(a.date).getTime() - new Date(b.date).getTime()
+                            : new Date(b.date).getTime() - new Date(a.date).getTime()
+                          )
+                          .map((versement) => (
+                          <tr key={versement.id} className="border-b border-gray-100">
+                            <td className="py-2 px-3 text-gray-900">
+                              {new Date(versement.date).toLocaleDateString('fr-FR')}
+                            </td>
+                            <td className="py-2 px-3 text-gray-900">{versement.description}</td>
+                            <td className="py-2 px-3 text-right font-medium text-gray-900">
+                              {formatBudget(versement.montant)}
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                onClick={() => handleRemoveVersement(versement.id)}
+                                className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Supprimer le versement"
+                                >
+                                <Trash2 className="h-3 w-3" />
+                                </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <DollarSign className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <p className="text-gray-500">Aucun versement enregistré</p>
+                    <p className="text-sm text-gray-400">Ajoutez votre premier versement</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Gestion des tranches */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Gestion des tranches</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
+                  <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Programme</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Projet</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Nom Coordonnateur</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Prénom</th>
-                        <th className="text-left py-2 px-3 font-medium text-gray-700">Établissement</th>
-                        <th className="text-right py-2 px-3 font-medium text-gray-700">Budget Alloué</th>
-                        <th className="text-center py-2 px-3 font-medium text-gray-700">Tranche 1</th>
-                        <th className="text-center py-2 px-3 font-medium text-gray-700">Tranche 2</th>
-                        <th className="text-center py-2 px-3 font-medium text-gray-700">Tranche 3</th>
-                        <th className="text-center py-2 px-3 font-medium text-gray-700">Tranche 4</th>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-2 px-3 font-medium text-gray-700">Description</th>
+                        <th className="text-right py-2 px-3 font-medium text-gray-700">Montant</th>
+                        <th className="text-center py-2 px-3 font-medium text-gray-700">Envoyé</th>
+                        <th className="text-center py-2 px-3 font-medium text-gray-700">Reçu</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredProjets.map((projet, index) => (
-                        <tr key={projet.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
-                          <td className="py-2 px-3">
-                            <span className="font-medium text-gray-900">{projet.programme}</span>
+                      {projet.tranches.map((tranche) => (
+                        <tr key={tranche.id} className="border-b border-gray-100">
+                          <td className="py-2 px-3 text-gray-900">{tranche.description}</td>
+                          <td className="py-2 px-3 text-right font-medium text-gray-900">
+                            {formatBudget(tranche.montant)}
                           </td>
-                          <td className="py-2 px-3">
-                            <span className="text-gray-900">{projet.projet}</span>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className={tranche.envoye ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                              {tranche.envoye ? "Oui" : "Non"}
+                            </Badge>
                           </td>
-                          <td className="py-2 px-3">
-                            <span className="text-gray-900">{projet.nomCoordonnateur}</span>
+                          <td className="py-2 px-3 text-center">
+                            <Badge className={tranche.recu ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                              {tranche.recu ? "Oui" : "Non"}
+                            </Badge>
                           </td>
-                          <td className="py-2 px-3">
-                            <span className="text-gray-900">{projet.prenomCoordonnateur}</span>
-                          </td>
-                          <td className="py-2 px-3">
-                            <span className="text-gray-700">{projet.etablissement}</span>
-                          </td>
-                          <td className="py-2 px-3 text-right">
-                            <span className="font-medium text-gray-900">{formatCurrency(projet.budgetAlloue)}</span>
-                          </td>
-                          {[1, 2, 3, 4].map((trancheNum) => {
-                            const tranche = projet.tranches.find(t => t.numero === trancheNum)
-                            return (
-                              <td key={trancheNum} className="py-2 px-3 text-center">
-                                {tranche ? (
-                                  <div className="space-y-1">
-                                    <div className="text-xs font-medium text-gray-900">
-                                      {formatCurrency(tranche.montant)}
-                                    </div>
-                                    <div className="flex items-center justify-center space-x-1">
-                                      <Checkbox
-                                        checked={tranche.recu}
-                                        onCheckedChange={() => handleTrancheRecuToggle(projet.id, tranche.numero)}
-                                        className="h-3 w-3 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                                      />
-                                      <span className="text-xs text-gray-500">Reçu</span>
-                                    </div>
-                                    {tranche.recu && (
-                                      <div className="text-xs text-green-600">
-                                        {tranche.dateReception}
-                                      </div>
-                                    )}
-                                    {!tranche.envoye && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleEnvoyerVirement(projet.id, tranche.numero)}
-                                        className="h-6 px-2 text-xs hover:bg-blue-100 hover:text-blue-700"
-                                      >
-                                        <Send className="h-3 w-3 mr-1" />
-                                        Envoyer
-                                      </Button>
-                                    )}
-                                    {tranche.envoye && (
-                                      <div className="text-xs text-blue-600">
-                                        Envoyé: {tranche.dateOrdreVirement}
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span className="text-gray-400">-</span>
-                                )}
-                              </td>
-                            )
-                          })}
                         </tr>
                       ))}
                     </tbody>
@@ -488,160 +337,59 @@ export default function VersementsPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Modal pour ordre de virement */}
-          {showVirementModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
-                <div className="p-4 border-b">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold">Ordre de Virement</h2>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowVirementModal(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="p-4 space-y-4">
-                  <div>
-                    <Label htmlFor="ordre-date" className="text-sm font-medium text-gray-700">
-                      Date de l'ordre de virement
-                    </Label>
-                    <Input
-                      id="ordre-date"
-                      type="date"
-                      value={ordreVirementDate}
-                      onChange={(e) => setOrdreVirementDate(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div className="flex justify-end space-x-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowVirementModal(false)}
-                    >
-                      Annuler
-                    </Button>
-                    <Button 
-                      onClick={confirmerEnvoiVirement}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      Confirmer l'envoi
-                    </Button>
-                  </div>
-                </div>
-              </div>
             </div>
-          )}
-
-          {/* Modal pour détails des tranches */}
-          {selectedTranche && selectedTranche.projetId && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
-                <div className="p-4 border-b">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-bold">Détails des Tranches</h2>
-                      <p className="text-sm text-gray-600">
-                        {projets.find(p => p.id === selectedTranche.projetId)?.projet}
-                      </p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setSelectedTranche(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="p-4">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50">
-                          <th className="text-left py-2 px-3 font-medium text-gray-700">Tranche</th>
-                          <th className="text-right py-2 px-3 font-medium text-gray-700">Montant</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Date Versement</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Reçu</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Date Réception</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Envoyé</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Date Envoi</th>
-                          <th className="text-center py-2 px-3 font-medium text-gray-700">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {projets.find(p => p.id === selectedTranche.projetId)?.tranches.map((tranche) => (
-                          <tr key={tranche.numero} className="border-b border-gray-100">
-                            <td className="py-2 px-3">
-                              <span className="font-medium text-gray-900">Tranche {tranche.numero}</span>
-                            </td>
-                            <td className="py-2 px-3 text-right">
-                              <span className="font-medium text-gray-900">{formatCurrency(tranche.montant)}</span>
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              <span className="text-gray-700">{new Date(tranche.dateVersement).toLocaleDateString('fr-FR')}</span>
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              <Checkbox
-                                checked={tranche.recu}
-                                onCheckedChange={() => handleTrancheRecuToggle(selectedTranche.projetId, tranche.numero)}
-                                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                              />
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {tranche.dateReception ? (
-                                <span className="text-green-600">{new Date(tranche.dateReception).toLocaleDateString('fr-FR')}</span>
-                              ) : (
-                                <span className="text-gray-400">-</span>
-                              )}
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {tranche.envoye ? (
-                                <Badge className="bg-blue-100 text-blue-800">Oui</Badge>
-                              ) : (
-                                <Badge className="bg-gray-100 text-gray-800">Non</Badge>
-                              )}
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {tranche.dateOrdreVirement ? (
-                                <span className="text-blue-600">{new Date(tranche.dateOrdreVirement).toLocaleDateString('fr-FR')}</span>
-                              ) : (
-                                <span className="text-gray-400">-</span>
-                              )}
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              {!tranche.envoye && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleEnvoyerVirement(selectedTranche.projetId, tranche.numero)}
-                                  className="h-6 px-2 text-xs hover:bg-blue-100 hover:text-blue-700"
-                                >
-                                  <Send className="h-3 w-3 mr-1" />
-                                  Envoyer
-                                </Button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </main>
       </div>
+
+      {/* Modal pour ajouter un versement */}
+      <Dialog open={showAddVersementModal} onOpenChange={setShowAddVersementModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter un versement</DialogTitle>
+            <DialogDescription>
+              Ajoutez un nouveau versement pour ce projet
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="montant">Montant (MAD)</Label>
+              <Input
+                id="montant"
+                type="number"
+                placeholder="0"
+                value={newVersement.montant}
+                onChange={(e) => setNewVersement(prev => ({ ...prev, montant: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="date">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={newVersement.date}
+                onChange={(e) => setNewVersement(prev => ({ ...prev, date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Description du versement"
+                value={newVersement.description}
+                onChange={(e) => setNewVersement(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-6">
+            <Button variant="outline" onClick={() => setShowAddVersementModal(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleAddVersement} className="bg-uh2c-blue hover:bg-uh2c-blue/90 text-white">
+              Ajouter
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
