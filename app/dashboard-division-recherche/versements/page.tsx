@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,7 +52,7 @@ interface ProjetContrat {
   versements?: Array<{ id: string, montant: number, date: string, description: string }>
 }
 
-export default function VersementsPage() {
+function VersementsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const projetId = searchParams.get('projetId')
@@ -391,5 +391,25 @@ export default function VersementsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function VersementsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
+            <div className="text-center py-8">
+              <p className="text-gray-500">Chargement...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    }>
+      <VersementsContent />
+    </Suspense>
   )
 } 

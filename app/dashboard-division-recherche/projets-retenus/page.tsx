@@ -635,10 +635,10 @@ export default function ProjetsRetenus() {
                                   <Users className="h-3 w-3" />
                                 </Button>
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => handleVersements(projet)}
-                                  className="h-6 w-6 p-0 text-gray-600 hover:bg-uh2c-blue/10 hover:text-uh2c-blue border border-gray-200 hover:border-uh2c-blue/30"
+                                  className="h-6 w-6 p-0 text-uh2c-blue border-uh2c-blue hover:bg-uh2c-blue hover:text-white"
                                   title="Versements"
                                 >
                                   <DollarSign className="h-3 w-3" />
