@@ -31,13 +31,18 @@ import {
   FileCheck,
   Calculator,
   List,
+  CheckCircle,
+  Send,
+  XCircle,
+  ChevronDown,
 } from "lucide-react"
 
 interface NavigationItem {
   title: string
-  href: string
+  href?: string
   icon: React.ComponentType<{ className?: string }>
   badge?: string
+  children?: NavigationItem[]
 }
 
 const memberNavigation: NavigationItem[] = [
@@ -63,7 +68,7 @@ const memberNavigation: NavigationItem[] = [
   },
   {
     title: "Liste des programmes",
-    href: "/dashboard-member/liste-programmes",
+    href: "/dashboard-member/appels-projets",
     icon: List,
   },
   {
@@ -180,14 +185,30 @@ const memberDashboardNavigation: NavigationItem[] = [
     icon: Award,
   },
   {
-    title: "Liste des programmes",
-    href: "/dashboard-member/liste-programmes",
+    title: "Appels à projets",
+    href: "/dashboard-member/appels-projets",
     icon: List,
   },
   {
-    title: "Mes projets retenus",
-    href: "/projets-contrats",
+    title: "Mes projets",
     icon: FileText,
+    children: [
+      {
+        title: "Projets retenus",
+        href: "/dashboard-member/mes-projets/projets-retenus",
+        icon: CheckCircle,
+      },
+      {
+        title: "Projets soumis",
+        href: "/dashboard-member/mes-projets/projets-soumis",
+        icon: Send,
+      },
+      {
+        title: "Projets non retenus",
+        href: "/dashboard-member/mes-projets/projets-non-retenus",
+        icon: XCircle,
+      },
+    ],
   },
   {
     title: "Manifestations Scientifiques",
@@ -203,6 +224,7 @@ const memberDashboardNavigation: NavigationItem[] = [
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([])
   const pathname = usePathname()
 
   // Determine which navigation to show based on current path
@@ -226,6 +248,19 @@ export function Sidebar() {
   }
 
   const navigation = getNavigation()
+
+  const toggleMenu = (title: string) => {
+    setExpandedMenus(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title)
+        : [...prev, title]
+    )
+  }
+
+  const isMenuExpanded = (title: string) => expandedMenus.includes(title)
+  const isChildActive = (children: NavigationItem[]) => {
+    return children.some(child => child.href && pathname === child.href)
+  }
 
   return (
     <div
@@ -253,9 +288,60 @@ export function Sidebar() {
         isCollapsed ? "py-3 flex flex-col items-center space-y-1" : "p-3 space-y-1"
       )}>
         {navigation.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = item.href ? pathname === item.href : false
+          const hasChildren = item.children && item.children.length > 0
+          const isExpanded = isMenuExpanded(item.title)
+          const isChildActiveState = hasChildren ? isChildActive(item.children!) : false
+
+          if (hasChildren) {
+            return (
+              <div key={item.title}>
+                <button
+                  onClick={() => toggleMenu(item.title)}
+                  className={cn(
+                    "flex items-center space-x-2 px-2 py-1.5 rounded-md text-xs font-medium transition-colors w-full",
+                    (isActive || isChildActiveState) ? "bg-uh2c-blue text-white" : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                    isCollapsed && "justify-center px-0 py-1.5"
+                  )}
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {!isCollapsed && (
+                    <>
+                      <span className="flex-1 text-left">{item.title}</span>
+                      <ChevronDown className={cn(
+                        "h-3 w-3 transition-transform",
+                        isExpanded ? "rotate-180" : ""
+                      )} />
+                    </>
+                  )}
+                </button>
+                
+                {!isCollapsed && isExpanded && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {item.children!.map((child) => {
+                      const isChildActive = pathname === child.href
+                      return (
+                        <Link key={child.href} href={child.href!}>
+                          <div
+                            className={cn(
+                              "flex items-center space-x-2 px-2 py-1.5 rounded-md text-xs font-medium transition-colors",
+                              isChildActive ? "bg-uh2c-blue/20 text-uh2c-blue" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            )}
+                          >
+                            <child.icon className="h-3 w-3 flex-shrink-0" />
+                            <span className="flex-1">{child.title}</span>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          }
+
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href!}>
               <div
                 className={cn(
                   "flex items-center space-x-2 px-2 py-1.5 rounded-md text-xs font-medium transition-colors",

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Sidebar } from "@/components/sidebar"
+import { DivisionRechercheSidebar } from "@/components/division-recherche-sidebar"
 import { Header } from "@/components/header"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Search, Filter, Eye, CheckCircle, XCircle, Clock, FileText, User, Calendar } from "lucide-react"
@@ -163,7 +163,7 @@ export default function ValidationProjets() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <DivisionRechercheSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">

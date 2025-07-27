@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { DivisionRechercheSidebar } from "@/components/division-recherche-sidebar"
 import { Header } from "@/components/header"
 import { Checkbox } from "@/components/ui/checkbox"
+
 import { Search, Filter, Eye, CheckCircle, XCircle, AlertTriangle, FileText, Users, Calendar, DollarSign } from "lucide-react"
 import Image from "next/image"
 

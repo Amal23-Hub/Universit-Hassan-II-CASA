@@ -19,13 +19,17 @@ import {
   FileCheck,
   BookOpen,
   Send,
+  ChevronDown,
+  ChevronUp,
+  FolderOpen,
 } from "lucide-react"
 
 interface NavigationItem {
   title: string
-  href: string
+  href?: string
   icon: React.ComponentType<{ className?: string }>
   badge?: string
+  children?: NavigationItem[]
 }
 
 const divisionRechercheNavigation: NavigationItem[] = [
@@ -35,42 +39,59 @@ const divisionRechercheNavigation: NavigationItem[] = [
     icon: BarChart3,
   },
   {
-    title: "Gestion des Programmes",
+    title: "Appels à projets",
     href: "/dashboard-division-recherche/programmes",
     icon: BookOpen,
   },
   {
-    title: "Projets soumis",
-    href: "/dashboard-division-recherche/projets-soumis",
-    icon: Send,
-  },
-  {
-    title: "projet de recherche",
-    href: "/dashboard-division-recherche/projets-retenus",
-    icon: CheckSquare,
+    title: "Projet de recherche",
+    icon: FolderOpen,
+    children: [
+      {
+        title: "Projets soumis",
+        href: "/dashboard-division-recherche/projets-soumis",
+        icon: Send,
+      },
+      {
+        title: "Projets retenus",
+        href: "/dashboard-division-recherche/projets-retenus",
+        icon: CheckSquare,
+      },
+    ],
   },
   // {
   //   title: "Conventions",
   //   href: "/dashboard-division-recherche/conventions",
   //   icon: FileText,
   // },
-  // {
-  //   title: "Gestion des Versements",
-  //   href: "/dashboard-division-recherche/versements",
-  //   icon: DollarSign,
-  // },
-  // {
-  //   title: "État d'avancement",
-  //   href: "/dashboard-division-recherche/avancement",
-  //   icon: FileCheck,
-  // },
+  {
+    title: "Gestion des Versements",
+    href: "/dashboard-division-recherche/versements",
+    icon: DollarSign,
+  },
+  {
+    title: "État d'avancement",
+    href: "/dashboard-division-recherche/avancement",
+    icon: FileCheck,
+  },
 ]
 
 
 
 export function DivisionRechercheSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
   const pathname = usePathname()
+
+  const toggleExpanded = (title: string) => {
+    const newExpanded = new Set(expandedItems)
+    if (newExpanded.has(title)) {
+      newExpanded.delete(title)
+    } else {
+      newExpanded.add(title)
+    }
+    setExpandedItems(newExpanded)
+  }
 
   return (
     <div
@@ -98,29 +119,83 @@ export function DivisionRechercheSidebar() {
         isCollapsed ? "py-3 flex flex-col items-center space-y-1" : "p-3 space-y-1"
       )}>
         {divisionRechercheNavigation.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = item.href ? pathname === item.href : false
+          const hasChildren = item.children && item.children.length > 0
+          const isExpanded = expandedItems.has(item.title)
+
           return (
-            <Link key={item.href} href={item.href}>
-              <div
-                className={cn(
-                  "flex items-center space-x-2 px-2 py-1.5 rounded-md text-xs font-medium transition-colors",
-                  isActive ? "bg-uh2c-blue text-white" : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                  isCollapsed && "justify-center px-0 py-1.5"
-                )}
-              >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                {!isCollapsed && (
-                  <>
-                    <span className="flex-1">{item.title}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {item.badge}
-                      </Badge>
+            <div key={item.title}>
+              {hasChildren ? (
+                // Item avec sous-menus
+                <div>
+                  <div
+                    onClick={() => toggleExpanded(item.title)}
+                    className={cn(
+                      "flex items-center space-x-2 px-2 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer",
+                      "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                      isCollapsed && "justify-center px-0 py-1.5"
                     )}
-                  </>
-                )}
-              </div>
-            </Link>
+                  >
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    {!isCollapsed && (
+                      <>
+                        <span className="flex-1">{item.title}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Sous-menus */}
+                  {!isCollapsed && isExpanded && item.children && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {item.children.map((child) => {
+                        const isChildActive = pathname === child.href
+                        return (
+                          <Link key={child.href} href={child.href || "#"}>
+                            <div
+                              className={cn(
+                                "flex items-center space-x-2 px-2 py-1 rounded-md text-xs font-medium transition-colors",
+                                isChildActive ? "bg-uh2c-blue text-white" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                              )}
+                            >
+                              <child.icon className="h-3 w-3 flex-shrink-0" />
+                              <span className="flex-1">{child.title}</span>
+                            </div>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // Item simple
+                <Link href={item.href || "#"}>
+                  <div
+                    className={cn(
+                      "flex items-center space-x-2 px-2 py-1.5 rounded-md text-xs font-medium transition-colors",
+                      isActive ? "bg-uh2c-blue text-white" : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                      isCollapsed && "justify-center px-0 py-1.5"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    {!isCollapsed && (
+                      <>
+                        <span className="flex-1">{item.title}</span>
+                        {item.badge && (
+                          <Badge variant="secondary" className="ml-auto">
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </Link>
+              )}
+            </div>
           )
         })}
       </nav>
